@@ -222,4 +222,27 @@ window.addEventListener('mousemove', (ev) => {
 });
 window.addEventListener('mouseup', () => isDragging = false);
 
-document.getElementById('z_in').onclick = () => { view.scale = Math.min(MAX_SCALE, view.scale * 1
+document.getElementById('z_in').onclick = () => { view.scale = Math.min(MAX_SCALE, view.scale * 1.25); draw(curA, curB, curC); };
+document.getElementById('z_out').onclick = () => { view.scale = Math.max(MIN_SCALE, view.scale / 1.25); draw(curA, curB, curC); };
+document.getElementById('z_reset').onclick = () => { view = { scale: 40, cx: W/2, cy: H/2 }; draw(curA, curB, curC); };
+
+function getTouchDist(touches) { const dx = touches[0].clientX - touches[1].clientX; const dy = touches[0].clientY - touches[1].clientY; return Math.sqrt(dx*dx + dy*dy); }
+let touchDist = 0, lastTouch = null;
+cv.addEventListener('touchstart', (ev) => { ev.preventDefault(); if(ev.touches.length === 1) lastTouch = {x: ev.touches[0].clientX, y: ev.touches[0].clientY}; else if(ev.touches.length === 2) touchDist = getTouchDist(ev.touches); }, {passive: false});
+cv.addEventListener('touchmove', (ev) => {
+  ev.preventDefault(); const rect = cv.getBoundingClientRect(); const ratio = cv.width / rect.width;
+  if(ev.touches.length === 1 && lastTouch) {
+    const dx = ev.touches[0].clientX - lastTouch.x; const dy = ev.touches[0].clientY - lastTouch.y;
+    view.cx += dx * ratio; view.cy += dy * ratio; lastTouch = {x: ev.touches[0].clientX, y: ev.touches[0].clientY}; draw(curA, curB, curC);
+  } else if(ev.touches.length === 2) {
+    const newDist = getTouchDist(ev.touches);
+    if(touchDist > 0) { const factor = newDist / touchDist; view.scale = Math.max(MIN_SCALE, Math.min(MAX_SCALE, view.scale * factor)); draw(curA, curB, curC); }
+    touchDist = newDist;
+  }
+}, {passive: false});
+cv.addEventListener('touchend', () => { lastTouch = null; touchDist = 0; });
+
+triggerUpdate();
+</script>
+</body>
+</html>
