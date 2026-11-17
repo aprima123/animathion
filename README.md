@@ -48,8 +48,8 @@ Proyek ini dibangun murni menggunakan teknologi *web frontend* tanpa *framework*
 
 ---
 
-## 💻 Cara Menjalankan Secara Lokal
-Karena ini adalah proyek web statis, kamu tidak perlu menginstal *server* apa pun.
-1. *Clone* repositori ini:
-   ```bash
-   git clone https://github.com/aprima123/animathion.git
+## 🖼️ Tangkapan Layar
+- **Menu Utama**
+<div align="center">
+  <img src="preview.png" alt="Preview Animathion" width="80%" style="border-radius: 10px; border: 2px solid #111;">
+</div>
