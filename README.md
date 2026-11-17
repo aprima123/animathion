@@ -24,4 +24,35 @@ Banyak siswa kesulitan dalam matematika karena mereka hanya menghafal rumus tanp
 | Ikon | Pelajaran | Deskripsi | Status |
 | :---: | :--- | :--- | :---: |
 | ⊞ | **Matriks 2x2 & 3x3** | Eksplorasi transformasi ruang 2D dan 3D. Lihat bagaimana matriks memutar, meregangkan, dan mencerminkan bidang. | ✅ Live |
-| 📈 | **Fungsi Kuadrat
+| 📈 | **Fungsi Kuadrat** | Pahami rahasia parabola. Ubah nilai `a`, `b`, dan `c` dan lihat bagaimana bentuk kurva serta titik puncaknya bergerak. | ✅ Live |
+| 🎡 | **Trigonometri** | Misteri Sinus dan Cosinus di lingkaran satuan. | ⏳ Coming Soon |
+
+---
+
+## ✨ Fitur Interaktif
+- **Live Animasi**: Grafik bergerak mulus mengikuti perubahan angka.
+- **Touch & Mouse Support**: Bisa dimainkan di laptop (scroll & drag) maupun di HP (pinch-to-zoom & swipe).
+- **Desain Neo-Brutalism**: Tampilan unik bergaya buku catatan dengan warna stabilo yang tidak membosankan.
+- **Kalkulasi Instan**: Menampilkan Determinan, Trace, Titik Puncak, Akar Persamaan, dan info matematika lainnya secara langsung.
+
+---
+
+## 🛠️ Teknologi yang Digunakan
+Proyek ini dibangun murni menggunakan teknologi *web frontend* tanpa *framework* berat:
+- **HTML5 Canvas**: Untuk *rendering* grafik 2D, animasi kurva, dan proyeksi 3D.
+- **CSS3 Custom Properties**: Untuk manajemen warna dan tema Neo-Brutalism.
+- **Vanilla JavaScript**: Untuk semua logika matematika dan animasi *requestAnimationFrame*.
+- **Google Fonts**: Menggunakan font *Space Grotesk*.
+
+---
+
+## 🖼️ Tangkapan Layar
+- **Menu Utama**
+<div align="center">
+  <img src="preview.png" alt="Preview Animathion" width="80%" style="border-radius: 10px; border: 2px solid #111;">
+</div>
+
+---
+<div align="center">
+  <i>Dibuat dengan ❤️ oleh <a href="https://github.com/aprima123">@aprima123</a></i>
+</div>
