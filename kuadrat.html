@@ -17,16 +17,29 @@
     background-size: 30px 30px; color: var(--ink); font-family: 'Space Grotesk', sans-serif;
     display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; overflow: hidden; touch-action: none;
   }
+
+  /* Animasi Tombol Kembali */
+  @keyframes slideDownFade { 0% { opacity: 0; transform: translateY(-30px); } 100% { opacity: 1; transform: translateY(0); } }
   .back-btn {
     position: fixed; top: 20px; left: 20px; background: var(--hl-yellow); border: 3px solid var(--ink); color: var(--ink);
     padding: 8px 16px; border-radius: 8px; cursor: pointer; font-family: inherit; font-weight: 700; font-size: 0.9rem;
     text-decoration: none; display: flex; align-items: center; gap: 6px; transition: 0.1s; box-shadow: var(--shadow); z-index: 1000;
+    opacity: 0; animation: slideDownFade 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
   }
   .back-btn:hover { transform: translate(-2px, -2px); box-shadow: 6px 6px 0px var(--ink); }
   .back-btn:active { transform: translate(2px, 2px); box-shadow: 0 0 0 var(--ink); }
 
   .app-container { display: flex; flex-wrap: wrap; gap: 20px; justify-content: center; width: 100%; max-width: 1000px; }
-  .panel { background: #fff; border: 3px solid var(--ink); border-radius: 12px; padding: 20px; box-shadow: var(--shadow); }
+  
+  /* Animasi Panel Masuk */
+  @keyframes slideUpFade { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+  .panel { 
+    background: #fff; border: 3px solid var(--ink); border-radius: 12px; padding: 20px; box-shadow: var(--shadow); 
+    opacity: 0; animation: slideUpFade 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+  }
+  .panel:nth-child(1) { animation-delay: 0.1s; } /* Panel Kontrol */
+  .panel:nth-child(2) { animation-delay: 0.2s; } /* Panel Grafik */
+
   h2 { margin: 0 0 15px 0; font-size: 1.2rem; font-weight: 700; text-transform: uppercase; border-bottom: 3px solid var(--ink); padding-bottom: 10px; }
 
   .control-group { margin-bottom: 20px; }
@@ -71,7 +84,6 @@
         <span id="lbl-c" style="color:#b500ff">0</span>
       </div>
 
-      <!-- Batas Slider Diperbesar (-10 s/d 10) -->
       <div class="control-group">
         <div class="control-label">Nilai <b>a</b> (Kelengkungan) <span id="val-a">1</span></div>
         <input type="range" id="slider-a" min="-10" max="10" step="0.1" value="1">
@@ -104,16 +116,13 @@ const cv = document.getElementById('cv_kuadrat');
 const ctx = cv.getContext('2d');
 const W = cv.width, H = cv.height;
 
-// View State (Zoom & Pan)
 let view = { scale: 40, cx: W/2, cy: H/2 };
 const MIN_SCALE = 2, MAX_SCALE = 200;
 
-// State Animasi
 let curA = 1, curB = 0, curC = 0;
 let tgtA = 1, tgtB = 0, tgtC = 0;
 let animFrame = null;
 
-// DOM Elements
 const elA = document.getElementById('slider-a'); const elB = document.getElementById('slider-b'); const elC = document.getElementById('slider-c');
 const lblA = document.getElementById('val-a'); const lblB = document.getElementById('val-b'); const lblC = document.getElementById('val-c');
 const txtA = document.getElementById('lbl-a'); const txtB = document.getElementById('lbl-b'); const txtC = document.getElementById('lbl-c');
@@ -142,30 +151,24 @@ function triggerUpdate() {
 
 function draw(a, b, c) {
   ctx.clearRect(0, 0, W, H);
-
-  // Grid
   ctx.strokeStyle = '#e0e0e0'; ctx.lineWidth = 1;
   const startX = Math.floor(p2w(0,0)[0]); const endX = Math.ceil(p2w(W,0)[0]);
   const startY = Math.floor(p2w(0,H)[1]); const endY = Math.ceil(p2w(0,0)[1]);
   for(let i=startX; i<=endX; i++) { const [px] = w2p(i, 0); ctx.beginPath(); ctx.moveTo(px, 0); ctx.lineTo(px, H); ctx.stroke(); }
   for(let i=startY; i<=endY; i++) { const [,py] = w2p(0, i); ctx.beginPath(); ctx.moveTo(0, py); ctx.lineTo(W, py); ctx.stroke(); }
 
-  // Sumbu
   ctx.strokeStyle = '#111'; ctx.lineWidth = 2;
   ctx.beginPath(); ctx.moveTo(0, view.cy); ctx.lineTo(W, view.cy); ctx.stroke();
   ctx.beginPath(); ctx.moveTo(view.cx, 0); ctx.lineTo(view.cx, H); ctx.stroke();
 
-  // Hitung titik
   const vertexX = -b / (2*a);
   const vertexY = a*vertexX*vertexX + b*vertexX + c;
   const D = b*b - 4*a*c;
 
-  // Garis Simetri
   const [vx_px, vy_px] = w2p(vertexX, vertexY);
   ctx.strokeStyle = 'rgba(181, 0, 255, 0.5)'; ctx.lineWidth = 2; ctx.setLineDash([5, 5]);
   ctx.beginPath(); ctx.moveTo(vx_px, 0); ctx.lineTo(vx_px, H); ctx.stroke(); ctx.setLineDash([]);
 
-  // Kurva
   ctx.strokeStyle = '#ff2a55'; ctx.lineWidth = 3;
   ctx.beginPath(); let first = true;
   for(let px=0; px<=W; px+=2) {
@@ -174,13 +177,11 @@ function draw(a, b, c) {
   }
   ctx.stroke();
 
-  // Titik Puncak
   ctx.fillStyle = '#b500ff'; ctx.beginPath(); ctx.arc(vx_px, vy_px, 6, 0, Math.PI*2); ctx.fill();
   ctx.strokeStyle = '#111'; ctx.lineWidth = 2; ctx.stroke();
   ctx.fillStyle = '#111'; ctx.font = 'bold 12px monospace';
   ctx.fillText(`Puncak (${vertexX.toFixed(1)}, ${vertexY.toFixed(1)})`, vx_px + 10, vy_px - 10);
 
-  // Akar
   if(D >= 0 && Math.abs(a) > 0.01) {
     const x1 = (-b + Math.sqrt(D)) / (2*a); const x2 = (-b - Math.sqrt(D)) / (2*a);
     const drawRoot = (x, label) => {
@@ -192,7 +193,6 @@ function draw(a, b, c) {
     drawRoot(x1, 'x₁'); if(Math.abs(x1 - x2) > 0.1) drawRoot(x2, 'x₂');
   }
 
-  // Info
   let infoText = `Titik Puncak: <b>(${vertexX.toFixed(2)}, ${vertexY.toFixed(2)})</b><br>`;
   if(Math.abs(a) < 0.01) infoText += "Karena a = 0, ini <b>garis lurus</b>.";
   else if(D > 0) infoText += `Memotong sumbu X di <b>2 titik</b>.`;
@@ -201,20 +201,12 @@ function draw(a, b, c) {
   infoPanel.innerHTML = infoText;
 }
 
-// ==========================================
-// INTERAKSI ZOOM & PAN
-// ==========================================
-elA.addEventListener('input', triggerUpdate);
-elB.addEventListener('input', triggerUpdate);
-elC.addEventListener('input', triggerUpdate);
+elA.addEventListener('input', triggerUpdate); elB.addEventListener('input', triggerUpdate); elC.addEventListener('input', triggerUpdate);
 
 cv.addEventListener('wheel', (ev) => {
   ev.preventDefault();
-  const rect = cv.getBoundingClientRect();
-  const mx = (ev.clientX - rect.left) * (cv.width / rect.width); 
-  const my = (ev.clientY - rect.top) * (cv.height / rect.height);
-  const [wx, wy] = p2w(mx, my);
-  const factor = ev.deltaY < 0 ? 1.15 : 1/1.15;
+  const rect = cv.getBoundingClientRect(); const mx = (ev.clientX - rect.left) * (cv.width / rect.width); const my = (ev.clientY - rect.top) * (cv.height / rect.height);
+  const [wx, wy] = p2w(mx, my); const factor = ev.deltaY < 0 ? 1.15 : 1/1.15;
   view.scale = Math.max(MIN_SCALE, Math.min(MAX_SCALE, view.scale * factor));
   view.cx = mx - wx * view.scale; view.cy = my + wy * view.scale;
   draw(curA, curB, curC);
@@ -230,30 +222,4 @@ window.addEventListener('mousemove', (ev) => {
 });
 window.addEventListener('mouseup', () => isDragging = false);
 
-// Tombol Zoom
-document.getElementById('z_in').onclick = () => { view.scale = Math.min(MAX_SCALE, view.scale * 1.25); draw(curA, curB, curC); };
-document.getElementById('z_out').onclick = () => { view.scale = Math.max(MIN_SCALE, view.scale / 1.25); draw(curA, curB, curC); };
-document.getElementById('z_reset').onclick = () => { view = { scale: 40, cx: W/2, cy: H/2 }; draw(curA, curB, curC); };
-
-// Touch Support
-function getTouchDist(touches) { const dx = touches[0].clientX - touches[1].clientX; const dy = touches[0].clientY - touches[1].clientY; return Math.sqrt(dx*dx + dy*dy); }
-let touchDist = 0, lastTouch = null;
-cv.addEventListener('touchstart', (ev) => { ev.preventDefault(); if(ev.touches.length === 1) lastTouch = {x: ev.touches[0].clientX, y: ev.touches[0].clientY}; else if(ev.touches.length === 2) touchDist = getTouchDist(ev.touches); }, {passive: false});
-cv.addEventListener('touchmove', (ev) => {
-  ev.preventDefault(); const rect = cv.getBoundingClientRect(); const ratio = cv.width / rect.width;
-  if(ev.touches.length === 1 && lastTouch) {
-    const dx = ev.touches[0].clientX - lastTouch.x; const dy = ev.touches[0].clientY - lastTouch.y;
-    view.cx += dx * ratio; view.cy += dy * ratio; lastTouch = {x: ev.touches[0].clientX, y: ev.touches[0].clientY}; draw(curA, curB, curC);
-  } else if(ev.touches.length === 2) {
-    const newDist = getTouchDist(ev.touches);
-    if(touchDist > 0) { const factor = newDist / touchDist; view.scale = Math.max(MIN_SCALE, Math.min(MAX_SCALE, view.scale * factor)); draw(curA, curB, curC); }
-    touchDist = newDist;
-  }
-}, {passive: false});
-cv.addEventListener('touchend', () => { lastTouch = null; touchDist = 0; });
-
-// Inisialisasi
-triggerUpdate();
-</script>
-</body>
-</html>
+document.getElementById('z_in').onclick = () => { view.scale = Math.min(MAX_SCALE, view.scale * 1
