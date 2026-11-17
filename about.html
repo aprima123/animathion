@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Animathion - Tentang Pembuat</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&display=swap');
+  :root { --bg-page: #f4f1ea; --grid-color: #e3ded1; --ink: #111111; --hl-yellow: #ffe566; --hl-blue: #60c3ff; --shadow: 6px 6px 0px var(--ink); }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; min-height: 100vh; background-color: var(--bg-page);
+    background-image: linear-gradient(var(--grid-color) 1px, transparent 1px), linear-gradient(90deg, var(--grid-color) 1px, transparent 1px);
+    background-size: 30px 30px; color: var(--ink); font-family: 'Space Grotesk', sans-serif;
+    display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px;
+  }
+  .card { background: #fff; border: 4px solid var(--ink); border-radius: 16px; padding: 40px; box-shadow: var(--shadow); max-width: 500px; text-align: center; }
+  h1 { font-size: 2rem; margin-top: 0; }
+  p { line-height: 1.6; font-size: 1.1rem; }
+  .btn-back { display: inline-block; margin-top: 20px; background: var(--hl-blue); color: var(--ink); text-decoration: none; padding: 10px 20px; font-weight: bold; border: 3px solid var(--ink); border-radius: 8px; box-shadow: 3px 3px 0 var(--ink); transition: 0.1s; }
+  .btn-back:active { transform: translate(2px, 2px); box-shadow: 0 0 0 var(--ink); }
+</style>
+</head>
+<body>
+  <div class="card">
+    <h1>Halo! 👋</h1>
+    <p>Aku <b>@aprima123</b>, pembuat di balik platform <b>Animathion</b>.</p>
+    <p>Aku percaya bahwa matematika bukan sekadar hafalan rumus, melainkan keindahan logika yang bisa divisualisasikan. Web ini dibuat untuk membantu teman-teman memahami konsep abstrak lewat animasi yang interaktif.</p>
+    <a href="index.html" class="btn-back">Kembali ke Beranda</a>
+  </div>
+</body>
+</html>
