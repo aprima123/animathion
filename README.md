@@ -54,5 +54,5 @@ Proyek ini dibangun murni menggunakan teknologi *web frontend* tanpa *framework*
 
 ---
 <div align="center">
-  <i>Dibuat dengan ❤️ oleh <a href="https://github.com/aprima123">@aprima123</a></i>
+  <i>Dibuat oleh <a href="https://github.com/aprima123">@aprima123</a></i>
 </div>
