@@ -2,31 +2,107 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Animathion - Tentang Pembuat</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&display=swap');
-  :root { --bg-page: #f4f1ea; --grid-color: #e3ded1; --ink: #111111; --hl-yellow: #ffe566; --hl-blue: #60c3ff; --shadow: 6px 6px 0px var(--ink); }
+  
+  :root { 
+    --bg-page: #f4f1ea; 
+    --grid-color: #e3ded1; 
+    --ink: #111111; 
+    --hl-yellow: #ffe566; 
+    --hl-blue: #60c3ff; 
+    --hl-pink: #ff99cc;
+    --shadow: 6px 6px 0px var(--ink); 
+  }
+  
   * { box-sizing: border-box; }
+  
   body {
     margin: 0; min-height: 100vh; background-color: var(--bg-page);
     background-image: linear-gradient(var(--grid-color) 1px, transparent 1px), linear-gradient(90deg, var(--grid-color) 1px, transparent 1px);
     background-size: 30px 30px; color: var(--ink); font-family: 'Space Grotesk', sans-serif;
     display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px;
   }
-  .card { background: #fff; border: 4px solid var(--ink); border-radius: 16px; padding: 40px; box-shadow: var(--shadow); max-width: 500px; text-align: center; }
-  h1 { font-size: 2rem; margin-top: 0; }
-  p { line-height: 1.6; font-size: 1.1rem; }
-  .btn-back { display: inline-block; margin-top: 20px; background: var(--hl-blue); color: var(--ink); text-decoration: none; padding: 10px 20px; font-weight: bold; border: 3px solid var(--ink); border-radius: 8px; box-shadow: 3px 3px 0 var(--ink); transition: 0.1s; }
-  .btn-back:active { transform: translate(2px, 2px); box-shadow: 0 0 0 var(--ink); }
+
+  .card { 
+    background: #fff; border: 4px solid var(--ink); border-radius: 16px; 
+    padding: 30px; box-shadow: var(--shadow); max-width: 550px; width: 100%; 
+    text-align: center; position: relative;
+  }
+
+  /* Avatar / Inisial */
+  .avatar {
+    width: 100px; height: 100px; border-radius: 50%; background: var(--hl-yellow);
+    border: 4px solid var(--ink); display: flex; align-items: center; justify-content: center;
+    font-size: 2.5rem; font-weight: 700; margin: 0 auto 15px auto;
+    box-shadow: 4px 4px 0 var(--ink);
+  }
+
+  h1 { font-size: 1.8rem; margin: 0 0 5px 0; }
+  .username { font-size: 1.1rem; color: #555; font-weight: 700; margin-bottom: 20px; }
+  
+  .bio-box {
+    background: var(--bg-page); border: 2px dashed var(--ink); border-radius: 8px;
+    padding: 15px; text-align: left; font-size: 0.95rem; line-height: 1.6; margin-bottom: 25px;
+  }
+  .bio-box b { font-weight: 700; }
+
+  /* Link Sosial Media */
+  .social-links {
+    display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-bottom: 25px;
+  }
+  .social-btn {
+    display: flex; align-items: center; gap: 8px;
+    background: #fff; border: 3px solid var(--ink); border-radius: 8px;
+    padding: 8px 16px; font-weight: 700; text-decoration: none; color: var(--ink);
+    box-shadow: 3px 3px 0 var(--ink); transition: 0.1s; font-family: inherit; cursor: pointer;
+  }
+  .social-btn:hover { transform: translate(-2px, -2px); box-shadow: 5px 5px 0 var(--ink); }
+  .social-btn:active { transform: translate(2px, 2px); box-shadow: 0 0 0 var(--ink); }
+  
+  /* Warna tombol sosmed */
+  .btn-ig { background: var(--hl-pink); }
+  .btn-github { background: var(--hl-blue); }
+
+  .btn-back { 
+    display: inline-block; margin-top: 10px; background: var(--ink); color: #fff; 
+    text-decoration: none; padding: 12px 24px; font-weight: bold; border: 3px solid var(--ink); 
+    border-radius: 8px; transition: 0.2s; width: 100%;
+  }
+  .btn-back:hover { background: #333; }
 </style>
 </head>
 <body>
   <div class="card">
-    <h1>Halo! 👋</h1>
-    <p>Aku <b>@aprima123</b>, pembuat di balik platform <b>Animathion</b>.</p>
-    <p>Aku percaya bahwa matematika bukan sekadar hafalan rumus, melainkan keindahan logika yang bisa divisualisasikan. Web ini dibuat untuk membantu teman-teman memahami konsep abstrak lewat animasi yang interaktif.</p>
-    <a href="index.html" class="btn-back">Kembali ke Beranda</a>
+    <!-- Ganti "N" dengan inisial nama kamu -->
+    <div class="avatar">N</div>
+    
+    <!-- Ganti dengan nama lengkap/panggilanmu -->
+    <h1>Naufal (Nopal)</h1>
+    <div class="username">@nopaloski</div>
+    
+    <div class="bio-box">
+      <b>Tentang Aku:</b><br>
+      Seorang pelajar yang tertarik dengan dunia <i>coding</i> dan desain. Aku percaya bahwa matematika bukan sekadar hafalan rumus, melainkan keindahan logika yang bisa divisualisasikan.<br><br>
+      <b>Fokus Saat Ini:</b><br>
+      Membangun <b>Animathion</b> untuk membantu teman-teman memahami konsep abstrak lewat animasi interaktif.
+    </div>
+
+    <div class="social-links">
+      <!-- Ganti link Instagram di bawah ini -->
+      <a href="https://instagram.com/nopaloski" target="_blank" class="social-btn btn-ig">
+        📸 @nopaloski
+      </a>
+      
+      <!-- Ganti link GitHub di bawah ini -->
+      <a href="https://github.com/aprima123" target="_blank" class="social-btn btn-github">
+        💻 aprima123
+      </a>
+    </div>
+
+    <a href="index.html" class="btn-back">← Kembali ke Beranda</a>
   </div>
 </body>
 </html>
