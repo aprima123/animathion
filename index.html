@@ -8,145 +8,70 @@
   @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&display=swap');
 
   :root {
-    --bg-page: #f4f1ea;
-    --grid-color: #e3ded1;
-    --ink: #111111;
-    --hl-blue: #60c3ff;
-    --hl-green: #a3f160;
-    --hl-yellow: #ffe566;
-    --hl-purple: #c48aff;
-    --hl-pink: #ff99cc;
+    --bg-page: #f4f1ea; --grid-color: #e3ded1; --ink: #111111;
+    --hl-blue: #60c3ff; --hl-green: #a3f160; --hl-yellow: #ffe566; --hl-purple: #c48aff; --hl-pink: #ff99cc;
     --shadow: 6px 6px 0px var(--ink);
   }
-
   * { box-sizing: border-box; }
-
   body {
-    margin: 0;
-    min-height: 100vh;
-    background-color: var(--bg-page);
-    background-image: 
-      linear-gradient(var(--grid-color) 1px, transparent 1px),
-      linear-gradient(90deg, var(--grid-color) 1px, transparent 1px);
-    background-size: 30px 30px;
-    color: var(--ink);
-    font-family: 'Space Grotesk', 'Segoe UI', sans-serif;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 40px 20px;
-    overflow-x: hidden;
+    margin: 0; min-height: 100vh; background-color: var(--bg-page);
+    background-image: linear-gradient(var(--grid-color) 1px, transparent 1px), linear-gradient(90deg, var(--grid-color) 1px, transparent 1px);
+    background-size: 30px 30px; color: var(--ink); font-family: 'Space Grotesk', 'Segoe UI', sans-serif;
+    display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 40px 20px; overflow-x: hidden;
   }
 
-  /* Header */
-  .header {
-    text-align: center;
-    margin-bottom: 50px;
-    animation: fadeIn 0.6s ease-out;
-  }
-  h1 { 
-    font-size: 3.5rem; 
-    margin: 0 0 10px 0; 
-    color: var(--ink); 
-    text-transform: uppercase; 
-    letter-spacing: -2px;
-    text-shadow: 3px 3px 0px var(--hl-yellow);
-  }
-  p.subtitle { 
-    font-size: 1.2rem; 
-    color: #555; 
-    font-weight: 500;
-    max-width: 600px;
-    margin: 0 auto;
-  }
+  .header { text-align: center; margin-bottom: 50px; animation: fadeIn 0.6s ease-out; }
+  h1 { font-size: 3.5rem; margin: 0 0 10px 0; color: var(--ink); text-transform: uppercase; letter-spacing: -2px; text-shadow: 3px 3px 0px var(--hl-yellow); }
+  p.subtitle { font-size: 1.2rem; color: #555; font-weight: 500; max-width: 600px; margin: 0 auto; }
 
-  /* Grid Katalog */
-  .catalog {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 30px;
-    width: 100%;
-    max-width: 900px;
-    animation: fadeIn 0.8s ease-out;
-  }
-
-  /* Kartu Pelajaran */
+  .catalog { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 30px; width: 100%; max-width: 900px; animation: fadeIn 0.8s ease-out; }
   .card {
-    background: #ffffff;
-    border: 4px solid var(--ink);
-    border-radius: 16px;
-    padding: 30px;
-    box-shadow: var(--shadow);
-    text-decoration: none;
-    color: var(--ink);
-    transition: transform 0.1s, box-shadow 0.1s;
-    display: flex;
-    flex-direction: column;
-    position: relative;
-    overflow: hidden;
+    background: #ffffff; border: 4px solid var(--ink); border-radius: 16px; padding: 30px;
+    box-shadow: var(--shadow); text-decoration: none; color: var(--ink);
+    transition: transform 0.1s, box-shadow 0.1s; display: flex; flex-direction: column; position: relative; overflow: hidden;
   }
-  .card:hover {
-    transform: translate(-4px, -4px);
-    box-shadow: 10px 10px 0px var(--ink);
-  }
-  .card:active {
-    transform: translate(4px, 4px);
-    box-shadow: 0px 0px 0px var(--ink);
-  }
+  .card:hover { transform: translate(-4px, -4px); box-shadow: 10px 10px 0px var(--ink); }
+  .card:active { transform: translate(4px, 4px); box-shadow: 0px 0px 0px var(--ink); }
 
-  .card-icon {
-    font-size: 3rem;
-    margin-bottom: 15px;
-  }
-  .card-title {
-    font-size: 1.5rem;
-    font-weight: 700;
-    margin-bottom: 10px;
-    text-transform: uppercase;
-  }
-  .card-desc {
-    font-size: 0.95rem;
-    color: #555;
-    line-height: 1.5;
-    flex-grow: 1;
-  }
-  .card-badge {
-    position: absolute;
-    top: 20px;
-    right: -30px;
-    background: var(--ink);
-    color: #fff;
-    font-size: 0.75rem;
-    font-weight: 700;
-    padding: 5px 40px;
-    transform: rotate(45deg);
-  }
+  .card-icon { font-size: 3rem; margin-bottom: 15px; }
+  .card-title { font-size: 1.5rem; font-weight: 700; margin-bottom: 10px; text-transform: uppercase; }
+  .card-desc { font-size: 0.95rem; color: #555; line-height: 1.5; flex-grow: 1; }
+  .card-badge { position: absolute; top: 20px; right: -30px; background: var(--ink); color: #fff; font-size: 0.75rem; font-weight: 700; padding: 5px 40px; transform: rotate(45deg); }
 
-  /* Varian Warna Kartu */
   .card-matriks { background: var(--hl-blue); }
   .card-kuadrat { background: var(--hl-green); }
-  .card-coming { 
-    background: #e0e0e0; 
-    border-style: dashed; 
-    cursor: not-allowed; 
-    opacity: 0.7;
+  .card-coming { background: #e0e0e0; border-style: dashed; cursor: pointer; opacity: 0.7; transition: all 0.2s; }
+  
+  /* Animasi Getar */
+  @keyframes shake {
+    0% { transform: translate(1px, 1px) rotate(0deg); }
+    10% { transform: translate(-1px, -2px) rotate(-1deg); }
+    20% { transform: translate(-3px, 0px) rotate(1deg); }
+    30% { transform: translate(3px, 2px) rotate(0deg); }
+    40% { transform: translate(1px, -1px) rotate(1deg); }
+    50% { transform: translate(-1px, 2px) rotate(-1deg); }
+    60% { transform: translate(-3px, 1px) rotate(0deg); }
+    70% { transform: translate(2px, 1px) rotate(-1deg); }
+    80% { transform: translate(-1px, -1px) rotate(1deg); }
+    90% { transform: translate(2px, 2px) rotate(0deg); }
+    100% { transform: translate(1px, -2px) rotate(-1deg); }
   }
-  .card-coming:hover {
-    transform: none;
-    box-shadow: var(--shadow);
-  }
+  .shake-active { animation: shake 0.5s; animation-iteration-count: 1; border-color: var(--hl-pink); }
 
-  @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(20px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 
-  /* Responsive */
-  @media (max-width: 600px) {
-    h1 { font-size: 2.5rem; }
-    .catalog { grid-template-columns: 1fr; }
+  /* Footer & Menu Biodata */
+  .footer { margin-top: 60px; display: flex; flex-direction: column; align-items: center; gap: 15px; }
+  .about-btn {
+    background: #fff; border: 3px solid var(--ink); padding: 10px 20px; border-radius: 8px;
+    font-weight: 700; font-family: inherit; cursor: pointer; text-decoration: none; color: var(--ink);
+    box-shadow: 3px 3px 0px var(--ink); transition: 0.1s;
   }
+  .about-btn:hover { transform: translate(-2px, -2px); box-shadow: 5px 5px 0px var(--ink); }
+  .about-btn:active { transform: translate(2px, 2px); box-shadow: 0px 0px 0px var(--ink); }
+  .watermark { font-size: 0.9rem; color: #888; font-weight: 500; }
+
+  @media (max-width: 600px) { h1 { font-size: 2.5rem; } .catalog { grid-template-columns: 1fr; } }
 </style>
 </head>
 <body>
@@ -157,30 +82,41 @@
   </div>
 
   <div class="catalog">
-    
-    <!-- Kartu Matriks (Sudah Ada) -->
     <a href="matriks.html" class="card card-matriks">
       <div class="card-icon">⊞</div>
       <div class="card-title">Matriks 2x2 & 3x3</div>
       <div class="card-desc">Eksplorasi transformasi ruang 2D dan 3D. Lihat bagaimana matriks memutar, meregangkan, dan mencerminkan sebuah bidang secara real-time.</div>
     </a>
 
-    <!-- Kartu Fungsi Kuadrat (Baru) -->
     <a href="kuadrat.html" class="card card-kuadrat">
       <div class="card-icon">📈</div>
       <div class="card-title">Fungsi Kuadrat</div>
       <div class="card-desc">Pahami rahasia parabola. Ubah nilai a, b, dan c dan lihat bagaimana bentuk kurva, titik puncak, serta akar-akarnya bergerak secara langsung.</div>
     </a>
 
-    <!-- Kartu Coming Soon -->
-    <div class="card card-coming">
+    <!-- Kartu Coming Soon dengan Animasi Shake -->
+    <div class="card card-coming" id="card-coming" onclick="triggerShake()">
       <div class="card-badge">SOON</div>
       <div class="card-icon">🎡</div>
       <div class="card-title">Trigonometri</div>
       <div class="card-desc">Misteri Sinus dan Cosinus di lingkaran satuan. Segera hadir!</div>
     </div>
-
   </div>
 
+  <div class="footer">
+    <a href="about.html" class="about-btn">👤 Tentang Pembuat</a>
+    <div class="watermark">Dibuat dengan ❤️ oleh @aprima123</div>
+  </div>
+
+<script>
+  function triggerShake() {
+    const card = document.getElementById('card-coming');
+    card.classList.add('shake-active');
+    // Hapus class setelah animasi selesai agar bisa diklik lagi
+    setTimeout(() => {
+      card.classList.remove('shake-active');
+    }, 500);
+  }
+</script>
 </body>
 </html>
