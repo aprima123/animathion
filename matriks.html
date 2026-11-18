@@ -4,158 +4,51 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Matriks Lab - Interactive Visualizer</title>
+<link rel="stylesheet" href="shared/animathion.css">
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&display=swap');
-
-  :root {
-    --bg-page: #f4f1ea;
-    --grid-color: #e3ded1;
-    --ink: #111111;
-    --hl-blue: #60c3ff;
-    --hl-green: #a3f160;
-    --hl-yellow: #ffe566;
-    --hl-purple: #c48aff;
-    --shadow: 4px 4px 0px var(--ink);
-  }
-
-  * { box-sizing: border-box; }
-
-  body {
-    margin: 0;
-    min-height: 100vh;
-    background-color: var(--bg-page);
-    background-image: 
-      linear-gradient(var(--grid-color) 1px, transparent 1px),
-      linear-gradient(90deg, var(--grid-color) 1px, transparent 1px);
-    background-size: 30px 30px;
-    color: var(--ink);
-    font-family: 'Space Grotesk', 'Segoe UI', sans-serif;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 20px;
-    overflow: hidden; 
-    touch-action: none; 
-  }
-
-  /* ===== TOMBOL KEMBALI ===== */
-  .back-btn {
-    position: fixed;
-    top: 20px; left: 20px;
-    background: var(--hl-yellow); border: 3px solid var(--ink); color: var(--ink);
-    padding: 8px 16px; border-radius: 8px; cursor: pointer;
-    font-family: inherit; font-weight: 700; font-size: 0.9rem;
-    display: flex; align-items: center; gap: 6px;
-    transition: transform 0.1s, box-shadow 0.1s; box-shadow: var(--shadow);
-    z-index: 1000; opacity: 0; transform: translateY(-20px); pointer-events: none;
-  }
-  .back-btn.show { animation: slideDownFade 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; pointer-events: auto; }
-  @keyframes slideDownFade { 0% { opacity: 0; transform: translateY(-30px); } 100% { opacity: 1; transform: translateY(0); } }
-  .back-btn:hover { transform: translate(-2px, -2px); box-shadow: 6px 6px 0px var(--ink); }
-  .back-btn:active { transform: translate(2px, 2px); box-shadow: 0px 0px 0px var(--ink); }
-
-  /* ===== LAYAR MENU ===== */
-  #menu-screen {
-    text-align: center; animation: fadeIn 0.4s ease-out;
-    max-width: 800px; background: #ffffff; padding: 40px;
-    border: 3px solid var(--ink); box-shadow: var(--shadow); border-radius: 12px; z-index: 10;
-  }
-  h1 { font-size: 2.8rem; margin-top: 0; margin-bottom: 10px; color: var(--ink); text-transform: uppercase; letter-spacing: -1px; }
-  p.subtitle { font-size: 1.1rem; color: #555; margin-bottom: 30px; font-weight: 500; }
-  
-  .menu-buttons { display: flex; gap: 20px; justify-content: center; flex-wrap: wrap; }
-  .menu-btn {
-    background: var(--hl-green); border: 3px solid var(--ink); color: var(--ink);
-    padding: 20px; border-radius: 8px; font-size: 1.1rem;
-    font-family: inherit; font-weight: 700; cursor: pointer;
-    transition: all 0.1s; display: flex; flex-direction: column;
-    align-items: center; gap: 10px; min-width: 150px; box-shadow: var(--shadow);
-  }
-  .menu-btn:nth-child(2) { background: var(--hl-blue); }
-  .menu-btn:hover { transform: translate(-2px, -2px); box-shadow: 6px 6px 0px var(--ink); }
-  .menu-btn:active { transform: translate(2px, 2px); box-shadow: 0px 0px 0px var(--ink); }
-  .menu-btn .icon { font-size: 2.5rem; }
-
-  /* ===== AREA KONTEN ===== */
-  .app-container {
-    display: none; flex-wrap: wrap; gap: 20px;
-    justify-content: center; animation: fadeIn 0.4s ease-out;
-    width: 100%; max-width: 1200px; padding-top: 10px; 
-  }
-  .app-container.active { display: flex; }
-  @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-
-  .panel {
-    background: #ffffff; border: 3px solid var(--ink);
-    border-radius: 12px; padding: 20px; box-shadow: var(--shadow);
-  }
-  h2 { margin: 0 0 15px 0; font-size: 1.1rem; font-weight: 700; text-transform: uppercase; border-bottom: 3px solid var(--ink); padding-bottom: 10px; }
-
-  /* ===== MATRIKS INPUT ===== */
-  .brackets { display: flex; gap: 8px; align-items: stretch; margin-bottom: 15px; }
-  .bracket { width: 10px; border: 3px solid var(--ink); }
-  .bracket.left { border-right: none; border-radius: 6px 0 0 6px; }
-  .bracket.right { border-left: none; border-radius: 0 6px 6px 0; }
-
-  .matrix-wrap { display: flex; flex-direction: column; gap: 8px; }
-  .row { display: flex; align-items: center; gap: 8px; }
-  .row .tag {
-    font-size: 0.8rem; font-weight: 700; width: 24px; text-align: center;
-    border-radius: 4px; padding: 4px 0; border: 2px solid var(--ink);
-  }
-  .row.x .tag { background: var(--hl-blue); }
-  .row.y .tag { background: var(--hl-green); }
-  .row.z .tag { background: var(--hl-purple); }
-
-  .cells { display: grid; gap: 8px; }
-  .cells.grid-2 { grid-template-columns: 1fr 1fr; width: 160px; }
-  .cells.grid-3 { grid-template-columns: 1fr 1fr 1fr; width: 240px; } 
-  
-  .cells input {
-    width: 100%; padding: 10px; font-size: 1rem; text-align: center;
-    background: #ffffff; color: var(--ink); border-radius: 6px;
-    outline: none; transition: 0.1s; border: 3px solid var(--ink);
-    font-family: inherit; font-weight: 700;
-  }
-  .cells input:focus { background: var(--bg-page); box-shadow: inset 2px 2px 0px rgba(0,0,0,0.1); }
-
-  /* ===== INFO & HINT ===== */
-  .info { margin-top: 15px; font-size: 0.85rem; line-height: 1.5; background: var(--bg-page); padding: 12px; border: 2px dashed var(--ink); border-radius: 6px; }
-  .info b { font-weight: 700; }
-  .hint { font-size: 0.8rem; margin-top: 15px; font-weight: 500; background: var(--hl-yellow); padding: 8px 12px; border: 2px solid var(--ink); border-radius: 6px; }
-  .hint-mobile { display: none; }
-
-  /* ===== CANVAS ===== */
-  .canvas-wrap { position: relative; display: flex; flex-direction: column; }
-  canvas { border-radius: 8px; background: #1a1a1e; border: 3px solid var(--ink); display: block; cursor: grab; width: 100%; max-width: 500px; height: auto; aspect-ratio: 1 / 1; touch-action: none; }
-  canvas:active { cursor: grabbing; }
-  .zoom-controls { position: absolute; top: 12px; right: 12px; display: flex; flex-direction: column; gap: 6px; }
-  .zoom-controls button { width: 36px; height: 36px; border-radius: 6px; border: 3px solid var(--ink); background: #ffffff; color: var(--ink); font-size: 1.1rem; cursor: pointer; font-weight: 700; transition: 0.1s; box-shadow: 2px 2px 0px var(--ink); }
-  .zoom-controls button:hover { background: var(--hl-yellow); }
-  .zoom-controls button:active { transform: translate(2px, 2px); box-shadow: 0px 0px 0px var(--ink); }
-  .zoom-badge { position: absolute; bottom: 12px; left: 12px; font-size: 0.75rem; font-weight: 700; background: #ffffff; padding: 4px 10px; border-radius: 4px; border: 2px solid var(--ink); color: var(--ink); }
-
-  /* ===== MEDIA QUERY UNTUK HP ===== */
-  @media (max-width: 800px) {
-    body { justify-content: flex-start; padding: 80px 10px 30px 10px; overflow-y: auto; touch-action: pan-y; }
-    #menu-screen { padding: 25px 20px; width: 100%; max-width: 400px; margin-top: 20px; }
-    h1 { font-size: 2rem; }
-    .app-container { flex-direction: column; align-items: center; gap: 15px; width: 100%; padding-top: 0; }
-    .panel { width: 100%; max-width: 500px; padding: 15px; }
-    h2 { font-size: 1rem; padding-bottom: 8px; margin-bottom: 10px; }
-    
-    .cells.grid-2 { width: 100%; gap: 6px; }
-    .cells.grid-3 { width: 100%; gap: 6px; }
-    .cells input { padding: 8px; font-size: 0.9rem; border-width: 2px; }
-    
-    .info { font-size: 0.8rem; padding: 10px; }
-    .hint { font-size: 0.75rem; padding: 6px 10px; }
-    .zoom-controls { display: none; }
-    .zoom-badge { bottom: 8px; left: 8px; font-size: 0.7rem; padding: 2px 8px; }
-    .back-btn { top: 15px; left: 15px; padding: 8px 14px; font-size: 0.85rem; }
-    .hint-desktop { display: none; }
-    .hint-mobile { display: inline; }
+  /* Khusus halaman matriks: gaya dasar, panel, dan tombol sudah dari shared/animathion.css */
+  body{overflow:hidden;touch-action:none}
+  .back-btn{opacity:0;animation:none;pointer-events:none}
+  .back-btn.show{animation:slideDown .4s var(--snap) forwards;pointer-events:auto}
+  #menu-screen{text-align:center;animation:slideUp .4s var(--snap);max-width:800px;background:#fff;padding:40px;border:3px solid var(--ink);box-shadow:var(--shadow);border-radius:12px;z-index:10}
+  h1{font-size:2.8rem;margin:0 0 10px;text-transform:uppercase;letter-spacing:-1px}
+  .subtitle{font-size:1.1rem;color:#555;margin-bottom:30px;font-weight:500}
+  .menu-buttons{display:flex;gap:20px;justify-content:center;flex-wrap:wrap}
+  .menu-btn{display:flex;flex-direction:column;align-items:center;gap:10px;min-width:150px;padding:20px;background:var(--hl-green);border:3px solid var(--ink);border-radius:8px;font:700 1.1rem inherit;font-family:inherit;color:var(--ink);cursor:pointer;box-shadow:var(--shadow);transition:.1s}
+  .menu-btn:nth-child(2){background:var(--hl-blue)}
+  .menu-btn:hover{transform:translate(-2px,-2px);box-shadow:6px 6px 0 var(--ink)}
+  .menu-btn:active{transform:translate(2px,2px);box-shadow:none}
+  .menu-btn .icon{font-size:2.5rem}
+  .app-container{display:none;max-width:1200px;padding-top:10px}
+  .app-container.active{display:flex}
+  .brackets{display:flex;gap:8px;align-items:stretch;margin-bottom:15px}
+  .bracket{width:10px;border:3px solid var(--ink)}
+  .bracket.left{border-right:none;border-radius:6px 0 0 6px}
+  .bracket.right{border-left:none;border-radius:0 6px 6px 0}
+  .matrix-wrap{display:flex;flex-direction:column;gap:8px}
+  .row{display:flex;align-items:center;gap:8px}
+  .row .tag{width:24px;padding:4px 0;text-align:center;font-size:.8rem;font-weight:700;border:2px solid var(--ink);border-radius:4px}
+  .row.x .tag{background:var(--hl-blue)}.row.y .tag{background:var(--hl-green)}.row.z .tag{background:var(--hl-purple)}
+  .cells{display:grid;gap:8px}
+  .cells.grid-2{grid-template-columns:1fr 1fr;width:160px}
+  .cells.grid-3{grid-template-columns:1fr 1fr 1fr;width:240px}
+  .cells input{width:100%;padding:10px;font:700 1rem inherit;font-family:inherit;text-align:center;background:#fff;color:var(--ink);border:3px solid var(--ink);border-radius:6px;transition:.1s}
+  .cells input:focus{background:var(--bg-page);outline:3px solid var(--hl-purple)}
+  .info{margin-top:15px;font-size:.85rem;line-height:1.5;background:var(--bg-page);padding:12px;border:2px dashed var(--ink);border-radius:6px}
+  .hint{font-size:.8rem;margin-top:15px;font-weight:500;background:var(--hl-yellow);padding:8px 12px;border:2px solid var(--ink);border-radius:6px}
+  .hint-mobile{display:none}
+  canvas{background:#1a1a1e}
+  .zoom-badge{position:absolute;bottom:12px;left:12px;font-size:.75rem;font-weight:700;background:#fff;padding:4px 10px;border-radius:4px;border:2px solid var(--ink)}
+  @media(max-width:800px){
+    body{overflow-y:auto;touch-action:pan-y}
+    #menu-screen{padding:25px 20px;width:100%;max-width:400px;margin-top:20px}
+    h1{font-size:2rem}
+    .cells.grid-2,.cells.grid-3{width:100%;gap:6px}
+    .cells input{padding:8px;font-size:.9rem;border-width:2px}
+    .info{font-size:.8rem;padding:10px}.hint{font-size:.75rem;padding:6px 10px}
+    .zoom-controls{display:none}
+    .zoom-badge{bottom:8px;left:8px;font-size:.7rem;padding:2px 8px}
+    .hint-desktop{display:none}.hint-mobile{display:inline}
   }
 </style>
 </head>
@@ -245,7 +138,7 @@
   </div>
 
 <script type="module">
-import { setupCanvas, Smoother } from './shared/core.js';
+import { setupCanvas, Smoother, Viewport } from './shared/core.js';
 // ==========================================
 // GLOBAL & NAVIGASI
 // ==========================================
@@ -280,8 +173,7 @@ function fmt(n) {
 // ==========================================
 const cv2 = document.getElementById('cv2');
 const { ctx: ctx2, W: W2, H: H2 } = setupCanvas(cv2, 600);
-let view2 = { scale: 80, cx: W2/2, cy: H2/2 };
-const MIN_SCALE = 2, MAX_SCALE = 800;
+const view2 = new Viewport(W2, H2, { scale: 80, min: 2, max: 800 });
 
 const els2 = {
   a: document.getElementById('m2_00'), b: document.getElementById('m2_01'),
@@ -432,14 +324,7 @@ function draw3D(matrix = currentMatrix3) {
 // EVENT LISTENERS & INTERAKSI
 // ==========================================
 ['m2_00', 'm2_01', 'm2_10', 'm2_11'].forEach(id => document.getElementById(id).addEventListener('input', updateMatrix2Smoothly));
-cv2.addEventListener('wheel', (ev) => { if(!document.getElementById('app-2x2').classList.contains('active')) return; ev.preventDefault(); const rect = cv2.getBoundingClientRect(); const mx = (ev.clientX - rect.left) * (W2 / rect.width); const my = (ev.clientY - rect.top) * (H2 / rect.height); const [wx, wy] = p2w2(mx, my); const factor = ev.deltaY < 0 ? 1.15 : 1/1.15; view2.scale = Math.max(MIN_SCALE, Math.min(MAX_SCALE, view2.scale * factor)); view2.cx = mx - wx * view2.scale; view2.cy = my + wy * view2.scale; draw2D(); }, { passive: false });
-let isDragging2 = false, last2 = null;
-cv2.addEventListener('mousedown', (ev) => { isDragging2 = true; last2 = {x:ev.clientX, y:ev.clientY}; });
-window.addEventListener('mousemove', (ev) => { if(!isDragging2) return; const rect = cv2.getBoundingClientRect(); const ratio = W2 / rect.width; view2.cx += (ev.clientX - last2.x) * ratio; view2.cy += (ev.clientY - last2.y) * ratio; last2 = {x:ev.clientX, y:ev.clientY}; draw2D(); });
-window.addEventListener('mouseup', () => isDragging2 = false);
-document.getElementById('z2_in').onclick = () => { view2.scale = Math.min(MAX_SCALE, view2.scale * 1.25); draw2D(); };
-document.getElementById('z2_out').onclick = () => { view2.scale = Math.max(MIN_SCALE, view2.scale / 1.25); draw2D(); };
-document.getElementById('z2_reset').onclick = () => { view2 = { scale: 80, cx: W2/2, cy: H2/2 }; draw2D(); };
+view2.attach(cv2, () => draw2D(), { zin: document.getElementById('z2_in'), zout: document.getElementById('z2_out'), reset: document.getElementById('z2_reset') });
 
 els3.inputs.forEach(inp => inp.addEventListener('input', updateMatrix3Smoothly));
 let isDragging3 = false, isPanning3 = false, last3 = {x:0, y:0};
@@ -453,10 +338,6 @@ document.getElementById('z3_out').onclick = () => { cam.dist = Math.min(MAX_DIST
 document.getElementById('z3_reset').onclick = () => { cam = { yaw:-0.6, pitch:0.5, dist:8, panX:0, panY:0, scale:70 }; draw3D(); };
 
 function getTouchDist(touches) { const dx = touches[0].clientX - touches[1].clientX; const dy = touches[0].clientY - touches[1].clientY; return Math.sqrt(dx*dx + dy*dy); }
-let touchDist2 = 0, lastTouch2 = null;
-cv2.addEventListener('touchstart', (ev) => { ev.preventDefault(); if(ev.touches.length === 1) lastTouch2 = {x: ev.touches[0].clientX, y: ev.touches[0].clientY}; else if(ev.touches.length === 2) touchDist2 = getTouchDist(ev.touches); }, {passive: false});
-cv2.addEventListener('touchmove', (ev) => { ev.preventDefault(); const rect = cv2.getBoundingClientRect(); const ratio = W2 / rect.width; if(ev.touches.length === 1 && lastTouch2) { const dx = ev.touches[0].clientX - lastTouch2.x; const dy = ev.touches[0].clientY - lastTouch2.y; view2.cx += dx * ratio; view2.cy += dy * ratio; lastTouch2 = {x: ev.touches[0].clientX, y: ev.touches[0].clientY}; draw2D(); } else if(ev.touches.length === 2) { const newDist = getTouchDist(ev.touches); if(touchDist2 > 0) { const factor = newDist / touchDist2; view2.scale = Math.max(MIN_SCALE, Math.min(MAX_SCALE, view2.scale * factor)); draw2D(); } touchDist2 = newDist; } }, {passive: false});
-cv2.addEventListener('touchend', () => { lastTouch2 = null; touchDist2 = 0; });
 let touchDist3 = 0, lastTouch3 = null;
 cv3.addEventListener('touchstart', (ev) => { ev.preventDefault(); if(ev.touches.length === 1) lastTouch3 = {x: ev.touches[0].clientX, y: ev.touches[0].clientY}; else if(ev.touches.length === 2) touchDist3 = getTouchDist(ev.touches); }, {passive: false});
 cv3.addEventListener('touchmove', (ev) => { ev.preventDefault(); if(ev.touches.length === 1 && lastTouch3) { const dx = ev.touches[0].clientX - lastTouch3.x; const dy = ev.touches[0].clientY - lastTouch3.y; cam.yaw += dx * 0.01; cam.pitch = Math.max(-Math.PI/2 + 0.1, Math.min(Math.PI/2 - 0.1, cam.pitch + dy * 0.01)); lastTouch3 = {x: ev.touches[0].clientX, y: ev.touches[0].clientY}; draw3D(); } else if(ev.touches.length === 2) { const newDist = getTouchDist(ev.touches); if(touchDist3 > 0) { const factor = touchDist3 / newDist; cam.dist = Math.max(MIN_DIST, Math.min(MAX_DIST, cam.dist * factor)); draw3D(); } touchDist3 = newDist; } }, {passive: false});
