@@ -2,368 +2,117 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Animathion - Trigonometri</title>
+<link rel="stylesheet" href="shared/animathion.css">
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&display=swap');
-  :root {
-    --bg-page: #f4f1ea; --grid-color: #e3ded1; --ink: #111111;
-    --hl-blue: #60c3ff; --hl-green: #a3f160; --hl-yellow: #ffe566; --hl-purple: #c48aff; --hl-pink: #ff99cc; --shadow: 4px 4px 0px var(--ink);
-  }
-  * { box-sizing: border-box; }
-  body {
-    margin: 0; min-height: 100vh; background-color: var(--bg-page);
-    background-image: linear-gradient(var(--grid-color) 1px, transparent 1px), linear-gradient(90deg, var(--grid-color) 1px, transparent 1px);
-    background-size: 30px 30px; color: var(--ink); font-family: 'Space Grotesk', sans-serif;
-    display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; overflow: hidden; touch-action: none;
-  }
-
-  /* Animasi Navigasi */
-  @keyframes slideDownFade { 0% { opacity: 0; transform: translateY(-30px); } 100% { opacity: 1; transform: translateY(0); } }
-  @keyframes slideUpFade { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
-
-  .back-btn {
-    position: fixed; top: 20px; left: 20px; background: var(--hl-yellow); border: 3px solid var(--ink); color: var(--ink);
-    padding: 8px 16px; border-radius: 8px; cursor: pointer; font-family: inherit; font-weight: 700; font-size: 0.9rem;
-    text-decoration: none; display: flex; align-items: center; gap: 6px; transition: 0.1s; box-shadow: var(--shadow); z-index: 1000;
-    opacity: 0; animation: slideDownFade 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
-  }
-  .back-btn:hover { transform: translate(-2px, -2px); box-shadow: 6px 6px 0px var(--ink); }
-  .back-btn:active { transform: translate(2px, 2px); box-shadow: 0 0 0 var(--ink); }
-
-  .app-container { display: flex; flex-wrap: wrap; gap: 20px; justify-content: center; width: 100%; max-width: 1100px; }
-  
-  .panel { 
-    background: #fff; border: 3px solid var(--ink); border-radius: 12px; padding: 20px; box-shadow: var(--shadow); 
-    opacity: 0; animation: slideUpFade 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
-  }
-  .panel:nth-child(1) { animation-delay: 0.1s; } /* Panel Kontrol */
-  .panel:nth-child(2) { animation-delay: 0.2s; } /* Panel Kanvas */
-
-  h2 { margin: 0 0 15px 0; font-size: 1.2rem; font-weight: 700; text-transform: uppercase; border-bottom: 3px solid var(--ink); padding-bottom: 10px; }
-
-  /* Layout Kanvas */
-  .canvas-container {
-    display: flex; flex-wrap: wrap; gap: 15px; justify-content: center; align-items: center;
-  }
-  .canvas-box {
-    border: 3px solid var(--ink); border-radius: 8px; background: #fff; box-shadow: 2px 2px 0 var(--ink);
-    position: relative; overflow: hidden;
-  }
-  #cv_circle { width: 320px; height: 320px; }
-  #cv_wave { width: 100%; max-width: 600px; height: 320px; }
-
-  /* UI Kontrol */
-  .degree-display {
-    text-align: center; font-size: 2rem; font-weight: 700; font-family: monospace;
-    margin-bottom: 15px; color: var(--ink);
-  }
-  .degree-display span { color: #ff2a55; }
-
-  .control-group { margin-bottom: 15px; }
-  input[type=range] { -webkit-appearance: none; width: 100%; background: transparent; margin: 10px 0; }
-  input[type=range]:focus { outline: none; }
-  input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 12px; cursor: pointer; background: #e0e0e0; border-radius: 6px; border: 2px solid var(--ink); }
-  input[type=range]::-webkit-slider-thumb { height: 24px; width: 24px; border-radius: 50%; background: var(--hl-yellow); border: 3px solid var(--ink); cursor: pointer; -webkit-appearance: none; margin-top: -8px; box-shadow: 1px 1px 0 var(--ink); }
-  input[type=range]::-webkit-slider-thumb:hover { background: var(--hl-purple); }
-
-  .btn-play {
-    width: 100%; padding: 12px; background: var(--hl-green); border: 3px solid var(--ink);
-    border-radius: 8px; font-family: inherit; font-weight: 700; font-size: 1rem; cursor: pointer;
-    box-shadow: 2px 2px 0 var(--ink); transition: 0.1s; margin-bottom: 15px;
-  }
-  .btn-play:hover { transform: translate(-2px, -2px); box-shadow: 4px 4px 0 var(--ink); }
-  .btn-play:active { transform: translate(2px, 2px); box-shadow: 0 0 0 var(--ink); }
-  .btn-play.playing { background: var(--hl-pink); }
-
-  .info-grid {
-    display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px;
-  }
-  .info-item {
-    background: var(--bg-page); border: 2px dashed var(--ink); border-radius: 6px; padding: 8px 12px;
-    font-family: monospace; font-size: 0.95rem; display: flex; justify-content: space-between;
-  }
-  .info-item .label { font-weight: 700; }
-  .info-item .value { color: #ff2a55; font-weight: 700; }
-  /* Warna khusus tiap fungsi */
-  .item-sin .value { color: #00d2ff; }
-  .item-cos .value { color: #ff99cc; }
-  .item-tan .value { color: #b500ff; }
-  .item-csc .value { color: #f39c12; }
-  .item-sec .value { color: #1abc9c; }
-  .item-cot .value { color: #e74c3c; }
-
-  @media (max-width: 800px) {
-    body { justify-content: flex-start; padding: 80px 10px 30px 10px; overflow-y: auto; touch-action: pan-y; }
-    .app-container { flex-direction: column; align-items: center; gap: 15px; }
-    .panel { width: 100%; max-width: 500px; padding: 15px; }
-    .back-btn { top: 15px; left: 15px; padding: 8px 14px; font-size: 0.85rem; }
-    #cv_circle { width: 100%; max-width: 320px; height: auto; aspect-ratio: 1/1; }
-    #cv_wave { width: 100%; height: auto; aspect-ratio: 2/1; }
-  }
+  .degree-display{text-align:center;font:700 2rem monospace;margin-bottom:15px}
+  .degree-display span{color:#b500ff}
+  .btn-play{width:100%;padding:12px;margin:5px 0 20px;font:700 1rem inherit;font-family:inherit;background:var(--hl-green);border:3px solid var(--ink);border-radius:8px;cursor:pointer;box-shadow:3px 3px 0 var(--ink);transition:.1s}
+  .btn-play:hover{transform:translate(-2px,-2px);box-shadow:5px 5px 0 var(--ink)}
+  .btn-play:active{transform:translate(2px,2px);box-shadow:none}
+  .btn-play.playing{background:var(--hl-pink)}
+  .info-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .info-item{display:flex;justify-content:space-between;align-items:center;padding:8px 10px;border:3px solid var(--ink);border-radius:8px;background:#fff;font-family:monospace;font-weight:700}
+  .item-sin{background:#c9ecff}.item-cos{background:#ffd9ec}.item-tan{background:#e3ffc2}
+  .item-csc,.item-sec,.item-cot{background:#fff6bf}
+  .canvas-container{display:flex;flex-direction:column;gap:15px;width:100%;align-items:center}
+  .canvas-box{width:100%;display:flex;justify-content:center}
+  #cv_circle{max-width:320px;aspect-ratio:1/1;cursor:default}
+  #cv_wave{max-width:600px;aspect-ratio:600/320;cursor:default}
 </style>
 </head>
 <body>
   <a href="index.html" class="back-btn">← MENU</a>
-
   <div class="app-container">
-    <!-- Panel Kontrol -->
-    <div class="panel" style="flex: 1; min-width: 300px;">
+    <div class="panel" style="flex:1;min-width:300px">
       <h2>Trigonometri</h2>
-      
       <div class="degree-display">θ = <span id="lbl-sudut">0°</span></div>
-
-      <div class="control-group">
-        <input type="range" id="slider-sudut" min="0" max="360" step="1" value="0">
-      </div>
-
+      <div class="control-group"><input type="range" id="slider-sudut" min="0" max="360" step="1" value="0" aria-label="Sudut theta"></div>
       <button class="btn-play" id="btn-play">▶ Putar Otomatis</button>
-
       <div class="info-grid">
-        <div class="info-item item-sin"><span class="label">sin(θ)</span> <span class="value" id="val-sin">0.00</span></div>
-        <div class="info-item item-cos"><span class="label">cos(θ)</span> <span class="value" id="val-cos">1.00</span></div>
-        <div class="info-item item-tan"><span class="label">tan(θ)</span> <span class="value" id="val-tan">0.00</span></div>
-        <div class="info-item item-csc"><span class="label">csc(θ)</span> <span class="value" id="val-csc">~</span></div>
-        <div class="info-item item-sec"><span class="label">sec(θ)</span> <span class="value" id="val-sec">1.00</span></div>
-        <div class="info-item item-cot"><span class="label">cot(θ)</span> <span class="value" id="val-cot">~</span></div>
+        <div class="info-item item-sin"><span>sin(θ)</span><span id="val-sin">0.000</span></div>
+        <div class="info-item item-cos"><span>cos(θ)</span><span id="val-cos">1.000</span></div>
+        <div class="info-item item-tan"><span>tan(θ)</span><span id="val-tan">0.000</span></div>
+        <div class="info-item item-csc"><span>csc(θ)</span><span id="val-csc">∞</span></div>
+        <div class="info-item item-sec"><span>sec(θ)</span><span id="val-sec">1.000</span></div>
+        <div class="info-item item-cot"><span>cot(θ)</span><span id="val-cot">∞</span></div>
       </div>
     </div>
-
-    <!-- Panel Kanvas -->
-    <div class="panel" style="flex: 2; min-width: 300px; display: flex; justify-content: center;">
+    <div class="panel" style="flex:2;min-width:300px;display:flex;justify-content:center">
       <div class="canvas-container">
-        <div class="canvas-box">
-          <canvas id="cv_circle" width="320" height="320"></canvas>
-        </div>
-        <div class="canvas-box">
-          <canvas id="cv_wave" width="600" height="320"></canvas>
-        </div>
+        <div class="canvas-box"><canvas id="cv_circle" aria-label="Lingkaran satuan"></canvas></div>
+        <div class="canvas-box"><canvas id="cv_wave" aria-label="Gelombang sinus dan cosinus"></canvas></div>
       </div>
     </div>
   </div>
+<script type="module">
+import { setupCanvas } from './shared/core.js';
+const $ = (id) => document.getElementById(id);
+const C = setupCanvas($('cv_circle'), 320, 320), Wv = setupCanvas($('cv_wave'), 600, 320);
+const cc = C.ctx, cw = Wv.ctx, R = 100, cx = 160, cy = 160;
+const slider = $('slider-sudut'), btn = $('btn-play');
 
-<script>
-// ==========================================
-// SETUP CANVAS & STATE
-// ==========================================
-const cvsCircle = document.getElementById('cv_circle'); const ctxCircle = cvsCircle.getContext('2d');
-const cvsWave = document.getElementById('cv_wave'); const ctxWave = cvsWave.getContext('2d');
-const Wc = cvsCircle.width, Hc = cvsCircle.height;
-const Ww = cvsWave.width, Hw = cvsWave.height;
+function line(c, x1, y1, x2, y2, color, w = 2, dash = null) {
+  c.strokeStyle = color; c.lineWidth = w; c.setLineDash(dash || []); c.beginPath(); c.moveTo(x1, y1); c.lineTo(x2, y2); c.stroke(); c.setLineDash([]);
+}
+function dot(c, x, y, fill) { c.fillStyle = fill; c.beginPath(); c.arc(x, y, 6, 0, Math.PI * 2); c.fill(); c.strokeStyle = '#111'; c.lineWidth = 2; c.stroke(); }
+// grid sejajar titik pusat (bukan dari pojok kiri atas)
+function grid(c, w, h, ox, oy) {
+  for (let x = ox % 30; x <= w; x += 30) line(c, x, 0, x, h, '#e0e0e0', 1);
+  for (let y = oy % 30; y <= h; y += 30) line(c, 0, y, w, y, '#e0e0e0', 1);
+}
+const lim = (v, d = 3) => v.toFixed(d);
 
-// Pusat lingkaran
-const cx = Wc/2, cy = Hc/2, R = 100;
-
-// State Animasi
-let curAngle = 0;
-let tgtAngle = 0;
-let isPlaying = false;
-let playSpeed = 1.5; // derajat per frame
-let animFrame = null;
-
-// DOM Elements
-const elSudut = document.getElementById('slider-sudut');
-const lblSudut = document.getElementById('lbl-sudut');
-const valSin = document.getElementById('val-sin');
-const valCos = document.getElementById('val-cos');
-const valTan = document.getElementById('val-tan');
-const valCsc = document.getElementById('val-csc');
-const valSec = document.getElementById('val-sec');
-const valCot = document.getElementById('val-cot');
-const btnPlay = document.getElementById('btn-play');
-
-// ==========================================
-// LOGIKA MATEMATIKA & RENDER
-// ==========================================
-function updateUI(angle) {
-  const rad = angle * Math.PI / 180;
-  lblSudut.innerText = Math.round(angle) + '°';
-  
-  // Hitung nilai trigonometri
-  const s = Math.sin(rad);
-  const c = Math.cos(rad);
-  const t = Math.tan(rad);
-
-  valSin.innerText = s.toFixed(3);
-  valCos.innerText = c.toFixed(3);
-  
-  // Tangen (Tan) mendekati tak hingga di 90 dan 270
-  if(Math.abs(t) > 50) valTan.innerText = (t > 0 ? "∞" : "-∞");
-  else valTan.innerText = t.toFixed(3);
-
-  // Cosecan (1/sin)
-  if(Math.abs(s) < 0.01) valCsc.innerText = "∞";
-  else valCsc.innerText = (1/s).toFixed(3);
-
-  // Secan (1/cos)
-  if(Math.abs(c) < 0.01) valSec.innerText = "∞";
-  else valSec.innerText = (1/c).toFixed(3);
-
-  // Cotangen (1/tan)
-  if(Math.abs(t) > 50) valCot.innerText = "0.000";
-  else valCot.innerText = (1/t).toFixed(3);
+function values(deg) {
+  const r = deg * Math.PI / 180, s = Math.sin(r), c = Math.cos(r), t = Math.tan(r);
+  $('lbl-sudut').textContent = Math.round(deg) + '°';
+  $('val-sin').textContent = lim(s); $('val-cos').textContent = lim(c);
+  $('val-tan').textContent = Math.abs(t) > 50 ? (t > 0 ? '∞' : '-∞') : lim(t);
+  $('val-csc').textContent = Math.abs(s) < 0.01 ? '∞' : lim(1 / s);
+  $('val-sec').textContent = Math.abs(c) < 0.01 ? '∞' : lim(1 / c);
+  $('val-cot').textContent = Math.abs(t) > 50 ? '0.000' : lim(1 / t);
 }
 
-function draw(angleDeg) {
-  const rad = angleDeg * Math.PI / 180;
-  
-  // ==========================================
-  // 1. GAMBAR LINGKARAN SATUAN (KIRI)
-  // ==========================================
-  ctxCircle.clearRect(0, 0, Wc, Hc);
-  
-  // Grid
-  ctxCircle.strokeStyle = '#e0e0e0'; ctxCircle.lineWidth = 1;
-  for(let i=0; i<Wc; i+=30) { ctxCircle.beginPath(); ctxCircle.moveTo(i,0); ctxCircle.lineTo(i,Hc); ctxCircle.stroke(); }
-  for(let i=0; i<Hc; i+=30) { ctxCircle.beginPath(); ctxCircle.moveTo(0,i); ctxCircle.lineTo(Wc,i); ctxCircle.stroke(); }
-
-  // Sumbu X & Y
-  ctxCircle.strokeStyle = '#111'; ctxCircle.lineWidth = 2;
-  ctxCircle.beginPath(); ctxCircle.moveTo(0, cy); ctxCircle.lineTo(Wc, cy); ctxCircle.stroke();
-  ctxCircle.beginPath(); ctxCircle.moveTo(cx, 0); ctxCircle.lineTo(cx, Hc); ctxCircle.stroke();
-  
-  // Lingkaran
-  ctxCircle.strokeStyle = '#111'; ctxCircle.lineWidth = 3;
-  ctxCircle.beginPath(); ctxCircle.arc(cx, cy, R, 0, Math.PI*2); ctxCircle.stroke();
-
-  // Posisi Titik di Ujung Jari-jari
-  const px = cx + R * Math.cos(rad);
-  const py = cy - R * Math.sin(rad); // Canvas Y dibalik
-
-  // Garis Jari-jari
-  ctxCircle.strokeStyle = '#111'; ctxCircle.lineWidth = 3;
-  ctxCircle.beginPath(); ctxCircle.moveTo(cx, cy); ctxCircle.lineTo(px, py); ctxCircle.stroke();
-
-  // Titik Ujung
-  ctxCircle.fillStyle = '#ffe566'; ctxCircle.beginPath(); ctxCircle.arc(px, py, 6, 0, Math.PI*2); ctxCircle.fill();
-  ctxCircle.strokeStyle = '#111'; ctxCircle.lineWidth = 2; ctxCircle.stroke();
-
-  // Proyeksi Sinus (Vertikal - Biru) dan Cosinus (Horizontal - Pink)
-  ctxCircle.strokeStyle = '#00d2ff'; ctxCircle.lineWidth = 3;
-  ctxCircle.beginPath(); ctxCircle.moveTo(cx, cy); ctxCircle.lineTo(cx, py); ctxCircle.stroke(); // Sin
-
-  ctxCircle.strokeStyle = '#ff99cc'; ctxCircle.lineWidth = 3;
-  ctxCircle.beginPath(); ctxCircle.moveTo(cx, cy); ctxCircle.lineTo(px, cy); ctxCircle.stroke(); // Cos
-  
-  // Garis bantu putus-putus
-  ctxCircle.strokeStyle = '#333'; ctxCircle.lineWidth = 1.5; ctxCircle.setLineDash([4,4]);
-  ctxCircle.beginPath(); ctxCircle.moveTo(px, py); ctxCircle.lineTo(px, cy); ctxCircle.stroke(); // Bantu Cos
-  ctxCircle.beginPath(); ctxCircle.moveTo(px, py); ctxCircle.lineTo(cx, py); ctxCircle.stroke(); // Bantu Sin
-  ctxCircle.setLineDash([]);
-
-  // ==========================================
-  // 2. GAMBAR GELOMBANG SINUS & COSINUS (KANAN)
-  // ==========================================
-  ctxWave.clearRect(0, 0, Ww, Hw);
-  
-  const waveStartX = 30, waveWidth = 540, waveMidY = Hw / 2;
-  const amplitude = 110;
-
-  // Grid
-  ctxWave.strokeStyle = '#e0e0e0'; ctxWave.lineWidth = 1;
-  for(let i=0; i<Ww; i+=30) { ctxWave.beginPath(); ctxWave.moveTo(i,0); ctxWave.lineTo(i,Hw); ctxWave.stroke(); }
-  for(let i=0; i<Hw; i+=30) { ctxWave.beginPath(); ctxWave.moveTo(0,i); ctxWave.lineTo(Ww,i); ctxWave.stroke(); }
-
-  // Sumbu X (Garis Tengah)
-  ctxWave.strokeStyle = '#111'; ctxWave.lineWidth = 2;
-  ctxWave.beginPath(); ctxWave.moveTo(waveStartX, waveMidY); ctxWave.lineTo(waveStartX + waveWidth, waveMidY); ctxWave.stroke();
-
-  // Gambar Kurva Sinus (Biru)
-  ctxWave.strokeStyle = '#00d2ff'; ctxWave.lineWidth = 3;
-  ctxWave.beginPath();
-  for(let i=0; i<=waveWidth; i++) {
-    const deg = (i / waveWidth) * 360;
-    const r = deg * Math.PI / 180;
-    const y = waveMidY - Math.sin(r) * amplitude;
-    if(i === 0) ctxWave.moveTo(waveStartX + i, y);
-    else ctxWave.lineTo(waveStartX + i, y);
+function draw(deg) {
+  const rad = deg * Math.PI / 180;
+  // ---- lingkaran satuan ----
+  cc.clearRect(0, 0, 320, 320); grid(cc, 320, 320, cx, cy);
+  line(cc, 0, cy, 320, cy, '#111'); line(cc, cx, 0, cx, 320, '#111');
+  cc.strokeStyle = '#111'; cc.lineWidth = 3; cc.beginPath(); cc.arc(cx, cy, R, 0, Math.PI * 2); cc.stroke();
+  const px = cx + R * Math.cos(rad), py = cy - R * Math.sin(rad);
+  line(cc, cx, cy, px, py, '#111', 3);
+  line(cc, cx, cy, cx, py, '#00a8d6', 3); line(cc, cx, cy, px, cy, '#ff6fb5', 3);
+  line(cc, px, py, px, cy, '#333', 1.5, [4, 4]); line(cc, px, py, cx, py, '#333', 1.5, [4, 4]);
+  dot(cc, px, py, '#ffe566');
+  // ---- gelombang ----
+  const x0 = 30, ww = 540, my = 160, amp = 110;
+  cw.clearRect(0, 0, 600, 320); grid(cw, 600, 320, x0, my);
+  line(cw, x0, my, x0 + ww, my, '#111');
+  for (const [fn, col] of [[Math.sin, '#00a8d6'], [Math.cos, '#ff6fb5']]) {
+    cw.strokeStyle = col; cw.lineWidth = 3; cw.beginPath();
+    for (let i = 0; i <= ww; i++) { const y = my - fn(i / ww * 2 * Math.PI) * amp; i ? cw.lineTo(x0 + i, y) : cw.moveTo(x0 + i, y); }
+    cw.stroke();
   }
-  ctxWave.stroke();
-
-  // Gambar Kurva Cosinus (Pink)
-  ctxWave.strokeStyle = '#ff99cc'; ctxWave.lineWidth = 3;
-  ctxWave.beginPath();
-  for(let i=0; i<=waveWidth; i++) {
-    const deg = (i / waveWidth) * 360;
-    const r = deg * Math.PI / 180;
-    const y = waveMidY - Math.cos(r) * amplitude;
-    if(i === 0) ctxWave.moveTo(waveStartX + i, y);
-    else ctxWave.lineTo(waveStartX + i, y);
-  }
-  ctxWave.stroke();
-
-  // Titik Aktif di Gelombang
-  const activeWaveX = waveStartX + (angleDeg / 360) * waveWidth;
-  const activeWaveYSin = waveMidY - Math.sin(rad) * amplitude;
-  const activeWaveYCos = waveMidY - Math.cos(rad) * amplitude;
-
-  // Titik Sinus
-  ctxWave.fillStyle = '#00d2ff'; ctxWave.beginPath(); ctxWave.arc(activeWaveX, activeWaveYSin, 6, 0, Math.PI*2); ctxWave.fill();
-  ctxWave.strokeStyle = '#111'; ctxWave.lineWidth = 2; ctxWave.stroke();
-
-  // Titik Cosinus
-  ctxWave.fillStyle = '#ff99cc'; ctxWave.beginPath(); ctxWave.arc(activeWaveX, activeWaveYCos, 6, 0, Math.PI*2); ctxWave.fill();
-  ctxWave.strokeStyle = '#111'; ctxWave.lineWidth = 2; ctxWave.stroke();
-
-  // Garis Vertikal Penghubung Sudut
-  ctxWave.strokeStyle = 'rgba(0,0,0,0.2)'; ctxWave.lineWidth = 1.5; ctxWave.setLineDash([4,4]);
-  ctxWave.beginPath(); ctxWave.moveTo(activeWaveX, 0); ctxWave.lineTo(activeWaveX, Hw); ctxWave.stroke();
-  ctxWave.setLineDash([]);
-
-  // Update Nilai Teks
-  updateUI(angleDeg);
+  const ax = x0 + deg / 360 * ww;
+  line(cw, ax, 0, ax, 320, 'rgba(0,0,0,.25)', 1.5, [4, 4]);
+  dot(cw, ax, my - Math.sin(rad) * amp, '#60c3ff'); dot(cw, ax, my - Math.cos(rad) * amp, '#ff99cc');
+  values(deg);
 }
 
-// ==========================================
-// LOGIKA KONTROL & ANIMASI
-// ==========================================
-function animate() {
-  if(isPlaying) {
-    tgtAngle += playSpeed;
-    if(tgtAngle >= 360) tgtAngle = 0;
-    elSudut.value = tgtAngle;
-  }
-
-  // Interpolasi halus
-  const diff = tgtAngle - curAngle;
-  if(Math.abs(diff) > 0.5) {
-    curAngle += diff * 0.15;
-  } else {
-    curAngle = tgtAngle;
-  }
-
-  // Cegah loop 360 ke 0 agar tidak berputar balik
-  if(Math.abs(tgtAngle - curAngle) > 180) {
-    curAngle = tgtAngle;
-  }
-
-  draw(curAngle);
-  animFrame = requestAnimationFrame(animate);
+// Animasi berbasis waktu: 90°/detik saat play, peredaman halus saat slider digeser.
+let cur = 0, tgt = 0, playing = false, last = performance.now(), shown = -1;
+function frame(now) {
+  const dt = Math.min((now - last) / 1000, 0.05); last = now;
+  if (playing) { tgt = (tgt + 90 * dt) % 360; cur = tgt; slider.value = Math.round(tgt); }
+  else { const d = tgt - cur; cur = Math.abs(d) > 0.01 ? cur + d * (1 - Math.exp(-12 * dt)) : tgt; }
+  if (cur !== shown) { draw(cur); shown = cur; }
+  requestAnimationFrame(frame);
 }
-
-// Event Listener
-elSudut.addEventListener('input', (e) => {
-  isPlaying = false;
-  btnPlay.innerText = "▶ Putar Otomatis";
-  btnPlay.classList.remove('playing');
-  tgtAngle = parseFloat(e.target.value);
-  // Reset posisi curAngle jika jarak terlalu jauh agar lompatannya wajar
-  if(Math.abs(curAngle - tgtAngle) > 90) curAngle = tgtAngle;
-});
-
-btnPlay.addEventListener('click', () => {
-  isPlaying = !isPlaying;
-  if(isPlaying) {
-    btnPlay.innerText = "⏸ Hentikan";
-    btnPlay.classList.add('playing');
-  } else {
-    btnPlay.innerText = "▶ Putar Otomatis";
-    btnPlay.classList.remove('playing');
-  }
-});
-
-// Mulai Animasi
-animate();
+function setPlaying(p) { playing = p; btn.textContent = p ? '⏸ Hentikan' : '▶ Putar Otomatis'; btn.classList.toggle('playing', p); }
+slider.addEventListener('input', () => { setPlaying(false); tgt = +slider.value; if (Math.abs(cur - tgt) > 180) cur = tgt; });
+btn.addEventListener('click', () => setPlaying(!playing));
+requestAnimationFrame(frame);
 </script>
 </body>
 </html>
