@@ -1,55 +1,57 @@
 <div align="center">
+  
+# 📐 ANIMATHION
+  
+**Visualisasikan Matematika. Pahami Konsepnya. Jangan Cuma Hafal Rumus.**
 
-<h1>ANIMATHION</h1>
-
-<p>
-  <strong>Visualisasikan Matematika. Pahami Konsepnya. Jangan Cuma Hafal Rumus.</strong>[cite: 6, 8]
-</p>
-
-<p>
-  <a href="https://aprima123.github.io/animathion/">
-    <img src="https://img.shields.io/badge/LIVE_DEMO-aprima123.github.io%2Fanimathion-111111?style=for-the-badge&labelColor=ffe566" alt="Live Demo">
-  </a>
-  <img src="https://img.shields.io/badge/STACK-HTML5_Canvas_%26_JS-111111?style=for-the-badge&labelColor=60c3ff" alt="Tech Stack">
-</p>
-
-<br>
-
-<!-- Opsional: Ganti link di bawah dengan screenshot tampilan index.html atau salah satu modulmu -->
-<!-- <img src="preview.png" alt="Animathion Preview" width="800"> -->
+[![Website](https://img.shields.io/badge/🌐_Buka_Animathion-di_Sini-blue?style=for-the-badge&logo=github)](https://aprima123.github.io/animathion/)
+[![Status](https://img.shields.io/badge/Status-Active-brightgreen?style=for-the-badge)]()
+[![License](https://img.shields.io/badge/License-MIT-purple?style=for-the-badge)]()
 
 </div>
 
 ---
 
-### Apa itu Animathion?
-Platform web interaktif berbasis **HTML5 Canvas** untuk memvisualisasikan konsep matematika secara *real-time*—mulai dari transformasi aljabar linear hingga proyeksi 3D kustom tanpa *library* eksternal[cite: 4, 8].
+## 🚀 Tentang Proyek Ini
+**Animathion** (Animation + Math) adalah sebuah platform edukasi interaktif yang dirancang untuk membantu siswa memahami konsep matematika abstrak melalui **visualisasi animasi secara real-time**. 
+
+Banyak siswa kesulitan dalam matematika karena mereka hanya menghafal rumus tanpa tahu *apa yang sebenarnya terjadi* di baliknya. Melalui web ini, siswa dapat mengubah nilai, menggeser slider, dan melihat langsung bagaimana bentuk, posisi, dan grafik berubah secara langsung.
 
 ---
 
-### Modul Tersedia
+## 📚 Katalog Pelajaran
 
-| Modul | Fokus Visualisasi | File |
-| :--- | :--- | :--- |
-| **Matriks 2×2 & 3×3** | Transformasi basis vektor ($\hat{i}', \hat{j}', \hat{k}'$), luas/volume determinan, & *3D projection engine*[cite: 4]. | `matriks.html`[cite: 4] |
-| **Fungsi Kuadrat** | Kurva parabola dinamis, titik puncak, sumbu simetri, & deteksi akar diskriminan[cite: 5]. | `kuadrat.html`[cite: 5] |
-| **Trigonometri** | Sinkronisasi lingkaran satuan dengan gelombang sinus/kosinus & 6 rasio trigonometri[cite: 1]. | `trigonometri.html`[cite: 1] |
-| **Geometri Transformasi** | Translasi, rotasi, dilatasi, & refleksi bangun datar dengan tabel koordinat *real-time*[cite: 2]. | `transformasi.html`[cite: 2] |
-| **Teorema Pythagoras** | Pembuktian visual luas persegi ($a^2 + b^2 = c^2$) & kalkulator sisi otomatis[cite: 3]. | `pythagoras.html`[cite: 3] |
+Saat ini, Animathion memiliki modul pelajaran berikut:
 
----
-
-### Sorotan Teknis
-- **Zero Dependencies** — 100% Vanilla JavaScript, CSS3, dan HTML5 Canvas API[cite: 8].
-- **Custom 3D Engine** — Proyeksi perspektif 3D pada modul matriks dihitung manual dari nol[cite: 4].
-- **Smooth Interpolation** — Transisi grafik halus berbasis *linear interpolation* (`lerp`) & `requestAnimationFrame`[cite: 2, 8].
-- **Cross-Device** — Mendukung kontrol *mouse* (*drag & scroll*) serta gestur sentuh (*pinch-to-zoom*)[cite: 3, 4, 5, 8].
+| Ikon | Pelajaran | Deskripsi | Status |
+| :---: | :--- | :--- | :---: |
+| ⊞ | **Matriks 2x2 & 3x3** | Eksplorasi transformasi ruang 2D dan 3D. Lihat bagaimana matriks memutar, meregangkan, dan mencerminkan bidang. | ✅ Live |
+| 📈 | **Fungsi Kuadrat** | Pahami rahasia parabola. Ubah nilai `a`, `b`, dan `c` dan lihat bagaimana bentuk kurva serta titik puncaknya bergerak. | ✅ Live |
+| 🎡 | **Trigonometri** | Misteri Sinus dan Cosinus di lingkaran satuan. Putar sudutnya dan lihat bagaimana gelombang sinus serta cosinus terbentuk. | ✅ Live |
+| 🪞 | **Geometri Transformasi** | Lihat bagaimana bangun datar bergeser, berputar, membesar, dan memantul di cermin secara interaktif. | ✅ Live |
+| 📐 | **Teorema Pythagoras** | Buktikan secara visual mengapa `a² + b² = c²`. Lihat bagaimana luas persegi dari sisi alas dan tinggi mengisi luas persegi sisi miring. | ✅ Live |
 
 ---
 
-### Jalankan Lokal
+## ✨ Fitur Interaktif
+- **Live Animasi**: Grafik bergerak mulus mengikuti perubahan angka.
+- **Touch & Mouse Support**: Bisa dimainkan di laptop (scroll & drag) maupun di HP (pinch-to-zoom & swipe).
+- **Desain Neo-Brutalism**: Tampilan unik bergaya buku catatan dengan warna stabilo yang tidak membosankan.
+- **Kalkulasi Instan**: Menampilkan Determinan, Trace, Titik Puncak, Akar Persamaan, Tabel Koordinat, hingga rasio Trigonometri secara langsung.
 
-```bash
-git clone [https://github.com/aprima123/animathion.git](https://github.com/aprima123/animathion.git)[cite: 8]
-cd animathion
-# Buka index.html langsung di browser[cite: 6]
+---
+
+## 🛠️ Teknologi yang Digunakan
+Proyek ini dibangun murni menggunakan teknologi *web frontend* tanpa *framework* berat agar ringan dan cepat:
+- **HTML5 Canvas**: Untuk *rendering* grafik 2D, animasi kurva, dan proyeksi 3D.
+- **CSS3 Custom Properties**: Untuk manajemen warna dan tema Neo-Brutalism.
+- **Vanilla JavaScript**: Untuk semua logika matematika dan animasi *requestAnimationFrame*.
+- **Google Fonts**: Menggunakan font *Space Grotesk*.
+
+---
+
+## 💻 Cara Menjalankan Secara Lokal
+Karena ini adalah proyek web statis, kamu tidak perlu menginstal *server* apa pun.
+1. *Clone* repositori ini:
+   ```bash
+   git clone [https://github.com/aprima123/animathion.git](https://github.com/aprima123/animathion.git)
