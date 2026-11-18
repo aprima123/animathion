@@ -47,22 +47,19 @@
   
   .input-cells { display: flex; gap: 10px; position: relative; }
   
-  /* CSS Input: Spinner dikembalikan, padding diatur */
   .input-cells input {
-    width: 100%; padding: 12px 50px 12px 15px; /* Padding kanan untuk spinner + "cm" */
+    width: 100%; padding: 12px 50px 12px 15px;
     font-size: 1.1rem; font-weight: 700; text-align: center;
     background: #fff; color: var(--ink); border: 3px solid var(--ink); border-radius: 8px;
     outline: none; font-family: monospace; transition: 0.1s;
   }
   .input-cells input:focus { background: var(--bg-page); box-shadow: inset 2px 2px 0 rgba(0,0,0,0.1); }
   
-  /* Satuan cm di dalam input */
   .unit-label {
-    position: absolute; right: 35px; top: 50%; transform: translateY(-50%); /* Digeser ke kiri agar tidak tabrakan spinner */
+    position: absolute; right: 35px; top: 50%; transform: translateY(-50%);
     font-weight: 700; font-family: 'Space Grotesk', sans-serif; font-size: 0.9rem; color: #555; pointer-events: none;
   }
 
-  /* Warna Input */
   #inp-a { border-color: #ff2a55; color: #ff2a55; }
   #inp-b { border-color: #00d2ff; color: #00d2ff; }
   #inp-c { border-color: #73c82b; color: #73c82b; background: #f7fff0; }
@@ -75,7 +72,6 @@
   .btn-reset:hover { transform: translate(-2px, -2px); box-shadow: 4px 4px 0 var(--ink); }
   .btn-reset:active { transform: translate(2px, 2px); box-shadow: 0 0 0 var(--ink); }
 
-  /* Penjelasan Persamaan */
   .equation-box {
     background: var(--bg-page); border: 3px solid var(--ink); border-radius: 8px;
     padding: 15px; text-align: center; font-family: monospace; font-size: 1.1rem; font-weight: 700;
@@ -87,7 +83,6 @@
 
   .info-box { margin-top: 15px; font-size: 0.9rem; line-height: 1.6; background: #fff; padding: 12px; border: 2px dashed var(--ink); border-radius: 6px; text-align: center; }
 
-  /* Canvas */
   .canvas-wrap { position: relative; display: flex; flex-direction: column; }
   canvas { border-radius: 8px; background: #fff; border: 3px solid var(--ink); display: block; width: 100%; max-width: 500px; height: auto; aspect-ratio: 1 / 1; cursor: grab; touch-action: none; }
   canvas:active { cursor: grabbing; }
@@ -132,7 +127,6 @@
       <div class="input-group">
         <div class="input-label">Sisi Miring (c)</div>
         <div class="input-cells">
-          <!-- Hapus readonly agar spinner bisa diklik -->
           <input type="number" id="inp-c" placeholder="?" value="5">
           <div class="unit-label">cm</div>
         </div>
@@ -181,20 +175,16 @@ function updateShape() {
   let valB = parseFloat(elB.value);
   let valC = parseFloat(elC.value);
 
-  // Logika Perhitungan
+  // Logika Perhitungan yang Lebih Pintar
   if (!isNaN(valA) && !isNaN(valB)) {
     valC = Math.sqrt(valA*valA + valB*valB);
     elC.value = valC.toFixed(2);
-  } else if (!isNaN(valA) && !isNaN(valC)) {
-    if (valC > valA) {
-      valB = Math.sqrt(valC*valC - valA*valA);
-      elB.value = valB.toFixed(2);
-    }
-  } else if (!isNaN(valB) && !isNaN(valC)) {
-    if (valC > valB) {
-      valA = Math.sqrt(valC*valC - valB*valB);
-      elA.value = valA.toFixed(2);
-    }
+  } else if (!isNaN(valA) && !isNaN(valC) && valC > valA) {
+    valB = Math.sqrt(valC*valC - valA*valA);
+    elB.value = valB.toFixed(2);
+  } else if (!isNaN(valB) && !isNaN(valC) && valC > valB) {
+    valA = Math.sqrt(valC*valC - valB*valB);
+    elA.value = valA.toFixed(2);
   }
 
   tgtA = isNaN(valA) ? 0 : valA;
@@ -294,7 +284,7 @@ function drawScene() {
   ctx.fillStyle = '#ff2a55'; ctx.font = 'bold 12px "Space Grotesk"';
   ctx.fillText(`${degA.toFixed(1)}°`, p1[0] - 45, p1[1] - 15);
 
-  // Busur Sudut P2 (Sudut b) - DIPERBAIKI
+  // Busur Sudut P2 (Sudut b)
   ctx.strokeStyle = '#00d2ff'; ctx.lineWidth = 2;
   ctx.beginPath(); ctx.arc(p2[0], p2[1], 30, 0, radB, false); ctx.stroke();
   ctx.fillStyle = '#00d2ff'; ctx.font = 'bold 12px "Space Grotesk"';
@@ -317,14 +307,16 @@ function drawScene() {
 
 elA.addEventListener('input', updateShape);
 elB.addEventListener('input', updateShape);
-elC.addEventListener('input', updateShape); // Tambahkan listener untuk input c
+elC.addEventListener('input', updateShape);
 
 document.getElementById('btn-reset').onclick = () => {
   elA.value = 3; elB.value = 4; elC.value = "";
   updateShape();
 };
 
-// Zoom & Pan
+// ==========================================
+// INTERAKSI MOUSE (DESKTOP)
+// ==========================================
 cv.addEventListener('wheel', (ev) => {
   ev.preventDefault();
   const rect = cv.getBoundingClientRect();
@@ -350,6 +342,55 @@ window.addEventListener('mouseup', () => isDragging = false);
 document.getElementById('z_in').onclick = () => { view.scale = Math.min(MAX_SCALE, view.scale * 1.25); drawScene(); };
 document.getElementById('z_out').onclick = () => { view.scale = Math.max(MIN_SCALE, view.scale / 1.25); drawScene(); };
 document.getElementById('z_reset').onclick = () => { view = { scale: 50, cx: 200, cy: H - 200 }; drawScene(); };
+
+// ==========================================
+// INTERAKSI TOUCH (SMARTPHONE)
+// ==========================================
+function getTouchDist(touches) { 
+  const dx = touches[0].clientX - touches[1].clientX; 
+  const dy = touches[0].clientY - touches[1].clientY; 
+  return Math.sqrt(dx*dx + dy*dy); 
+}
+let touchDist = 0, lastTouch = null;
+
+cv.addEventListener('touchstart', (ev) => { 
+  ev.preventDefault(); 
+  if(ev.touches.length === 1) {
+    lastTouch = {x: ev.touches[0].clientX, y: ev.touches[0].clientY};
+  } else if(ev.touches.length === 2) {
+    touchDist = getTouchDist(ev.touches);
+  }
+}, {passive: false});
+
+cv.addEventListener('touchmove', (ev) => {
+  ev.preventDefault(); 
+  const rect = cv.getBoundingClientRect(); 
+  const ratio = cv.width / rect.width;
+  
+  if(ev.touches.length === 1 && lastTouch) {
+    // Geser (Pan)
+    const dx = ev.touches[0].clientX - lastTouch.x; 
+    const dy = ev.touches[0].clientY - lastTouch.y;
+    view.cx += dx * ratio; 
+    view.cy += dy * ratio; 
+    lastTouch = {x: ev.touches[0].clientX, y: ev.touches[0].clientY}; 
+    drawScene();
+  } else if(ev.touches.length === 2) {
+    // Zoom (Pinch)
+    const newDist = getTouchDist(ev.touches);
+    if(touchDist > 0) { 
+      const factor = newDist / touchDist; 
+      view.scale = Math.max(MIN_SCALE, Math.min(MAX_SCALE, view.scale * factor)); 
+      drawScene(); 
+    }
+    touchDist = newDist;
+  }
+}, {passive: false});
+
+cv.addEventListener('touchend', () => { 
+  lastTouch = null; 
+  touchDist = 0; 
+});
 
 updateShape();
 </script>
