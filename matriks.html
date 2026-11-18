@@ -244,7 +244,8 @@
     </div>
   </div>
 
-<script>
+<script type="module">
+import { setupCanvas, Smoother } from './shared/core.js';
 // ==========================================
 // GLOBAL & NAVIGASI
 // ==========================================
@@ -267,6 +268,8 @@ function bukaApp(mode) {
   }, 50); 
 }
 
+window.bukaApp = bukaApp;
+
 function fmt(n) {
   if(Math.abs(n - Math.round(n)) < 1e-9) return String(Math.round(n));
   return n.toFixed(2).replace(/\.?0+$/,'');
@@ -276,8 +279,7 @@ function fmt(n) {
 // LOGIKA 2D (DENGAN ANIMASI MORPHING)
 // ==========================================
 const cv2 = document.getElementById('cv2');
-const ctx2 = cv2.getContext('2d');
-const W2 = cv2.width, H2 = cv2.height;
+const { ctx: ctx2, W: W2, H: H2 } = setupCanvas(cv2, 600);
 let view2 = { scale: 80, cx: W2/2, cy: H2/2 };
 const MIN_SCALE = 2, MAX_SCALE = 800;
 
@@ -295,25 +297,11 @@ function getMatrix2() {
   return [parseFloat(els2.a.value)||0, parseFloat(els2.b.value)||0, parseFloat(els2.c.value)||0, parseFloat(els2.d.value)||0];
 }
 
+const sm2 = new Smoother({ m0: 1, m1: 0.5, m2: 0, m3: 1.5 }, (c) => {
+  currentMatrix2[0] = c.m0; currentMatrix2[1] = c.m1; currentMatrix2[2] = c.m2; currentMatrix2[3] = c.m3; draw2D(currentMatrix2);
+}, { rate: 10, eps: 0.001 });
 function updateMatrix2Smoothly() {
-  targetMatrix2 = getMatrix2();
-  if(animFrame2) cancelAnimationFrame(animFrame2);
-
-  function animate() {
-    let changed = false;
-    for(let i=0; i<4; i++) {
-      const diff = targetMatrix2[i] - currentMatrix2[i];
-      if(Math.abs(diff) > 0.001) {
-        currentMatrix2[i] += diff * 0.15;
-        changed = true;
-      } else {
-        currentMatrix2[i] = targetMatrix2[i];
-      }
-    }
-    draw2D(currentMatrix2);
-    if(changed) animFrame2 = requestAnimationFrame(animate);
-  }
-  animate();
+  const m = getMatrix2(); targetMatrix2 = m; sm2.set({ m0: m[0], m1: m[1], m2: m[2], m3: m[3] });
 }
 
 function w2p2(x,y) { return [ view2.cx + x*view2.scale, view2.cy - y*view2.scale ]; }
@@ -365,8 +353,7 @@ function draw2D(matrix = currentMatrix2) {
 // LOGIKA 3D (DENGAN ANIMASI MORPHING)
 // ==========================================
 const cv3 = document.getElementById('cv3');
-const ctx3 = cv3.getContext('2d');
-const W3 = cv3.width, H3 = cv3.height;
+const { ctx: ctx3, W: W3, H: H3 } = setupCanvas(cv3, 600);
 let cam = { yaw: -0.6, pitch: 0.5, dist: 8, panX: 0, panY: 0, scale: 70 };
 const MIN_DIST = 2, MAX_DIST = 30;
 
@@ -383,27 +370,14 @@ function getMatrix3() {
   return M;
 }
 
+const sm3 = new Smoother({ m00: 1, m01: 0, m02: 0, m10: 0, m11: 1.2, m12: 0, m20: 0, m21: 0, m22: 1.5 }, (c) => {
+  for (let i = 0; i < 3; i++) for (let j = 0; j < 3; j++) currentMatrix3[i][j] = c['m' + i + j];
+  draw3D(currentMatrix3);
+}, { rate: 10, eps: 0.001 });
 function updateMatrix3Smoothly() {
-  targetMatrix3 = getMatrix3();
-  if(animFrame3) cancelAnimationFrame(animFrame3);
-
-  function animate() {
-    let changed = false;
-    for(let i=0;i<3;i++) {
-      for(let j=0;j<3;j++) {
-        const diff = targetMatrix3[i][j] - currentMatrix3[i][j];
-        if(Math.abs(diff) > 0.001) {
-          currentMatrix3[i][j] += diff * 0.15;
-          changed = true;
-        } else {
-          currentMatrix3[i][j] = targetMatrix3[i][j];
-        }
-      }
-    }
-    draw3D(currentMatrix3);
-    if(changed) animFrame3 = requestAnimationFrame(animate);
-  }
-  animate();
+  const M = getMatrix3(); targetMatrix3 = M; const t = {};
+  for (let i = 0; i < 3; i++) for (let j = 0; j < 3; j++) t['m' + i + j] = M[i][j];
+  sm3.set(t);
 }
 
 function project3(x, y, z) {
@@ -458,10 +432,10 @@ function draw3D(matrix = currentMatrix3) {
 // EVENT LISTENERS & INTERAKSI
 // ==========================================
 ['m2_00', 'm2_01', 'm2_10', 'm2_11'].forEach(id => document.getElementById(id).addEventListener('input', updateMatrix2Smoothly));
-cv2.addEventListener('wheel', (ev) => { if(!document.getElementById('app-2x2').classList.contains('active')) return; ev.preventDefault(); const rect = cv2.getBoundingClientRect(); const mx = (ev.clientX - rect.left) * (cv2.width / rect.width); const my = (ev.clientY - rect.top) * (cv2.height / rect.height); const [wx, wy] = p2w2(mx, my); const factor = ev.deltaY < 0 ? 1.15 : 1/1.15; view2.scale = Math.max(MIN_SCALE, Math.min(MAX_SCALE, view2.scale * factor)); view2.cx = mx - wx * view2.scale; view2.cy = my + wy * view2.scale; draw2D(); }, { passive: false });
+cv2.addEventListener('wheel', (ev) => { if(!document.getElementById('app-2x2').classList.contains('active')) return; ev.preventDefault(); const rect = cv2.getBoundingClientRect(); const mx = (ev.clientX - rect.left) * (W2 / rect.width); const my = (ev.clientY - rect.top) * (H2 / rect.height); const [wx, wy] = p2w2(mx, my); const factor = ev.deltaY < 0 ? 1.15 : 1/1.15; view2.scale = Math.max(MIN_SCALE, Math.min(MAX_SCALE, view2.scale * factor)); view2.cx = mx - wx * view2.scale; view2.cy = my + wy * view2.scale; draw2D(); }, { passive: false });
 let isDragging2 = false, last2 = null;
 cv2.addEventListener('mousedown', (ev) => { isDragging2 = true; last2 = {x:ev.clientX, y:ev.clientY}; });
-window.addEventListener('mousemove', (ev) => { if(!isDragging2) return; const rect = cv2.getBoundingClientRect(); const ratio = cv2.width / rect.width; view2.cx += (ev.clientX - last2.x) * ratio; view2.cy += (ev.clientY - last2.y) * ratio; last2 = {x:ev.clientX, y:ev.clientY}; draw2D(); });
+window.addEventListener('mousemove', (ev) => { if(!isDragging2) return; const rect = cv2.getBoundingClientRect(); const ratio = W2 / rect.width; view2.cx += (ev.clientX - last2.x) * ratio; view2.cy += (ev.clientY - last2.y) * ratio; last2 = {x:ev.clientX, y:ev.clientY}; draw2D(); });
 window.addEventListener('mouseup', () => isDragging2 = false);
 document.getElementById('z2_in').onclick = () => { view2.scale = Math.min(MAX_SCALE, view2.scale * 1.25); draw2D(); };
 document.getElementById('z2_out').onclick = () => { view2.scale = Math.max(MIN_SCALE, view2.scale / 1.25); draw2D(); };
@@ -481,7 +455,7 @@ document.getElementById('z3_reset').onclick = () => { cam = { yaw:-0.6, pitch:0.
 function getTouchDist(touches) { const dx = touches[0].clientX - touches[1].clientX; const dy = touches[0].clientY - touches[1].clientY; return Math.sqrt(dx*dx + dy*dy); }
 let touchDist2 = 0, lastTouch2 = null;
 cv2.addEventListener('touchstart', (ev) => { ev.preventDefault(); if(ev.touches.length === 1) lastTouch2 = {x: ev.touches[0].clientX, y: ev.touches[0].clientY}; else if(ev.touches.length === 2) touchDist2 = getTouchDist(ev.touches); }, {passive: false});
-cv2.addEventListener('touchmove', (ev) => { ev.preventDefault(); const rect = cv2.getBoundingClientRect(); const ratio = cv2.width / rect.width; if(ev.touches.length === 1 && lastTouch2) { const dx = ev.touches[0].clientX - lastTouch2.x; const dy = ev.touches[0].clientY - lastTouch2.y; view2.cx += dx * ratio; view2.cy += dy * ratio; lastTouch2 = {x: ev.touches[0].clientX, y: ev.touches[0].clientY}; draw2D(); } else if(ev.touches.length === 2) { const newDist = getTouchDist(ev.touches); if(touchDist2 > 0) { const factor = newDist / touchDist2; view2.scale = Math.max(MIN_SCALE, Math.min(MAX_SCALE, view2.scale * factor)); draw2D(); } touchDist2 = newDist; } }, {passive: false});
+cv2.addEventListener('touchmove', (ev) => { ev.preventDefault(); const rect = cv2.getBoundingClientRect(); const ratio = W2 / rect.width; if(ev.touches.length === 1 && lastTouch2) { const dx = ev.touches[0].clientX - lastTouch2.x; const dy = ev.touches[0].clientY - lastTouch2.y; view2.cx += dx * ratio; view2.cy += dy * ratio; lastTouch2 = {x: ev.touches[0].clientX, y: ev.touches[0].clientY}; draw2D(); } else if(ev.touches.length === 2) { const newDist = getTouchDist(ev.touches); if(touchDist2 > 0) { const factor = newDist / touchDist2; view2.scale = Math.max(MIN_SCALE, Math.min(MAX_SCALE, view2.scale * factor)); draw2D(); } touchDist2 = newDist; } }, {passive: false});
 cv2.addEventListener('touchend', () => { lastTouch2 = null; touchDist2 = 0; });
 let touchDist3 = 0, lastTouch3 = null;
 cv3.addEventListener('touchstart', (ev) => { ev.preventDefault(); if(ev.touches.length === 1) lastTouch3 = {x: ev.touches[0].clientX, y: ev.touches[0].clientY}; else if(ev.touches.length === 2) touchDist3 = getTouchDist(ev.touches); }, {passive: false});
