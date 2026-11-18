@@ -2,397 +2,117 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Animathion - Teorema Pythagoras</title>
+<link rel="stylesheet" href="shared/animathion.css">
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&display=swap');
-  :root {
-    --bg-page: #f4f1ea; --grid-color: #e3ded1; --ink: #111111;
-    --hl-blue: #60c3ff; --hl-green: #a3f160; --hl-yellow: #ffe566; --hl-purple: #c48aff; --hl-pink: #ff99cc; --shadow: 4px 4px 0px var(--ink);
-  }
-  * { box-sizing: border-box; }
-  body {
-    margin: 0; min-height: 100vh; background-color: var(--bg-page);
-    background-image: linear-gradient(var(--grid-color) 1px, transparent 1px), linear-gradient(90deg, var(--grid-color) 1px, transparent 1px);
-    background-size: 30px 30px; color: var(--ink); font-family: 'Space Grotesk', sans-serif;
-    display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; overflow: hidden; touch-action: none;
-  }
-
-  @keyframes slideDownFade { 0% { opacity: 0; transform: translateY(-30px); } 100% { opacity: 1; transform: translateY(0); } }
-  @keyframes slideUpFade { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
-
-  .back-btn {
-    position: fixed; top: 20px; left: 20px; background: var(--hl-yellow); border: 3px solid var(--ink); color: var(--ink);
-    padding: 8px 16px; border-radius: 8px; cursor: pointer; font-family: inherit; font-weight: 700; font-size: 0.9rem;
-    text-decoration: none; display: flex; align-items: center; gap: 6px; transition: 0.1s; box-shadow: var(--shadow); z-index: 1000;
-    opacity: 0; animation: slideDownFade 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
-  }
-  .back-btn:hover { transform: translate(-2px, -2px); box-shadow: 6px 6px 0px var(--ink); }
-  .back-btn:active { transform: translate(2px, 2px); box-shadow: 0 0 0 var(--ink); }
-
-  .app-container { display: flex; flex-wrap: wrap; gap: 20px; justify-content: center; width: 100%; max-width: 1050px; }
-  
-  .panel { 
-    background: #fff; border: 3px solid var(--ink); border-radius: 12px; padding: 20px; box-shadow: var(--shadow); 
-    opacity: 0; animation: slideUpFade 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
-  }
-  .panel:nth-child(1) { animation-delay: 0.1s; }
-  .panel:nth-child(2) { animation-delay: 0.2s; }
-
-  h2 { margin: 0 0 15px 0; font-size: 1.1rem; font-weight: 700; text-transform: uppercase; border-bottom: 3px solid var(--ink); padding-bottom: 10px; }
-
-  /* Input Kalkulator */
-  .input-group { margin-bottom: 15px; }
-  .input-label { display: flex; justify-content: space-between; font-weight: 700; margin-bottom: 8px; font-size: 0.95rem; }
-  
-  .input-cells { display: flex; gap: 10px; position: relative; }
-  
-  .input-cells input {
-    width: 100%; padding: 12px 50px 12px 15px;
-    font-size: 1.1rem; font-weight: 700; text-align: center;
-    background: #fff; color: var(--ink); border: 3px solid var(--ink); border-radius: 8px;
-    outline: none; font-family: monospace; transition: 0.1s;
-  }
-  .input-cells input:focus { background: var(--bg-page); box-shadow: inset 2px 2px 0 rgba(0,0,0,0.1); }
-  
-  .unit-label {
-    position: absolute; right: 35px; top: 50%; transform: translateY(-50%);
-    font-weight: 700; font-family: 'Space Grotesk', sans-serif; font-size: 0.9rem; color: #555; pointer-events: none;
-  }
-
-  #inp-a { border-color: #ff2a55; color: #ff2a55; }
-  #inp-b { border-color: #00d2ff; color: #00d2ff; }
-  #inp-c { border-color: #73c82b; color: #73c82b; background: #f7fff0; }
-
-  .btn-reset {
-    width: 100%; padding: 12px; background: var(--hl-pink); border: 3px solid var(--ink);
-    border-radius: 8px; font-family: inherit; font-weight: 700; font-size: 1rem; cursor: pointer;
-    box-shadow: 2px 2px 0 var(--ink); transition: 0.1s; margin-bottom: 15px;
-  }
-  .btn-reset:hover { transform: translate(-2px, -2px); box-shadow: 4px 4px 0 var(--ink); }
-  .btn-reset:active { transform: translate(2px, 2px); box-shadow: 0 0 0 var(--ink); }
-
-  .equation-box {
-    background: var(--bg-page); border: 3px solid var(--ink); border-radius: 8px;
-    padding: 15px; text-align: center; font-family: monospace; font-size: 1.1rem; font-weight: 700;
-    box-shadow: inset 2px 2px 0 rgba(0,0,0,0.05); margin-bottom: 15px;
-    min-height: 80px; display: flex; flex-direction: column; justify-content: center; gap: 5px;
-  }
-  .eq-red { color: #ff2a55; } .eq-blue { color: #00d2ff; } .eq-green { color: #73c82b; }
-  .eq-sub { font-size: 0.85rem; color: #555; font-weight: 500; }
-
-  .info-box { margin-top: 15px; font-size: 0.9rem; line-height: 1.6; background: #fff; padding: 12px; border: 2px dashed var(--ink); border-radius: 6px; text-align: center; }
-
-  .canvas-wrap { position: relative; display: flex; flex-direction: column; }
-  canvas { border-radius: 8px; background: #fff; border: 3px solid var(--ink); display: block; width: 100%; max-width: 500px; height: auto; aspect-ratio: 1 / 1; cursor: grab; touch-action: none; }
-  canvas:active { cursor: grabbing; }
-
-  .zoom-controls { position: absolute; top: 12px; right: 12px; display: flex; flex-direction: column; gap: 6px; }
-  .zoom-controls button { width: 36px; height: 36px; border-radius: 6px; border: 3px solid var(--ink); background: #fff; color: var(--ink); font-size: 1.1rem; cursor: pointer; font-weight: 700; transition: 0.1s; box-shadow: 2px 2px 0 var(--ink); }
-  .zoom-controls button:hover { background: var(--hl-yellow); }
-  .zoom-controls button:active { transform: translate(2px, 2px); box-shadow: 0 0 0 var(--ink); }
-
-  @media (max-width: 800px) {
-    body { justify-content: flex-start; padding: 80px 10px 30px 10px; overflow-y: auto; touch-action: pan-y; }
-    .app-container { flex-direction: column; align-items: center; gap: 15px; }
-    .panel { width: 100%; max-width: 500px; padding: 15px; }
-    .back-btn { top: 15px; left: 15px; padding: 8px 14px; font-size: 0.85rem; }
-    .zoom-controls { display: none; }
-  }
+  .input-group{margin-bottom:15px}
+  .input-label{display:flex;justify-content:space-between;font-weight:700;margin-bottom:8px;font-size:.95rem}
+  .input-label small{font-weight:500;font-size:.75rem}
+  .input-cells{display:flex;gap:10px}
+  .input-cells input{flex:1;min-width:0;padding:10px;font:700 1.1rem inherit;font-family:inherit;border:3px solid var(--ink);border-radius:8px;background:#fff}
+  .input-cells input[data-auto="1"]{background:var(--hl-green)}
+  .input-cells input:focus{background:var(--bg-page);outline:3px solid var(--hl-purple)}
+  .unit-label{display:flex;align-items:center;padding:0 12px;font-weight:700;background:var(--hl-yellow);border:3px solid var(--ink);border-radius:8px}
+  .btn-reset{width:100%;padding:10px;margin:5px 0 15px;font:700 1rem inherit;font-family:inherit;background:var(--hl-pink);border:3px solid var(--ink);border-radius:8px;cursor:pointer;box-shadow:3px 3px 0 var(--ink);transition:.1s}
+  .btn-reset:hover{transform:translate(-2px,-2px);box-shadow:4px 4px 0 var(--ink)}
+  .btn-reset:active{transform:translate(2px,2px);box-shadow:none}
+  .equation-box{background:var(--bg-page);border:3px solid var(--ink);border-radius:8px;padding:12px;font:700 1.05rem monospace;line-height:1.7}
+  .eq-red{color:#ff2a55}.eq-blue{color:#0098c4}.eq-green{color:#4a9a10}.eq-sub{font-size:.85rem;color:#555;font-weight:500}
+  .ok{color:#2d8a0f}.bad{color:#d4183d}
 </style>
 </head>
 <body>
   <a href="index.html" class="back-btn">← MENU</a>
-
   <div class="app-container">
-    <div class="panel" style="flex: 1; min-width: 280px;">
+    <div class="panel" style="flex:1;min-width:280px">
       <h2>Kalkulator Pythagoras</h2>
-      
-      <div class="input-group">
-        <div class="input-label">Sisi Alas (a) <span style="font-size:0.75rem; font-weight:500;">[Kosongkan 1 untuk dicari]</span></div>
-        <div class="input-cells">
-          <input type="number" id="inp-a" placeholder="?" value="3">
-          <div class="unit-label">cm</div>
-        </div>
-      </div>
-
-      <div class="input-group">
-        <div class="input-label">Sisi Tinggi (b)</div>
-        <div class="input-cells">
-          <input type="number" id="inp-b" placeholder="?" value="4">
-          <div class="unit-label">cm</div>
-        </div>
-      </div>
-
-      <div class="input-group">
-        <div class="input-label">Sisi Miring (c)</div>
-        <div class="input-cells">
-          <input type="number" id="inp-c" placeholder="?" value="5">
-          <div class="unit-label">cm</div>
-        </div>
-      </div>
-
+      <p style="margin:0 0 15px;font-size:.9rem">Isi <b>2 sisi</b> untuk mencari sisi ketiga (kotak hijau = hasil hitung), atau isi <b>3 sisi</b> untuk memeriksa apakah segitiganya siku-siku.</p>
+      <div class="input-group"><div class="input-label">Sisi Alas (a)</div><div class="input-cells"><input type="number" id="inp-a" min="0" step="any" placeholder="?" value="3"><div class="unit-label">cm</div></div></div>
+      <div class="input-group"><div class="input-label">Sisi Tinggi (b)</div><div class="input-cells"><input type="number" id="inp-b" min="0" step="any" placeholder="?" value="4"><div class="unit-label">cm</div></div></div>
+      <div class="input-group"><div class="input-label">Sisi Miring (c)</div><div class="input-cells"><input type="number" id="inp-c" min="0" step="any" placeholder="?" data-auto="1"><div class="unit-label">cm</div></div></div>
       <button class="btn-reset" id="btn-reset">↺ Reset ke Awal</button>
-
       <div class="equation-box" id="equation-panel"></div>
       <div class="info-box" id="info-panel"></div>
     </div>
-
     <div class="panel canvas-wrap">
       <h2>Visualisasi 2D</h2>
-      <canvas id="cv_pyth" width="600" height="600"></canvas>
-      <div class="zoom-controls">
-        <button id="z_in" title="Zoom in">+</button>
-        <button id="z_out" title="Zoom out">−</button>
-        <button id="z_reset" title="Reset">⟲</button>
-      </div>
+      <canvas id="cv" aria-label="Segitiga siku-siku dengan persegi di tiap sisinya"></canvas>
+      <div class="zoom-controls"><button id="z_in" title="Zoom in">+</button><button id="z_out" title="Zoom out">−</button><button id="z_reset" title="Reset">⟲</button></div>
     </div>
   </div>
+<script type="module">
+import { setupCanvas, Smoother, Viewport, drawGrid, fmt } from './shared/core.js';
+const $ = (id) => document.getElementById(id);
+const { ctx, W, H } = setupCanvas($('cv'), 600);
+const vp = new Viewport(W, H, { scale: 50, min: 10, max: 200 });
+vp.reset = () => { vp.scale = 50; vp.cx = 200; vp.cy = H - 200; }; vp.reset();
+const el = { a: $('inp-a'), b: $('inp-b'), c: $('inp-c') };
+const num = (k) => (el[k].dataset.auto === '1' || el[k].value === '' ? NaN : parseFloat(el[k].value));
 
-<script>
-const cv = document.getElementById('cv_pyth');
-const ctx = cv.getContext('2d');
-const W = cv.width, H = cv.height;
-
-let view = { scale: 50, cx: 200, cy: H - 200 };
-const MIN_SCALE = 10, MAX_SCALE = 200;
-
-let curA = 3, curB = 4, curC = 5;
-let tgtA = 3, tgtB = 4, tgtC = 5;
-let animFrame = null;
-
-const elA = document.getElementById('inp-a');
-const elB = document.getElementById('inp-b');
-const elC = document.getElementById('inp-c');
-const eqPanel = document.getElementById('equation-panel');
-const infoPanel = document.getElementById('info-panel');
-
-function w2p(x, y) { return [ view.cx + x*view.scale, view.cy - y*view.scale ]; }
-function p2w(px, py) { return [ (px - view.cx)/view.scale, (view.cy - py)/view.scale ]; }
-
-function updateShape() {
-  let valA = parseFloat(elA.value);
-  let valB = parseFloat(elB.value);
-  let valC = parseFloat(elC.value);
-
-  // Logika Perhitungan yang Lebih Pintar
-  if (!isNaN(valA) && !isNaN(valB)) {
-    valC = Math.sqrt(valA*valA + valB*valB);
-    elC.value = valC.toFixed(2);
-  } else if (!isNaN(valA) && !isNaN(valC) && valC > valA) {
-    valB = Math.sqrt(valC*valC - valA*valA);
-    elB.value = valB.toFixed(2);
-  } else if (!isNaN(valB) && !isNaN(valC) && valC > valB) {
-    valA = Math.sqrt(valC*valC - valB*valB);
-    elA.value = valA.toFixed(2);
+function solve() {
+  const v = { a: num('a'), b: num('b'), c: num('c') };
+  const own = Object.keys(v).filter((k) => v[k] > 0);
+  let msg = '<div style="color:#888">Isi minimal 2 sisi untuk menghitung sisi lainnya.</div>', a = 0, b = 0;
+  for (const k in el) if (el[k].dataset.auto === '1' && own.length < 3) { el[k].value = ''; }
+  if (own.length === 3) {
+    a = v.a; b = v.b;
+    const ok = Math.abs(a * a + b * b - v.c * v.c) < 0.005 * Math.max(1, v.c * v.c);
+    msg = `<div><span class="eq-red">${fmt(a * a)}</span> + <span class="eq-blue">${fmt(b * b)}</span> ${ok ? '=' : '≠'} <span class="eq-green">${fmt(v.c * v.c)}</span></div>` +
+      (ok ? '<div class="ok">✓ Siku-siku! Pythagoras berlaku.</div>' : `<div class="bad">✗ Bukan siku-siku. Agar siku-siku, c seharusnya ${fmt(Math.hypot(a, b), 2)}.</div>`);
+  } else if (own.length === 2) {
+    const miss = ['a', 'b', 'c'].find((k) => !(v[k] > 0)), [p, q] = own;
+    if (miss === 'c') { v.c = Math.hypot(v.a, v.b); msg = `<div><span class="eq-red">${fmt(v.a * v.a)}</span> + <span class="eq-blue">${fmt(v.b * v.b)}</span> = <span class="eq-green">c²</span></div><div class="eq-sub">c = √(${fmt(v.a * v.a)} + ${fmt(v.b * v.b)}) = ${fmt(v.c, 2)} cm</div>`; a = v.a; b = v.b; }
+    else if (v.c > v[p === 'c' ? q : p]) {
+      const known = miss === 'a' ? v.b : v.a;
+      v[miss] = Math.sqrt(v.c * v.c - known * known);
+      msg = `<div class="eq-sub">${miss} = √(${fmt(v.c * v.c)} − ${fmt(known * known)}) = ${fmt(v[miss], 2)} cm</div>`; a = v.a; b = v.b;
+    } else msg = '<div class="bad">Sisi miring (c) harus lebih panjang dari sisi lainnya.</div>';
+    if (a > 0) { el[miss].value = fmt(v[miss], 2); el[miss].dataset.auto = '1'; }
   }
-
-  tgtA = isNaN(valA) ? 0 : valA;
-  tgtB = isNaN(valB) ? 0 : valB;
-  tgtC = isNaN(valC) ? 0 : valC;
-
-  // Update Teks
-  if (!isNaN(valA) && !isNaN(valB) && !isNaN(valC)) {
-    eqPanel.innerHTML = `
-      <div><span class="eq-red">${valA.toFixed(1)}²</span> + <span class="eq-blue">${valB.toFixed(1)}²</span> = <span class="eq-green">c²</span></div>
-      <div><span class="eq-red">${(valA*valA).toFixed(1)}</span> + <span class="eq-blue">${(valB*valB).toFixed(1)}</span> = <span class="eq-green">${(valC*valC).toFixed(1)}</span></div>
-      <div class="eq-sub">c = √(${(valA*valA).toFixed(1)} + ${(valB*valB).toFixed(1)}) = ${valC.toFixed(2)} cm</div>
-    `;
-  } else {
-    eqPanel.innerHTML = `<div style="color:#888;">Isi minimal 2 kolom untuk menghitung sisi lainnya.</div>`;
-  }
-
-  if(animFrame) cancelAnimationFrame(animFrame);
-  function animate() {
-    let changed = false;
-    const diffA = tgtA - curA, diffB = tgtB - curB, diffC = tgtC - curC;
-    if(Math.abs(diffA) > 0.01 || Math.abs(diffB) > 0.01 || Math.abs(diffC) > 0.01) {
-      curA += diffA * 0.15; curB += diffB * 0.15; curC += diffC * 0.15; changed = true;
-    } else { curA = tgtA; curB = tgtB; curC = tgtC; }
-    drawScene();
-    if(changed) animFrame = requestAnimationFrame(animate);
-  }
-  animate();
+  $('equation-panel').innerHTML = msg;
+  sm.set({ a, b });
 }
 
-function drawScene() {
-  ctx.clearRect(0, 0, W, H);
-  const a = curA, b = curB, c = curC;
+function draw({ a, b }) {
+  drawGrid(ctx, vp);
+  if (a < 0.01 || b < 0.01) { $('info-panel').textContent = 'Belum ada segitiga untuk digambar.'; return; }
+  const c = Math.hypot(a, b), P0 = { x: 0, y: 0 }, P1 = { x: a, y: 0 }, P2 = { x: 0, y: b };
+  const p0 = vp.w2p(0, 0), p1 = vp.w2p(a, 0), p2 = vp.w2p(0, b);
+  // persegi di luar segitiga: a ke bawah, b ke kiri, c ke kanan-atas
+  const sq = (s, e, dir, rgb, label) => {
+    const dx = e.x - s.x, dy = e.y - s.y, nx = -dir * dy, ny = dir * dx;
+    const pts = [[s.x, s.y], [e.x, e.y], [e.x + nx, e.y + ny], [s.x + nx, s.y + ny]].map((p) => vp.w2p(...p));
+    ctx.beginPath(); pts.forEach((p, i) => (i ? ctx.lineTo(...p) : ctx.moveTo(...p))); ctx.closePath();
+    ctx.fillStyle = `rgba(${rgb},.25)`; ctx.fill(); ctx.strokeStyle = `rgba(${rgb},.9)`; ctx.lineWidth = 2; ctx.stroke();
+    const mx = (pts[0][0] + pts[2][0]) / 2, my = (pts[0][1] + pts[2][1]) / 2;
+    ctx.fillStyle = '#111'; ctx.font = 'bold 14px "Space Grotesk"'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(label, mx, my);
+  };
+  sq(P0, P1, -1, '255,42,85', `a² = ${fmt(a * a)}`);
+  sq(P0, P2, 1, '0,168,214', `b² = ${fmt(b * b)}`);
+  sq(P2, P1, 1, '115,200,43', `c² = ${fmt(c * c)}`);
+  ctx.fillStyle = 'rgba(0,0,0,.1)'; ctx.strokeStyle = '#111'; ctx.lineWidth = 3;
+  ctx.beginPath(); ctx.moveTo(...p0); ctx.lineTo(...p1); ctx.lineTo(...p2); ctx.closePath(); ctx.fill(); ctx.stroke();
 
-  // Grid & Sumbu
-  ctx.strokeStyle = '#e0e0e0'; ctx.lineWidth = 1;
-  for(let i=0; i<=W; i+=view.scale) { ctx.beginPath(); ctx.moveTo(i,0); ctx.lineTo(i,H); ctx.stroke(); }
-  for(let i=0; i<=H; i+=view.scale) { ctx.beginPath(); ctx.moveTo(0,i); ctx.lineTo(W,i); ctx.stroke(); }
-  ctx.strokeStyle = '#111'; ctx.lineWidth = 2;
-  ctx.beginPath(); ctx.moveTo(0, view.cy); ctx.lineTo(W, view.cy); ctx.stroke();
-  ctx.beginPath(); ctx.moveTo(view.cx, 0); ctx.lineTo(view.cx, H); ctx.stroke();
+  ctx.fillStyle = '#111'; ctx.font = 'bold 15px "Space Grotesk"';
+  ctx.fillText(`a = ${fmt(a)}`, (p0[0] + p1[0]) / 2, p0[1] - 12);
+  ctx.fillText(`b = ${fmt(b)}`, p0[0] + 32, (p0[1] + p2[1]) / 2);
+  ctx.fillText(`c = ${fmt(c)}`, (p1[0] + p2[0]) / 2 - 22, (p1[1] + p2[1]) / 2 + 16);
 
-  if(a <= 0 || b <= 0) return; 
-
-  const P0 = {x: 0, y: 0};
-  const P1 = {x: a, y: 0};
-  const P2 = {x: 0, y: b};
-
-  const p0 = w2p(P0.x, P0.y);
-  const p1 = w2p(P1.x, P1.y);
-  const p2 = w2p(P2.x, P2.y);
-
-  // Segitiga
-  ctx.fillStyle = 'rgba(0,0,0,0.1)';
-  ctx.strokeStyle = '#111'; ctx.lineWidth = 3;
-  ctx.beginPath(); ctx.moveTo(p0[0], p0[1]); ctx.lineTo(p1[0], p1[1]); ctx.lineTo(p2[0], p2[1]); ctx.closePath(); ctx.fill(); ctx.stroke();
-
-  // Vektor Persegi
-  function getSquareVectors(start, end, dir) {
-    const dx = end.x - start.x; const dy = end.y - start.y;
-    const nx = dir * -dy; const ny = dir * dx;
-    return { dx, dy, nx, ny };
-  }
-  const vecA = getSquareVectors(P1, P0, -1); 
-  const vecB = getSquareVectors(P2, P0, 1);  
-  const vecC = getSquareVectors(P2, P1, 1);  
-
-  function drawSquareBase(start, vec, fill, stroke, lw) {
-    const q1 = w2p(start.x + vec.nx, start.y + vec.ny);
-    const q2 = w2p(start.x + vec.dx + vec.nx, start.y + vec.dy + vec.ny);
-    const q0 = w2p(start.x, start.y);
-    const q3 = w2p(start.x + vec.dx, start.y + vec.dy);
-    ctx.beginPath(); ctx.moveTo(q0[0], q0[1]); ctx.lineTo(q3[0], q3[1]); ctx.lineTo(q2[0], q2[1]); ctx.lineTo(q1[0], q1[1]); ctx.closePath();
-    if(fill) { ctx.fillStyle = fill; ctx.fill(); }
-    if(stroke) { ctx.strokeStyle = stroke; ctx.lineWidth = lw; ctx.stroke(); }
-  }
-
-  drawSquareBase(P1, vecA, 'rgba(255, 42, 85, 0.2)', 'rgba(255, 42, 85, 0.8)', 2);
-  drawSquareBase(P2, vecB, 'rgba(0, 210, 255, 0.2)', 'rgba(0, 210, 255, 0.8)', 2);
-  drawSquareBase(P2, vecC, 'rgba(163, 241, 96, 0.2)', 'rgba(163, 241, 96, 0.8)', 2);
-
-  // Label Sisi
-  ctx.fillStyle = '#111'; ctx.font = 'bold 16px "Space Grotesk"'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-  ctx.fillText(`a = ${a.toFixed(1)} cm`, (p0[0]+p1[0])/2, p0[1] + 20);
-  ctx.fillText(`b = ${b.toFixed(1)} cm`, p2[0] - 45, (p0[1]+p2[1])/2);
-  ctx.fillText(`c = ${c.toFixed(1)} cm`, (p1[0]+p2[0])/2 + 40, (p1[1]+p2[1])/2 - 20);
-
-  // Hitung Sudut
-  const radA = Math.atan2(b, a); 
-  const radB = Math.atan2(a, b); 
-  const degA = radA * 180 / Math.PI;
-  const degB = radB * 180 / Math.PI;
-
-  // Busur Sudut P1 (Sudut a)
-  ctx.strokeStyle = '#ff2a55'; ctx.lineWidth = 2;
-  ctx.beginPath(); ctx.arc(p1[0], p1[1], 30, -Math.PI + radA, 0, false); ctx.stroke();
-  ctx.fillStyle = '#ff2a55'; ctx.font = 'bold 12px "Space Grotesk"';
-  ctx.fillText(`${degA.toFixed(1)}°`, p1[0] - 45, p1[1] - 15);
-
-  // Busur Sudut P2 (Sudut b)
-  ctx.strokeStyle = '#00d2ff'; ctx.lineWidth = 2;
-  ctx.beginPath(); ctx.arc(p2[0], p2[1], 30, 0, radB, false); ctx.stroke();
-  ctx.fillStyle = '#00d2ff'; ctx.font = 'bold 12px "Space Grotesk"';
-  const textX = p2[0] + 45 * Math.cos(radB / 2);
-  const textY = p2[1] + 45 * Math.sin(radB / 2);
-  ctx.fillText(`${degB.toFixed(1)}°`, textX, textY);
-
-  // Simbol Siku-siku (P0)
-  ctx.strokeStyle = '#111'; ctx.lineWidth = 2;
-  ctx.strokeRect(p0[0] + 5, p0[1] - 20, 15, 15); 
-  ctx.fillStyle = '#111'; ctx.font = 'bold 12px "Space Grotesk"';
-  ctx.fillText(`90°`, p0[0] + 35, p0[1] - 30);
-
-  // Info Panel
-  infoPanel.innerHTML = `
-    <b>Sudut:</b> ${degA.toFixed(1)}° + ${degB.toFixed(1)}° + 90° = 180°<br>
-    <span style="font-size:0.8rem; color:#555;">(Jumlah sudut dalam segitiga selalu 180°)</span>
-  `;
+  const rA = Math.atan2(b, a), rB = Math.atan2(a, b), dA = rA * 180 / Math.PI, dB = rB * 180 / Math.PI;
+  ctx.lineWidth = 2; ctx.font = 'bold 12px "Space Grotesk"';
+  ctx.strokeStyle = ctx.fillStyle = '#ff2a55'; ctx.beginPath(); ctx.arc(p1[0], p1[1], 30, -Math.PI + rA, 0); ctx.stroke(); ctx.fillText(`${fmt(dA)}°`, p1[0] - 48, p1[1] - 14);
+  ctx.strokeStyle = ctx.fillStyle = '#0098c4'; ctx.beginPath(); ctx.arc(p2[0], p2[1], 30, rA, Math.PI / 2); ctx.stroke();
+  const mid = (rA + Math.PI / 2) / 2; ctx.fillText(`${fmt(dB)}°`, p2[0] + 48 * Math.cos(mid), p2[1] + 48 * Math.sin(mid));
+  ctx.strokeStyle = ctx.fillStyle = '#111'; ctx.strokeRect(p0[0] + 5, p0[1] - 20, 15, 15); ctx.fillText('90°', p0[0] + 36, p0[1] - 30);
+  $('info-panel').innerHTML = `<b>Sudut:</b> ${fmt(dA)}° + ${fmt(dB)}° + 90° = 180°<br><span style="font-size:.8rem;color:#555">Jumlah sudut dalam segitiga selalu 180°</span>`;
 }
 
-elA.addEventListener('input', updateShape);
-elB.addEventListener('input', updateShape);
-elC.addEventListener('input', updateShape);
-
-document.getElementById('btn-reset').onclick = () => {
-  elA.value = 3; elB.value = 4; elC.value = "";
-  updateShape();
-};
-
-// ==========================================
-// INTERAKSI MOUSE (DESKTOP)
-// ==========================================
-cv.addEventListener('wheel', (ev) => {
-  ev.preventDefault();
-  const rect = cv.getBoundingClientRect();
-  const mx = (ev.clientX - rect.left) * (cv.width / rect.width); 
-  const my = (ev.clientY - rect.top) * (cv.height / rect.height);
-  const [wx, wy] = p2w(mx, my);
-  const factor = ev.deltaY < 0 ? 1.15 : 1/1.15;
-  view.scale = Math.max(MIN_SCALE, Math.min(MAX_SCALE, view.scale * factor));
-  view.cx = mx - wx * view.scale; view.cy = my + wy * view.scale;
-  drawScene();
-}, { passive: false });
-
-let isDragging = false, last = null;
-cv.addEventListener('mousedown', (ev) => { isDragging = true; last = {x:ev.clientX, y:ev.clientY}; });
-window.addEventListener('mousemove', (ev) => {
-  if(!isDragging) return;
-  const rect = cv.getBoundingClientRect(); const ratio = cv.width / rect.width; 
-  view.cx += (ev.clientX - last.x) * ratio; view.cy += (ev.clientY - last.y) * ratio;
-  last = {x:ev.clientX, y:ev.clientY}; drawScene();
-});
-window.addEventListener('mouseup', () => isDragging = false);
-
-document.getElementById('z_in').onclick = () => { view.scale = Math.min(MAX_SCALE, view.scale * 1.25); drawScene(); };
-document.getElementById('z_out').onclick = () => { view.scale = Math.max(MIN_SCALE, view.scale / 1.25); drawScene(); };
-document.getElementById('z_reset').onclick = () => { view = { scale: 50, cx: 200, cy: H - 200 }; drawScene(); };
-
-// ==========================================
-// INTERAKSI TOUCH (SMARTPHONE)
-// ==========================================
-function getTouchDist(touches) { 
-  const dx = touches[0].clientX - touches[1].clientX; 
-  const dy = touches[0].clientY - touches[1].clientY; 
-  return Math.sqrt(dx*dx + dy*dy); 
-}
-let touchDist = 0, lastTouch = null;
-
-cv.addEventListener('touchstart', (ev) => { 
-  ev.preventDefault(); 
-  if(ev.touches.length === 1) {
-    lastTouch = {x: ev.touches[0].clientX, y: ev.touches[0].clientY};
-  } else if(ev.touches.length === 2) {
-    touchDist = getTouchDist(ev.touches);
-  }
-}, {passive: false});
-
-cv.addEventListener('touchmove', (ev) => {
-  ev.preventDefault(); 
-  const rect = cv.getBoundingClientRect(); 
-  const ratio = cv.width / rect.width;
-  
-  if(ev.touches.length === 1 && lastTouch) {
-    // Geser (Pan)
-    const dx = ev.touches[0].clientX - lastTouch.x; 
-    const dy = ev.touches[0].clientY - lastTouch.y;
-    view.cx += dx * ratio; 
-    view.cy += dy * ratio; 
-    lastTouch = {x: ev.touches[0].clientX, y: ev.touches[0].clientY}; 
-    drawScene();
-  } else if(ev.touches.length === 2) {
-    // Zoom (Pinch)
-    const newDist = getTouchDist(ev.touches);
-    if(touchDist > 0) { 
-      const factor = newDist / touchDist; 
-      view.scale = Math.max(MIN_SCALE, Math.min(MAX_SCALE, view.scale * factor)); 
-      drawScene(); 
-    }
-    touchDist = newDist;
-  }
-}, {passive: false});
-
-cv.addEventListener('touchend', () => { 
-  lastTouch = null; 
-  touchDist = 0; 
-});
-
-updateShape();
+const sm = new Smoother({ a: 0, b: 0 }, draw, { rate: 10, eps: 0.005 });
+for (const k in el) el[k].addEventListener('input', () => { el[k].dataset.auto = '0'; solve(); });
+$('btn-reset').onclick = () => { el.a.value = 3; el.b.value = 4; el.c.value = ''; el.a.dataset.auto = el.b.dataset.auto = '0'; el.c.dataset.auto = '1'; solve(); };
+vp.attach($('cv'), () => sm.redraw(), { zin: $('z_in'), zout: $('z_out'), reset: $('z_reset') });
+solve();
 </script>
 </body>
 </html>
