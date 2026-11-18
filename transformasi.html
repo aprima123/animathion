@@ -18,7 +18,6 @@
     display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; overflow: hidden; touch-action: none;
   }
 
-  /* Animasi Navigasi */
   @keyframes slideDownFade { 0% { opacity: 0; transform: translateY(-30px); } 100% { opacity: 1; transform: translateY(0); } }
   @keyframes slideUpFade { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
 
@@ -31,18 +30,25 @@
   .back-btn:hover { transform: translate(-2px, -2px); box-shadow: 6px 6px 0px var(--ink); }
   .back-btn:active { transform: translate(2px, 2px); box-shadow: 0 0 0 var(--ink); }
 
-  .app-container { display: flex; flex-wrap: wrap; gap: 20px; justify-content: center; width: 100%; max-width: 1000px; }
+  .app-container { display: flex; flex-wrap: wrap; gap: 20px; justify-content: center; width: 100%; max-width: 1100px; }
   
   .panel { 
     background: #fff; border: 3px solid var(--ink); border-radius: 12px; padding: 20px; box-shadow: var(--shadow); 
     opacity: 0; animation: slideUpFade 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
   }
-  .panel:nth-child(1) { animation-delay: 0.1s; } /* Panel Kontrol */
-  .panel:nth-child(2) { animation-delay: 0.2s; } /* Panel Kanvas */
+  .panel:nth-child(1) { animation-delay: 0.1s; }
+  .panel:nth-child(2) { animation-delay: 0.2s; }
 
   h2 { margin: 0 0 15px 0; font-size: 1.1rem; font-weight: 700; text-transform: uppercase; border-bottom: 3px solid var(--ink); padding-bottom: 10px; }
 
-  /* Tab Menu Transformasi */
+  .shape-menu { display: flex; gap: 8px; margin-bottom: 15px; flex-wrap: wrap; }
+  .shape-btn {
+    flex: 1; min-width: 60px; padding: 8px; background: #fff; border: 2px solid var(--ink);
+    border-radius: 6px; font-family: inherit; font-weight: 700; font-size: 0.8rem; cursor: pointer; transition: 0.1s;
+  }
+  .shape-btn.active { background: var(--hl-pink); box-shadow: 2px 2px 0 var(--ink); transform: translate(-1px, -1px); }
+  .shape-btn:hover:not(.active) { background: #f0f0f0; }
+
   .tab-menu { display: flex; gap: 8px; margin-bottom: 20px; flex-wrap: wrap; }
   .tab-btn {
     flex: 1; min-width: 80px; padding: 8px 4px; background: var(--bg-page); border: 2px solid var(--ink);
@@ -51,7 +57,6 @@
   .tab-btn.active { background: var(--hl-blue); box-shadow: 2px 2px 0 var(--ink); transform: translate(-1px, -1px); }
   .tab-btn:hover:not(.active) { background: #e0e0e0; }
 
-  /* Kontrol Input */
   .control-group { margin-bottom: 15px; display: none; }
   .control-group.active { display: block; }
   .control-label { display: flex; justify-content: space-between; font-weight: 700; margin-bottom: 8px; font-size: 0.9rem; }
@@ -66,7 +71,17 @@
   .info-box { margin-top: 15px; font-size: 0.85rem; line-height: 1.5; background: var(--bg-page); padding: 10px; border: 2px dashed var(--ink); border-radius: 6px; }
 
   .canvas-wrap { position: relative; display: flex; flex-direction: column; }
-  canvas { border-radius: 8px; background: #fff; border: 3px solid var(--ink); display: block; width: 100%; max-width: 500px; height: auto; aspect-ratio: 1 / 1; }
+  canvas { border-radius: 8px; background: #fff; border: 3px solid var(--ink); display: block; width: 100%; max-width: 450px; height: auto; aspect-ratio: 1 / 1; }
+
+  /* Tabel Koordinat Real-time */
+  .coord-panel { margin-top: 15px; border: 2px solid var(--ink); border-radius: 8px; overflow: hidden; background: #fff; }
+  .coord-table { width: 100%; border-collapse: collapse; text-align: center; font-family: monospace; font-size: 0.9rem; }
+  .coord-table th { background: var(--bg-page); border-bottom: 2px solid var(--ink); padding: 8px; font-family: 'Space Grotesk', sans-serif; }
+  .coord-table td { padding: 8px; border-bottom: 1px solid #ddd; border-right: 1px solid #ddd; }
+  .coord-table td:last-child { border-right: none; }
+  .coord-table tr:last-child td { border-bottom: none; }
+  .val-x { color: #ff2a55; font-weight: 700; }
+  .val-y { color: #00d2ff; font-weight: 700; }
 
   @media (max-width: 800px) {
     body { justify-content: flex-start; padding: 80px 10px 30px 10px; overflow-y: auto; touch-action: pan-y; }
@@ -84,14 +99,20 @@
     <div class="panel" style="flex: 1; min-width: 300px;">
       <h2>Geometri Transformasi</h2>
       
-      <div class="tab-menu">
-        <button class="tab-btn active" onclick="setMode('translasi')">Translasi</button>
-        <button class="tab-btn" onclick="setMode('rotasi')">Rotasi</button>
-        <button class="tab-btn" onclick="setMode('dilatasi')">Dilatasi</button>
-        <button class="tab-btn" onclick="setMode('refleksi')">Refleksi</button>
+      <div class="shape-menu">
+        <button class="shape-btn active" id="shape-segitiga" onclick="setShape('segitiga')">Segitiga</button>
+        <button class="shape-btn" id="shape-persegi" onclick="setShape('persegi')">Persegi</button>
+        <button class="shape-btn" id="shape-trapesium" onclick="setShape('trapesium')">Trapesium</button>
+        <button class="shape-btn" id="shape-layang" onclick="setShape('layang')">Layang-layang</button>
       </div>
 
-      <!-- Kontrol Translasi -->
+      <div class="tab-menu">
+        <button class="tab-btn active" id="tab-translasi" onclick="setMode('translasi')">Translasi</button>
+        <button class="tab-btn" id="tab-rotasi" onclick="setMode('rotasi')">Rotasi</button>
+        <button class="tab-btn" id="tab-dilatasi" onclick="setMode('dilatasi')">Dilatasi</button>
+        <button class="tab-btn" id="tab-refleksi" onclick="setMode('refleksi')">Refleksi</button>
+      </div>
+
       <div class="control-group active" id="ctrl-translasi">
         <div class="control-label">Geser Sumbu X <span id="val-tx">0</span></div>
         <input type="range" id="slider-tx" min="-5" max="5" step="0.1" value="0">
@@ -99,19 +120,16 @@
         <input type="range" id="slider-ty" min="-5" max="5" step="0.1" value="0">
       </div>
 
-      <!-- Kontrol Rotasi -->
       <div class="control-group" id="ctrl-rotasi">
         <div class="control-label">Sudut Rotasi <span id="val-rot">0</span>°</div>
         <input type="range" id="slider-rot" min="0" max="360" step="1" value="0">
       </div>
 
-      <!-- Kontrol Dilatasi -->
       <div class="control-group" id="ctrl-dilatasi">
         <div class="control-label">Faktor Skala <span id="val-dil">1</span>x</div>
         <input type="range" id="slider-dil" min="0.5" max="3" step="0.1" value="1">
       </div>
 
-      <!-- Kontrol Refleksi -->
       <div class="control-group" id="ctrl-refleksi">
         <div class="control-label">Sumbu Cermin</div>
         <select id="select-ref" style="width: 100%; padding: 8px; border: 2px solid var(--ink); border-radius: 6px; font-family: inherit; font-weight: 700; margin-top: 5px;">
@@ -122,15 +140,29 @@
         </select>
       </div>
 
-      <div class="info-box" id="info-panel">
-        <!-- Info teks -->
-      </div>
+      <div class="info-box" id="info-panel"></div>
     </div>
 
-    <!-- Panel Kanvas -->
+    <!-- Panel Kanvas & Tabel -->
     <div class="panel canvas-wrap">
       <h2>Visualisasi 2D</h2>
       <canvas id="cv_transform" width="600" height="600"></canvas>
+      
+      <!-- Tabel Koordinat -->
+      <div class="coord-panel">
+        <table class="coord-table" id="coord-table">
+          <thead>
+            <tr>
+              <th>Titik</th>
+              <th>Asli (x, y)</th>
+              <th>Hasil (x', y')</th>
+            </tr>
+          </thead>
+          <tbody>
+            <!-- Akan diisi oleh JS -->
+          </tbody>
+        </table>
+      </div>
     </div>
   </div>
 
@@ -139,214 +171,221 @@ const cv = document.getElementById('cv_transform');
 const ctx = cv.getContext('2d');
 const W = cv.width, H = cv.height;
 
-// View State
 let view = { scale: 40, cx: W/2, cy: H/2 };
 
-// State Segitiga Asli (Objek Awal)
-// Titik-titik relatif terhadap pusat
-const baseTriangle = [
-  {x: -1, y: -1},
-  {x: 2, y: -1},
-  {x: -1, y: 2}
-];
-
-// State Animasi & Transformasi
-let mode = 'translasi';
-let curAnim = 0; // Nilai interpolasi 0 ke 1
-let targetAnim = 0;
-
-// Parameter Transformasi (Current & Target untuk animasi)
-let params = {
-  tx: 0, ty: 0,
-  rot: 0,
-  dil: 1,
-  ref: 'x'
+// Database Bentuk
+const shapes = {
+  segitiga: [
+    {x: -1, y: -1},
+    {x: 2, y: -1},
+    {x: -1, y: 2}
+  ],
+  persegi: [
+    {x: -1.5, y: -1.5},
+    {x: 1.5, y: -1.5},
+    {x: 1.5, y: 1.5},
+    {x: -1.5, y: 1.5}
+  ],
+  trapesium: [
+    {x: -2, y: -1.5},
+    {x: 2, y: -1.5},
+    {x: 1, y: 1.5},
+    {x: -1, y: 1.5}
+  ],
+  layang: [
+    {x: 0, y: 2},     // Atas
+    {x: 2, y: 0},     // Kanan
+    {x: 0, y: -2},    // Bawah
+    {x: -1.5, y: 0}   // Kiri (lebih pendek)
+  ]
 };
 
-let animFrame = null;
+let currentShapeKey = 'segitiga';
+let baseShape = shapes[currentShapeKey];
+
+let mode = 'translasi';
+
+let targetParams = { tx: 0, ty: 0, rot: 0, dil: 1, ref: 'x' };
+let currentParams = { tx: 0, ty: 0, rot: 0, dil: 1, ref: 'x' };
+
+// Label untuk titik (A, B, C, ...)
+const pointLabels = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'];
 
 function w2p(x, y) { return [ view.cx + x*view.scale, view.cy - y*view.scale ]; }
-
-// Fungsi untuk menghitung posisi titik setelah transformasi
-function transformPoint(p, type, val, curProgress) {
-  let x = p.x, y = p.y;
-  let t = curProgress; // 0 sampai 1 (untuk animasi)
-
-  if (type === 'translasi') {
-    // t adalah progress dari 0 ke 1
-    return { x: x + val.tx * t, y: y + val.ty * t };
-  } 
-  else if (type === 'rotasi') {
-    const rad = (val.rot * t) * Math.PI / 180;
-    const cos = Math.cos(rad), sin = Math.sin(rad);
-    return { x: x * cos - y * sin, y: x * sin + y * cos };
-  }
-  else if (type === 'dilatasi') {
-    // Interpolasi skala dari 1 ke val.dil
-    const s = 1 + (val.dil - 1) * t;
-    return { x: x * s, y: y * s };
-  }
-  else if (type === 'refleksi') {
-    // Refleksi tidak pakai progress secara bertahap agar tidak aneh, 
-    // kita akan menganggap t digunakan sebagai "lipatan" (bisa di-skip)
-    // Untuk kesederhanaan, langsung lompat ke hasil akhir saat t = 1
-    if (t < 0.5) return p; // Biarkan di tempat sampai setengah jalan
-    if (val.ref === 'x') return { x: x, y: -y };
-    if (val.ref === 'y') return { x: -x, y: y };
-    if (val.ref === 'y=x') return { x: y, y: x };
-    if (val.ref === 'y=-x') return { x: -y, y: -x };
-  }
-  return p;
-}
 
 function drawScene() {
   ctx.clearRect(0, 0, W, H);
 
-  // 1. Gambar Grid
+  // Grid & Sumbu
   ctx.strokeStyle = '#e0e0e0'; ctx.lineWidth = 1;
   for(let i=0; i<=W; i+=view.scale) { ctx.beginPath(); ctx.moveTo(i,0); ctx.lineTo(i,H); ctx.stroke(); }
   for(let i=0; i<=H; i+=view.scale) { ctx.beginPath(); ctx.moveTo(0,i); ctx.lineTo(W,i); ctx.stroke(); }
-
-  // 2. Gambar Sumbu X dan Y
   ctx.strokeStyle = '#111'; ctx.lineWidth = 2;
   ctx.beginPath(); ctx.moveTo(0, view.cy); ctx.lineTo(W, view.cy); ctx.stroke();
   ctx.beginPath(); ctx.moveTo(view.cx, 0); ctx.lineTo(view.cx, H); ctx.stroke();
 
-  // 3. Gambar Segitiga Asli (Transparan)
-  const [a0x, a0y] = w2p(baseTriangle[0].x, baseTriangle[0].y);
-  const [a1x, a1y] = w2p(baseTriangle[1].x, baseTriangle[1].y);
-  const [a2x, a2y] = w2p(baseTriangle[2].x, baseTriangle[2].y);
-  
-  ctx.fillStyle = 'rgba(0,0,0,0.05)';
-  ctx.strokeStyle = 'rgba(0,0,0,0.2)'; ctx.lineWidth = 2; ctx.setLineDash([5,5]);
-  ctx.beginPath(); ctx.moveTo(a0x,a0y); ctx.lineTo(a1x,a1y); ctx.lineTo(a2x,a2y); ctx.closePath(); ctx.fill(); ctx.stroke();
-  ctx.setLineDash([]);
+  // Gambar Bentuk Asli (Transparan)
+  ctx.fillStyle = 'rgba(0,0,0,0.05)'; ctx.strokeStyle = 'rgba(0,0,0,0.2)'; ctx.lineWidth = 2; ctx.setLineDash([5,5]);
+  ctx.beginPath();
+  baseShape.forEach((p, i) => {
+    const [px, py] = w2p(p.x, p.y);
+    if(i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
+  });
+  ctx.closePath(); ctx.fill(); ctx.stroke(); ctx.setLineDash([]);
 
-  // 4. Hitung Titik Hasil Transformasi Saat Ini (berdasarkan animasi)
-  let curParams = { ...params };
-  if(mode === 'translasi') {
-    curParams.tx = parseFloat(document.getElementById('slider-tx').value);
-    curParams.ty = parseFloat(document.getElementById('slider-ty').value);
-  } else if(mode === 'rotasi') {
-    curParams.rot = parseFloat(document.getElementById('slider-rot').value);
-  } else if(mode === 'dilatasi') {
-    curParams.dil = parseFloat(document.getElementById('slider-dil').value);
-  } else if(mode === 'refleksi') {
-    curParams.ref = document.getElementById('select-ref').value;
-  }
+  // Hitung posisi transformasi
+  let transPoints = baseShape.map(p => {
+    let x = p.x, y = p.y;
+    if (mode === 'translasi') return { x: x + currentParams.tx, y: y + currentParams.ty };
+    if (mode === 'rotasi') {
+      const rad = currentParams.rot * Math.PI / 180;
+      return { x: x * Math.cos(rad) - y * Math.sin(rad), y: x * Math.sin(rad) + y * Math.cos(rad) };
+    }
+    if (mode === 'dilatasi') return { x: x * currentParams.dil, y: y * currentParams.dil };
+    if (mode === 'refleksi') {
+      if (currentParams.ref === 'x') return { x: x, y: -y };
+      if (currentParams.ref === 'y') return { x: -x, y: y };
+      if (currentParams.ref === 'y=x') return { x: y, y: x };
+      if (currentParams.ref === 'y=-x') return { x: -y, y: -x };
+    }
+    return p;
+  });
 
-  const transPoints = baseTriangle.map(p => transformPoint(p, mode, curParams, curAnim));
+  // Gambar Bentuk Hasil
+  ctx.fillStyle = 'rgba(96, 195, 255, 0.4)'; ctx.strokeStyle = '#111'; ctx.lineWidth = 3;
+  ctx.beginPath();
+  transPoints.forEach((p, i) => {
+    const [px, py] = w2p(p.x, p.y);
+    if(i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
+  });
+  ctx.closePath(); ctx.fill(); ctx.stroke();
 
-  // 5. Gambar Segitiga Hasil Transformasi (Biru)
-  const [tx0, ty0] = w2p(transPoints[0].x, transPoints[0].y);
-  const [tx1, ty1] = w2p(transPoints[1].x, transPoints[1].y);
-  const [tx2, ty2] = w2p(transPoints[2].x, transPoints[2].y);
-
-  ctx.fillStyle = 'rgba(96, 195, 255, 0.4)'; // Biru transparan
-  ctx.strokeStyle = '#111'; ctx.lineWidth = 3;
-  ctx.beginPath(); ctx.moveTo(tx0,ty0); ctx.lineTo(tx1,ty1); ctx.lineTo(tx2,ty2); ctx.closePath(); ctx.fill(); ctx.stroke();
-
-  // 6. Gambar Titik Sudut & Garis Bantu Animasi
-  const drawDot = (x, y, color) => {
-    ctx.fillStyle = color; ctx.beginPath(); ctx.arc(x, y, 5, 0, Math.PI*2); ctx.fill();
+  // Titik Sudut & Label
+  transPoints.forEach((p, i) => {
+    const [px, py] = w2p(p.x, p.y);
+    ctx.fillStyle = '#ffe566'; ctx.beginPath(); ctx.arc(px, py, 5, 0, Math.PI*2); ctx.fill();
     ctx.strokeStyle = '#111'; ctx.lineWidth = 2; ctx.stroke();
-  };
-  drawDot(tx0, ty0, 'var(--hl-yellow)'); drawDot(tx1, ty1, 'var(--hl-yellow)'); drawDot(tx2, ty2, 'var(--hl-yellow)');
+    
+    // Label titik
+    if(pointLabels[i]) {
+      ctx.fillStyle = '#111'; ctx.font = 'bold 14px "Space Grotesk"';
+      ctx.fillText(pointLabels[i] + "'", px + 8, py - 8);
+    }
+  });
 
-  // Garis bantu khusus per transformasi
+  // Garis Bantu
   if(mode === 'rotasi') {
     ctx.strokeStyle = 'rgba(255, 153, 204, 0.6)'; ctx.lineWidth = 2; ctx.setLineDash([4,4]);
-    ctx.beginPath(); ctx.arc(view.cx, view.cy, view.scale * 2.23, 0, -curParams.rot * curAnim * Math.PI / 180, true); ctx.stroke();
-    ctx.setLineDash([]);
+    ctx.beginPath(); ctx.arc(view.cx, view.cy, view.scale * 1.41, 0, -currentParams.rot * Math.PI / 180, true); ctx.stroke(); ctx.setLineDash([]);
   } else if(mode === 'refleksi') {
     ctx.strokeStyle = 'rgba(255, 42, 85, 0.6)'; ctx.lineWidth = 3; ctx.setLineDash([8,4]);
-    if(curParams.ref === 'x') { ctx.beginPath(); ctx.moveTo(0, view.cy); ctx.lineTo(W, view.cy); ctx.stroke(); }
-    if(curParams.ref === 'y') { ctx.beginPath(); ctx.moveTo(view.cx, 0); ctx.lineTo(view.cx, H); ctx.stroke(); }
-    if(curParams.ref === 'y=x') { ctx.beginPath(); ctx.moveTo(view.cx - view.scale*6, view.cy + view.scale*6); ctx.lineTo(view.cx + view.scale*6, view.cy - view.scale*6); ctx.stroke(); }
-    if(curParams.ref === 'y=-x') { ctx.beginPath(); ctx.moveTo(view.cx - view.scale*6, view.cy - view.scale*6); ctx.lineTo(view.cx + view.scale*6, view.cy + view.scale*6); ctx.stroke(); }
+    if(currentParams.ref === 'x') { ctx.beginPath(); ctx.moveTo(0, view.cy); ctx.lineTo(W, view.cy); ctx.stroke(); }
+    if(currentParams.ref === 'y') { ctx.beginPath(); ctx.moveTo(view.cx, 0); ctx.lineTo(view.cx, H); ctx.stroke(); }
+    if(currentParams.ref === 'y=x') { ctx.beginPath(); ctx.moveTo(view.cx - view.scale*6, view.cy + view.scale*6); ctx.lineTo(view.cx + view.scale*6, view.cy - view.scale*6); ctx.stroke(); }
+    if(currentParams.ref === 'y=-x') { ctx.beginPath(); ctx.moveTo(view.cx - view.scale*6, view.cy - view.scale*6); ctx.lineTo(view.cx + view.scale*6, view.cy + view.scale*6); ctx.stroke(); }
     ctx.setLineDash([]);
   }
 
-  // 7. Update Info Panel
+  // Update Info Box
   let info = "";
-  if(mode === 'translasi') info = `Rumus: (x, y) → (x + ${curParams.tx}, y + ${curParams.ty})`;
-  if(mode === 'rotasi') info = `Rumus: Rotasi ${curParams.rot}° berlawanan arah jarum jam.`;
-  if(mode === 'dilatasi') info = `Rumus: (x, y) → (${curParams.dil}x, ${curParams.dil}y)`;
+  if(mode === 'translasi') info = `Rumus: (x, y) → (x + ${targetParams.tx.toFixed(1)}, y + ${targetParams.ty.toFixed(1)})`;
+  if(mode === 'rotasi') info = `Rumus: Rotasi ${targetParams.rot}° berlawanan arah jarum jam.`;
+  if(mode === 'dilatasi') info = `Rumus: (x, y) → (${targetParams.dil}x, ${targetParams.dil}y)`;
   if(mode === 'refleksi') {
-    if(curParams.ref === 'x') info = `Rumus: (x, y) → (x, -y)`;
-    if(curParams.ref === 'y') info = `Rumus: (x, y) → (-x, y)`;
-    if(curParams.ref === 'y=x') info = `Rumus: (x, y) → (y, x)`;
-    if(curParams.ref === 'y=-x') info = `Rumus: (x, y) → (-y, -x)`;
+    if(targetParams.ref === 'x') info = `Rumus: (x, y) → (x, -y)`;
+    if(targetParams.ref === 'y') info = `Rumus: (x, y) → (-x, y)`;
+    if(targetParams.ref === 'y=x') info = `Rumus: (x, y) → (y, x)`;
+    if(targetParams.ref === 'y=-x') info = `Rumus: (x, y) → (-y, -x)`;
   }
   document.getElementById('info-panel').innerHTML = info;
+
+  // ==========================================
+  // UPDATE TABEL KOORDINAT REAL-TIME
+  // ==========================================
+  let tbody = document.querySelector('#coord-table tbody');
+  let html = '';
+  for(let i=0; i<baseShape.length; i++) {
+    const orig = baseShape[i];
+    const trans = transPoints[i];
+    // Tampilkan dengan 1 desimal agar rapi
+    html += `
+      <tr>
+        <td><b>${pointLabels[i]}</b></td>
+        <td>(<span class="val-x">${orig.x.toFixed(1)}</span>, <span class="val-y">${orig.y.toFixed(1)}</span>)</td>
+        <td>(<span class="val-x">${trans.x.toFixed(1)}</span>, <span class="val-y">${trans.y.toFixed(1)}</span>)</td>
+      </tr>
+    `;
+  }
+  tbody.innerHTML = html;
 }
 
 // ==========================================
 // LOGIKA ANIMASI LOOP
 // ==========================================
 function animate() {
-  // Interpolasi halus menuju 1 (target animasi)
-  const diff = 1 - curAnim;
-  if (Math.abs(diff) > 0.01) {
-    curAnim += diff * 0.1; // Kecepatan animasi
-  } else {
-    curAnim = 1;
-  }
-  
-  drawScene();
-  animFrame = requestAnimationFrame(animate);
-}
+  const lerpFactor = 0.15;
+  currentParams.tx += (targetParams.tx - currentParams.tx) * lerpFactor;
+  currentParams.ty += (targetParams.ty - currentParams.ty) * lerpFactor;
+  currentParams.rot += (targetParams.rot - currentParams.rot) * lerpFactor;
+  currentParams.dil += (targetParams.dil - currentParams.dil) * lerpFactor;
+  currentParams.ref = targetParams.ref;
 
-// Reset animasi setiap kali input berubah
-function resetAnimation() {
-  curAnim = 0;
+  drawScene();
+  requestAnimationFrame(animate);
 }
 
 // ==========================================
 // EVENT LISTENERS
 // ==========================================
+function setShape(newShape) {
+  currentShapeKey = newShape;
+  baseShape = shapes[newShape];
+  document.querySelectorAll('.shape-btn').forEach(btn => btn.classList.remove('active'));
+  document.getElementById(`shape-${newShape}`).classList.add('active');
+}
+
 function setMode(newMode) {
   mode = newMode;
-  
-  // Update tombol tab
   document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-  event.target.classList.add('active');
-
-  // Sembunyikan semua kontrol, tampilkan yang sesuai
+  document.getElementById(`tab-${newMode}`).classList.add('active');
   document.querySelectorAll('.control-group').forEach(el => el.classList.remove('active'));
   document.getElementById(`ctrl-${newMode}`).classList.add('active');
 
-  // Reset nilai slider ke awal saat ganti mode
-  if(newMode === 'translasi') {
-    document.getElementById('slider-tx').value = 0;
-    document.getElementById('slider-ty').value = 0;
-  } else if(newMode === 'rotasi') {
-    document.getElementById('slider-rot').value = 0;
-  } else if(newMode === 'dilatasi') {
-    document.getElementById('slider-dil').value = 1;
-  }
+  targetParams = { tx: 0, ty: 0, rot: 0, dil: 1, ref: 'x' };
+  currentParams = { tx: 0, ty: 0, rot: 0, dil: 1, ref: 'x' };
   
-  resetAnimation();
+  document.getElementById('slider-tx').value = 0;
+  document.getElementById('slider-ty').value = 0;
+  document.getElementById('slider-rot').value = 0;
+  document.getElementById('slider-dil').value = 1;
+  document.getElementById('select-ref').value = 'x';
+  
+  document.getElementById('val-tx').innerText = "0";
+  document.getElementById('val-ty').innerText = "0";
+  document.getElementById('val-rot').innerText = "0";
+  document.getElementById('val-dil').innerText = "1";
 }
 
-// Slider Events
 document.getElementById('slider-tx').addEventListener('input', (e) => {
-  document.getElementById('val-tx').innerText = e.target.value; resetAnimation();
+  targetParams.tx = parseFloat(e.target.value);
+  document.getElementById('val-tx').innerText = e.target.value;
 });
 document.getElementById('slider-ty').addEventListener('input', (e) => {
-  document.getElementById('val-ty').innerText = e.target.value; resetAnimation();
+  targetParams.ty = parseFloat(e.target.value);
+  document.getElementById('val-ty').innerText = e.target.value;
 });
 document.getElementById('slider-rot').addEventListener('input', (e) => {
-  document.getElementById('val-rot').innerText = e.target.value; resetAnimation();
+  targetParams.rot = parseFloat(e.target.value);
+  document.getElementById('val-rot').innerText = e.target.value;
 });
 document.getElementById('slider-dil').addEventListener('input', (e) => {
-  document.getElementById('val-dil').innerText = e.target.value; resetAnimation();
+  targetParams.dil = parseFloat(e.target.value);
+  document.getElementById('val-dil').innerText = e.target.value;
 });
-document.getElementById('select-ref').addEventListener('change', () => {
-  resetAnimation();
+document.getElementById('select-ref').addEventListener('change', (e) => {
+  targetParams.ref = e.target.value;
 });
 
-// Mulai animasi
 animate();
 </script>
 </body>
