@@ -1,55 +1,55 @@
 <div align="center">
-  
-# 📐 ANIMATHION
-  
-**Visualisasikan Matematika. Pahami Konsepnya. Jangan Cuma Hafal Rumus.**
 
-[![Website](https://img.shields.io/badge/🌐_Buka_Animathion-Live_Demo-60c3ff?style=for-the-badge&logo=github)](https://aprima123.github.io/animathion/)
-[![Modules](https://img.shields.io/badge/Modul-5_Interaktif-a3f160?style=for-the-badge)]()
-[![Tech](https://img.shields.io/badge/Built_With-HTML5_Canvas_&_Vanilla_JS-ffe566?style=for-the-badge)]()
+<h1>ANIMATHION</h1>
+
+<p>
+  <strong>Visualisasikan Matematika. Pahami Konsepnya. Jangan Cuma Hafal Rumus.</strong>[cite: 6, 8]
+</p>
+
+<p>
+  <a href="https://aprima123.github.io/animathion/">
+    <img src="https://img.shields.io/badge/LIVE_DEMO-aprima123.github.io%2Fanimathion-111111?style=for-the-badge&labelColor=ffe566" alt="Live Demo">
+  </a>
+  <img src="https://img.shields.io/badge/STACK-HTML5_Canvas_%26_JS-111111?style=for-the-badge&labelColor=60c3ff" alt="Tech Stack">
+</p>
+
+<br>
+
+<!-- Opsional: Ganti link di bawah dengan screenshot tampilan index.html atau salah satu modulmu -->
+<!-- <img src="preview.png" alt="Animathion Preview" width="800"> -->
 
 </div>
 
 ---
 
-## 🚀 Tentang Proyek Ini
-**Animathion** (*Animation + Math*) adalah platform edukasi matematika interaktif berbasis web yang dirancang untuk memvisualisasikan konsep abstrak secara **real-time**. 
-
-Alih-alih sekadar menghafal rumus statis, pengguna dapat menggeser *slider*, mengubah angka, dan berinteraksi langsung dengan grafik untuk melihat bagaimana perubahan variabel memengaruhi bentuk, sudut, vektor, dan kurva secara langsung[cite: 1, 2, 4, 5, 8].
+### Apa itu Animathion?
+Platform web interaktif berbasis **HTML5 Canvas** untuk memvisualisasikan konsep matematika secara *real-time*—mulai dari transformasi aljabar linear hingga proyeksi 3D kustom tanpa *library* eksternal[cite: 4, 8].
 
 ---
 
-## 📚 Katalog Modul (5 Topik Interaktif)
+### Modul Tersedia
 
-Seluruh modul sudah aktif dan dapat dieksplorasi langsung:
-
-| Ikon | Modul | Fitur Utama & Visualisasi | File | Status |
-| :---: | :--- | :--- | :---: | :---: |
-| ⊞ | **Matriks 2×2 & 3×3** | Transformasi ruang 2D & proyeksi 3D kustom, vektor basis ($\hat{i}', \hat{j}', \hat{k}'$), luas/volume determinan, serta *trace*[cite: 4]. | `matriks.html`[cite: 4] | ✅ Live |
-| 📈 | **Fungsi Kuadrat** | Kurva parabola dinamis ($y = ax^2 + bx + c$), pelacakan titik puncak, sumbu simetri, serta deteksi akar-akar persamaan ($x_1, x_2$)[cite: 5]. | `kuadrat.html`[cite: 5] | ✅ Live[cite: 8] |
-| 🎡 | **Trigonometri** | Sinkronisasi lingkaran satuan dengan gelombang sinus & kosinus, mode putar otomatis, serta nilai 6 rasio trigonometri[cite: 1]. | `trigonometri.html`[cite: 1] | ✅ Live |
-| 🪞 | **Geometri Transformasi** | Simulasi Translasi, Rotasi, Dilatasi, dan Refleksi ($X, Y, y=x, y=-x$) pada 4 bangun datar lengkap dengan tabel koordinat[cite: 2]. | `transformasi.html`[cite: 2] | ✅ Live |
-| 📐 | **Teorema Pythagoras** | Pembuktian visual luas persegi ($a^2 + b^2 = c^2$), kalkulator pintar dua sisi, dan perhitungan sudut dalam segitiga otomatis[cite: 3]. | `pythagoras.html`[cite: 3] | ✅ Live |
+| Modul | Fokus Visualisasi | File |
+| :--- | :--- | :--- |
+| **Matriks 2×2 & 3×3** | Transformasi basis vektor ($\hat{i}', \hat{j}', \hat{k}'$), luas/volume determinan, & *3D projection engine*[cite: 4]. | `matriks.html`[cite: 4] |
+| **Fungsi Kuadrat** | Kurva parabola dinamis, titik puncak, sumbu simetri, & deteksi akar diskriminan[cite: 5]. | `kuadrat.html`[cite: 5] |
+| **Trigonometri** | Sinkronisasi lingkaran satuan dengan gelombang sinus/kosinus & 6 rasio trigonometri[cite: 1]. | `trigonometri.html`[cite: 1] |
+| **Geometri Transformasi** | Translasi, rotasi, dilatasi, & refleksi bangun datar dengan tabel koordinat *real-time*[cite: 2]. | `transformasi.html`[cite: 2] |
+| **Teorema Pythagoras** | Pembuktian visual luas persegi ($a^2 + b^2 = c^2$) & kalkulator sisi otomatis[cite: 3]. | `pythagoras.html`[cite: 3] |
 
 ---
 
-## ✨ Keunggulan & Fitur
-- **Animasi Interpolasi Halus (*Lerp*):** Transisi perubahan grafik dan vektor dirender mulus menggunakan `requestAnimationFrame`[cite: 1, 2, 4, 8].
-- **Custom 3D Projection Engine:** Rendering ruang 3 dimensi pada modul Matriks 3×3 dibangun murni menggunakan matematika proyeksi perspektif di HTML5 Canvas 2D tanpa *library* eksternal[cite: 4].
-- **Responsif Desktop & Mobile:** Mendukung kontrol *mouse* (*scroll zoom* & *drag pan*) maupun gestur layar sentuh (*pinch-to-zoom* & *swipe*)[cite: 3, 4, 5, 8].
-- **Antarmuka Neo-Brutalism:** Desain kontras tinggi bergaya buku catatan berpetak dengan aksen warna stabilo dan tipografi *Space Grotesk*.
+### Sorotan Teknis
+- **Zero Dependencies** — 100% Vanilla JavaScript, CSS3, dan HTML5 Canvas API[cite: 8].
+- **Custom 3D Engine** — Proyeksi perspektif 3D pada modul matriks dihitung manual dari nol[cite: 4].
+- **Smooth Interpolation** — Transisi grafik halus berbasis *linear interpolation* (`lerp`) & `requestAnimationFrame`[cite: 2, 8].
+- **Cross-Device** — Mendukung kontrol *mouse* (*drag & scroll*) serta gestur sentuh (*pinch-to-zoom*)[cite: 3, 4, 5, 8].
 
 ---
 
-## 📂 Struktur Repositori
+### Jalankan Lokal
 
-```text
-animathion/
-├── index.html          # Halaman utama & katalog modul
-├── matriks.html        # Visualizer transformasi matriks 2x2 & 3x3[cite: 4]
-├── kuadrat.html        # Visualizer grafik fungsi kuadrat[cite: 5]
-├── trigonometri.html   # Visualizer lingkaran satuan & gelombang sin/cos[cite: 1]
-├── transformasi.html   # Visualizer geometri transformasi 2D[cite: 2]
-├── pythagoras.html     # Visualizer & kalkulator Teorema Pythagoras[cite: 3]
-├── about.html          # Halaman profil & kontak pembuat[cite: 7]
-└── README.md           # Dokumentasi proyek
+```bash
+git clone [https://github.com/aprima123/animathion.git](https://github.com/aprima123/animathion.git)[cite: 8]
+cd animathion
+# Buka index.html langsung di browser[cite: 6]
