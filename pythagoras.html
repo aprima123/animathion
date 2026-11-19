@@ -55,6 +55,7 @@
   </div>
 <script type="module">
 import { setupCanvas, Smoother, Viewport, drawGrid, fmt, addBanner, addPresets, readState, writeState } from './shared/core.js';
+import { initMissions } from './shared/missions.js';
 const $ = (id) => document.getElementById(id);
 const { ctx, W, H } = setupCanvas($('cv'), 600);
 const vp = new Viewport(W, H, { scale: 50, min: 10, max: 200 });
@@ -187,6 +188,10 @@ $('pr-1').onclick = () => { stopAuto(); pt.value = 100; sm.set({ t: 1 }); };
 $('pr-play').onclick = () => { if (auto) return stopAuto(); auto = true; tp = +pt.value / 100; lastT = performance.now(); $('pr-play').textContent = '⏸ Hentikan'; requestAnimationFrame(autoLoop); };
 if (st.v === 'bukti') setView('bukti');
 solve();
+initMissions('pythagoras', () => {
+  const v = (k) => parseFloat(el[k].value), own = (k) => el[k].dataset.auto !== '1' && el[k].value !== '';
+  return { a: v('a'), b: v('b'), c: v('c'), own: { a: own('a'), b: own('b'), c: own('c') }, view, t: sm.tgt.t };
+}, document.querySelector('.app-container'));
 </script>
 </body>
 </html>
