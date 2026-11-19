@@ -87,11 +87,25 @@ export const fmt = (n, d = 1) => (Math.abs(n) < 0.5 * 10 ** -d ? 0 : n).toFixed(
 /** Baca state dari URL (?a=1&b=2) sebagai objek string. */
 export const readState = () => Object.fromEntries(new URLSearchParams(location.search));
 /** Tulis state ke URL tanpa reload, supaya kondisi apa pun bisa dibagikan lewat tautan. */
+// Ditunda 250 ms: history.replaceState itu mahal, dan menggeser slider di laptop bisa memicu ratusan event per detik.
+let _pending = null, _timer = 0;
+function _flushState() {
+  _timer = 0; if (_pending === null) return;
+  const s = _pending; _pending = null;
+  history.replaceState(null, '', location.pathname + (s ? '?' + s : '') + location.hash);
+}
+addEventListener('pagehide', _flushState);
+document.addEventListener('visibilitychange', () => { if (document.hidden) _flushState(); });
 export function writeState(obj) {
   const q = new URLSearchParams();
   for (const k in obj) if (obj[k] !== undefined && obj[k] !== '') q.set(k, obj[k]);
-  const s = q.toString();
-  history.replaceState(null, '', location.pathname + (s ? '?' + s : '') + location.hash);
+  _pending = q.toString();
+  if (!_timer) _timer = setTimeout(_flushState, 250);
+}
+/** Gabungkan banyak event dalam satu frame menjadi satu panggilan (mouse laptop bisa mengirim >100 event/detik). */
+export function onFrame(fn) {
+  let queued = false;
+  return (...a) => { if (queued) return; queued = true; requestAnimationFrame(() => { queued = false; fn(...a); }); };
 }
 /** Banner "Intinya" di atas semua panel. `html` boleh memuat <b>. */
 export function addBanner(html, container = document.querySelector('.app-container')) {
