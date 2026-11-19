@@ -47,7 +47,7 @@
     </div>
   </div>
 <script type="module">
-import { setupCanvas } from './shared/core.js';
+import { setupCanvas, addBanner, addPresets, readState, writeState } from './shared/core.js';
 const $ = (id) => document.getElementById(id);
 const C = setupCanvas($('cv_circle'), 320, 320), Wv = setupCanvas($('cv_wave'), 600, 320);
 const cc = C.ctx, cw = Wv.ctx, R = 100, cx = 160, cy = 160;
@@ -110,8 +110,13 @@ function frame(now) {
   requestAnimationFrame(frame);
 }
 function setPlaying(p) { playing = p; btn.textContent = p ? '⏸ Hentikan' : '▶ Putar Otomatis'; btn.classList.toggle('playing', p); }
-slider.addEventListener('input', () => { setPlaying(false); tgt = +slider.value; if (Math.abs(cur - tgt) > 180) cur = tgt; });
+const go = (a) => { setPlaying(false); tgt = a; slider.value = a; if (Math.abs(cur - tgt) > 180) cur = tgt; writeState({ t: a }); };
+slider.addEventListener('input', () => go(+slider.value));
 btn.addEventListener('click', () => setPlaying(!playing));
+addBanner('Titik di lingkaran satuan berkoordinat <b>(cos θ, sin θ)</b>. Saat θ berputar, <b>tinggi</b> titik menggambar gelombang sinus dan <b>lebarnya</b> menggambar gelombang cosinus.');
+addPresets($('btn-play').parentElement, [0, 30, 45, 60, 90, 180, 270].map((a) => ({ label: a + '°', a })), (p) => go(p.a), $('btn-play'));
+const st = readState();
+if (st.t !== undefined && isFinite(+st.t)) { tgt = cur = Math.max(0, Math.min(360, +st.t)); slider.value = tgt; }
 requestAnimationFrame(frame);
 </script>
 </body>
