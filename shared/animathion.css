@@ -78,3 +78,6 @@ canvas:active{cursor:grabbing}
 .mis-win{margin-bottom:10px;padding:8px 12px;font-weight:700;background:var(--hl-green);border:3px solid var(--ink);border-radius:8px}
 .mis-toast{position:absolute;right:20px;top:14px;padding:10px 16px;font-weight:700;background:var(--hl-green);border:3px solid var(--ink);border-radius:8px;box-shadow:var(--shadow);animation:misPop .5s var(--snap)}
 @keyframes misPop{0%{transform:scale(.6) rotate(-6deg);opacity:0}100%{transform:scale(1) rotate(0);opacity:1}}
+
+/* Tinggi minimal kotak penjelasan, supaya halaman tidak naik-turun saat teksnya berganti */
+.info-box{min-height:8.5em}
