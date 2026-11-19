@@ -38,7 +38,8 @@
     </div>
   </div>
 <script type="module">
-import { setupCanvas, Smoother, Viewport, drawGrid, fmt, addBanner, addPresets, readState, writeState } from './shared/core.js';
+import { setupCanvas, Smoother, Viewport, drawGrid, fmt, addBanner, addPresets, readState, writeState, stableBox } from './shared/core.js';
+import { initMissions } from './shared/missions.js';
 const $ = (id) => document.getElementById(id);
 const { ctx, W, H } = setupCanvas($('cv'), 600);
 const vp = new Viewport(W, H, { scale: 40, min: 4, max: 200 });
@@ -117,6 +118,8 @@ addPresets($('info-panel').parentElement, [
   { label: 'SPLDV: berimpit', mode: 'dua', m: 1, c: 2, m2: 1, c2: 2 }, { label: 'SPLDV: tegak lurus', mode: 'dua', m: 2, c: 0, m2: -0.5, c2: 5 }], apply, $('info-panel'));
 const st = readState();
 if (['m', 'c', 'm2', 'c2', 'v'].some((k) => k in st)) apply({ ...st, mode: st.v === 'dua' ? 'dua' : undefined }); else sm.redraw();
+stableBox($('info-panel'));
+initMissions('linear', () => ({ ...sm.tgt, mode }), document.querySelector('.app-container'));
 </script>
 </body>
 </html>
