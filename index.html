@@ -44,7 +44,7 @@ lessons.forEach((l, i) => {
   const a = document.createElement('a');
   const p = getProgress(l.href.replace('.html', ''));
   a.className = 'card'; a.href = l.href; a.style.background = l.color; a.style.animationDelay = (0.1 * (i + 1)) + 's';
-  a.innerHTML = `<div class="card-icon">${l.icon}</div><div class="card-title">${l.title}</div><div class="card-desc">${l.desc}</div><div class="card-stars">⭐ ${p.done}/${p.total} misi</div>`;
+  a.innerHTML = `<div class="card-icon">${l.icon}</div><div class="card-title">${l.title}</div><div class="card-desc">${l.desc}</div>${p.total ? `<div class="card-stars">⭐ ${p.done}/${p.total} misi</div>` : ''}`;
   box.appendChild(a);
 });
 </script>
