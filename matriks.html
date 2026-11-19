@@ -7,7 +7,7 @@
 <link rel="stylesheet" href="shared/animathion.css">
 <style>
   /* Khusus halaman matriks: gaya dasar, panel, dan tombol sudah dari shared/animathion.css */
-  body{overflow:hidden;touch-action:none}
+  body{overflow-y:auto}
   .back-btn{opacity:0;animation:none;pointer-events:none}
   .back-btn.show{animation:slideDown .4s var(--snap) forwards;pointer-events:auto}
   #menu-screen{text-align:center;animation:slideUp .4s var(--snap);max-width:800px;background:#fff;padding:40px;border:3px solid var(--ink);box-shadow:var(--shadow);border-radius:12px;z-index:10}
@@ -138,13 +138,15 @@
   </div>
 
 <script type="module">
-import { setupCanvas, Smoother, Viewport } from './shared/core.js';
+import { setupCanvas, Smoother, Viewport, addBanner, addPresets, readState, writeState } from './shared/core.js';
+let urlReady = false;
 // ==========================================
 // GLOBAL & NAVIGASI
 // ==========================================
 const backBtn = document.getElementById('global-back-btn');
 
 function bukaApp(mode) {
+  if (urlReady) writeState({ m: mode });
   document.getElementById('menu-screen').style.display = 'none';
   document.querySelectorAll('.app-container').forEach(el => el.classList.remove('active'));
   backBtn.classList.remove('show');
@@ -194,6 +196,7 @@ const sm2 = new Smoother({ m0: 1, m1: 0.5, m2: 0, m3: 1.5 }, (c) => {
 }, { rate: 10, eps: 0.001 });
 function updateMatrix2Smoothly() {
   const m = getMatrix2(); targetMatrix2 = m; sm2.set({ m0: m[0], m1: m[1], m2: m[2], m3: m[3] });
+  if (urlReady) writeState({ m: '2x2', v: m.join(',') });
 }
 
 function w2p2(x,y) { return [ view2.cx + x*view2.scale, view2.cy - y*view2.scale ]; }
@@ -270,6 +273,7 @@ function updateMatrix3Smoothly() {
   const M = getMatrix3(); targetMatrix3 = M; const t = {};
   for (let i = 0; i < 3; i++) for (let j = 0; j < 3; j++) t['m' + i + j] = M[i][j];
   sm3.set(t);
+  if (urlReady) writeState({ m: '3x3', v: M.flat().join(',') });
 }
 
 function project3(x, y, z) {
@@ -346,6 +350,26 @@ cv3.addEventListener('touchend', () => { lastTouch3 = null; touchDist3 = 0; });
 // Inisialisasi
 updateMatrix2Smoothly();
 updateMatrix3Smoothly();
+const ids2 = ['m2_00', 'm2_01', 'm2_10', 'm2_11'], ids3 = [];
+for (let i = 0; i < 3; i++) for (let j = 0; j < 3; j++) ids3.push(`m3_${i}${j}`);
+const fill = (ids, v) => ids.forEach((id, i) => (document.getElementById(id).value = v[i]));
+const put2 = (v) => { fill(ids2, v); updateMatrix2Smoothly(); };
+const put3 = (v) => { fill(ids3, v); updateMatrix3Smoothly(); };
+addBanner('Setiap matriks 2×2 adalah "resep" untuk mengubah seluruh bidang. <b>Kolom pertama</b> menunjukkan ke mana vektor <b>i</b> (1,0) pergi, dan <b>kolom kedua</b> ke mana vektor <b>j</b> (0,1) pergi.', document.getElementById('app-2x2'));
+addBanner('Matriks 3×3 melakukan hal yang sama di ruang 3D: tiap <b>kolom</b> menentukan ke mana sumbu x, y, dan z berpindah. Putar kamera dengan drag untuk melihatnya dari sudut lain.', document.getElementById('app-3x3'));
+addPresets(document.getElementById('info-2x2').parentElement, [
+  { label: 'Identitas', v: [1, 0, 0, 1] }, { label: 'Putar 90°', v: [0, -1, 1, 0] }, { label: 'Cermin sumbu X', v: [1, 0, 0, -1] },
+  { label: 'Geser (shear)', v: [1, 1, 0, 1] }, { label: 'Skala 2x', v: [2, 0, 0, 2] }, { label: 'Gepeng (det = 0)', v: [1, 2, 2, 4] }], (p) => put2(p.v), document.getElementById('info-2x2'));
+addPresets(document.getElementById('info-3x3').parentElement, [
+  { label: 'Identitas', v: [1, 0, 0, 0, 1, 0, 0, 0, 1] }, { label: 'Skala 2x', v: [2, 0, 0, 0, 2, 0, 0, 0, 2] }, { label: 'Putar sumbu Z 90°', v: [0, -1, 0, 1, 0, 0, 0, 0, 1] },
+  { label: 'Cermin bidang XY', v: [1, 0, 0, 0, 1, 0, 0, 0, -1] }, { label: 'Geser (shear)', v: [1, 0, 1, 0, 1, 0, 0, 0, 1] }], (p) => put3(p.v), document.getElementById('info-3x3'));
+const st = readState();
+if (st.m === '2x2' || st.m === '3x3') {
+  const v = (st.v || '').split(',').map(Number), n = st.m === '2x2' ? 4 : 9;
+  if (v.length === n && v.every(isFinite)) (st.m === '2x2' ? put2 : put3)(v);
+  bukaApp(st.m);
+}
+urlReady = true;
 
 </script>
 </body>
