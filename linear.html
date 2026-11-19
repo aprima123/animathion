@@ -38,7 +38,7 @@
     </div>
   </div>
 <script type="module">
-import { setupCanvas, Smoother, Viewport, drawGrid, fmt, addBanner, addPresets, readState, writeState, stableBox } from './shared/core.js';
+import { setupCanvas, Smoother, Viewport, drawGrid, fmt, addBanner, addPresets, readState, writeState, stableBox, onFrame } from './shared/core.js';
 import { initMissions } from './shared/missions.js';
 const $ = (id) => document.getElementById(id);
 const { ctx, W, H } = setupCanvas($('cv'), 600);
@@ -105,7 +105,7 @@ function apply(p) {
   K.forEach((k) => { if (p[k] !== undefined && isFinite(+p[k])) sl[k].value = Math.max(+sl[k].min, Math.min(+sl[k].max, +p[k])); });
   onSlide();
 }
-Object.values(sl).forEach((el) => el.addEventListener('input', onSlide));
+Object.values(sl).forEach((el) => el.addEventListener('input', onFrame(onSlide)));
 $('tabs').addEventListener('click', (e) => { if (e.target.dataset.v) setMode(e.target.dataset.v); });
 for (const k of K) for (const e of [$('lbl-' + k), $('val-' + k).parentElement]) {
   e.classList.add('hov'); e.addEventListener('pointerenter', () => { hl = k; sm.redraw(); }); e.addEventListener('pointerleave', () => { hl = null; sm.redraw(); });
