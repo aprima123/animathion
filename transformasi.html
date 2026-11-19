@@ -49,7 +49,7 @@
     </div>
   </div>
 <script type="module">
-import { setupCanvas, Smoother, Viewport, drawGrid, fmt } from './shared/core.js';
+import { setupCanvas, Smoother, Viewport, drawGrid, fmt, addBanner, addPresets, readState, writeState } from './shared/core.js';
 const $ = (id) => document.getElementById(id);
 const { ctx, W, H } = setupCanvas($('cv'), 600);
 const vp = new Viewport(W, H, { scale: 40 });
@@ -61,7 +61,13 @@ const shapes = {
 };
 const REF = { x: 0, y: Math.PI / 2, 'y=x': Math.PI / 4, 'y=-x': -Math.PI / 4 };
 const DEF = { tx: 0, ty: 0, rot: 0, dil: 1, refT: 0, refA: 0 };
-let base = shapes.segitiga, mode = 'translasi';
+let base = shapes.segitiga, mode = 'translasi', shapeKey = 'segitiga', ready = false;
+function save() {
+  if (!ready) return;
+  const t = sm.tgt, o = { s: shapeKey, m: mode };
+  if (mode === 'translasi') { o.tx = t.tx; o.ty = t.ty; } else if (mode === 'rotasi') o.rot = t.rot; else if (mode === 'dilatasi') o.dil = t.dil; else o.ref = $('select-ref').value;
+  writeState(o);
+}
 
 // Refleksi di-morph: titik "dipipihkan" ke garis cermin (refT=0.5), lalu terbalik ke sisi seberang (refT=1).
 function tf([x, y], s) {
@@ -105,24 +111,37 @@ function draw(s) {
 
 const sm = new Smoother(DEF, draw, { rate: 10, eps: 0.003 });
 const sliders = { tx: [$('slider-tx'), $('val-tx'), ''], ty: [$('slider-ty'), $('val-ty'), ''], rot: [$('slider-rot'), $('val-rot'), '°'], dil: [$('slider-dil'), $('val-dil'), 'x'] };
-for (const k in sliders) { const [inp, lbl, unit] = sliders[k]; inp.addEventListener('input', () => { lbl.textContent = fmt(+inp.value) + unit; sm.set({ [k]: +inp.value }); }); }
+for (const k in sliders) { const [inp, lbl, unit] = sliders[k]; inp.addEventListener('input', () => { lbl.textContent = fmt(+inp.value) + unit; sm.set({ [k]: +inp.value }); save(); }); }
 function setMode(m) {
   mode = m;
   document.querySelectorAll('.tab-btn').forEach((b) => b.classList.toggle('active', b.dataset.mode === m));
   document.querySelectorAll('.control-group').forEach((g) => g.classList.toggle('active', g.id === 'ctrl-' + m));
   Object.assign(sm.cur, DEF); Object.assign(sm.tgt, DEF);
   for (const k in sliders) { const [inp, lbl, unit] = sliders[k]; inp.value = DEF[k]; lbl.textContent = fmt(DEF[k]) + unit; }
-  playReflect(); if (m !== 'refleksi') sm.redraw();
+  playReflect(); if (m !== 'refleksi') sm.redraw(); save();
 }
 function playReflect() { if (mode !== 'refleksi') return; sm.cur.refA = sm.tgt.refA = REF[$('select-ref').value]; sm.cur.refT = 0; sm.set({ refT: 1 }); }
-$('select-ref').addEventListener('change', playReflect);
+$('select-ref').addEventListener('change', () => { playReflect(); save(); });
 $('tab-menu').addEventListener('click', (e) => { if (e.target.dataset.mode) setMode(e.target.dataset.mode); });
 $('shape-menu').addEventListener('click', (e) => {
   const k = e.target.dataset.shape; if (!k) return;
-  base = shapes[k]; document.querySelectorAll('.shape-btn').forEach((b) => b.classList.toggle('active', b === e.target));
-  playReflect(); sm.redraw();
+  base = shapes[k]; shapeKey = k; document.querySelectorAll('.shape-btn').forEach((b) => b.classList.toggle('active', b === e.target));
+  playReflect(); sm.redraw(); save();
 });
-setMode('translasi');
+function apply(p) {
+  if (p.s && shapes[p.s]) { shapeKey = p.s; base = shapes[p.s]; document.querySelectorAll('.shape-btn').forEach((b) => b.classList.toggle('active', b.dataset.shape === p.s)); }
+  setMode(p.m || mode);
+  for (const k of ['tx', 'ty', 'rot', 'dil']) if (p[k] !== undefined && isFinite(+p[k])) { const [inp, lbl, unit] = sliders[k]; inp.value = +p[k]; lbl.textContent = fmt(+p[k]) + unit; sm.set({ [k]: +p[k] }); }
+  if (p.ref && REF[p.ref] !== undefined) { $('select-ref').value = p.ref; playReflect(); }
+  save();
+}
+addBanner('Transformasi mengubah <b>posisi atau ukuran</b> bangun tanpa mengubah jenisnya: digeser, diputar, diperbesar, atau dicerminkan. Bayangan putus-putus adalah bangun aslinya.');
+addPresets($('info-panel').parentElement, [
+  { label: 'Geser (3, 2)', m: 'translasi', tx: 3, ty: 2 }, { label: 'Putar 90°', m: 'rotasi', rot: 90 }, { label: 'Putar 180°', m: 'rotasi', rot: 180 },
+  { label: 'Perbesar 2x', m: 'dilatasi', dil: 2 }, { label: 'Cermin y = x', m: 'refleksi', ref: 'y=x' }], apply, $('info-panel'));
+const st = readState();
+if (st.m || st.s) apply(st); else setMode('translasi');
+ready = true;
 </script>
 </body>
 </html>
