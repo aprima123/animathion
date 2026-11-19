@@ -42,6 +42,13 @@ export const MISSIONS = {
     { id: 'g4', level: '🟡', title: 'Temukan sudut dengan sin θ = cos θ', hints: ['Tinggi dan lebar titik harus sama.', 'Titik ada di diagonal lingkaran: 45° atau 225°.'], check: (s) => Math.abs(s.sin - s.cos) < 0.02 },
     { id: 'g5', level: '🔴', title: 'Di mode unwrap, bentangkan lingkaran sampai θ = π (180°)', hints: ['Buka tab "Unwrap".', 'Atur θ = 180° dan geser slider bentang sampai gelombang (kanan).', 'Panjang busur yang diluruskan sama dengan π ≈ 3,14.'], check: (s) => s.mode === 'unwrap' && s.u > 0.95 && near(s.deg, 180, 3) },
   ],
+  linear: [
+    { id: 'l1', level: '🟢', title: 'Buat garis yang naik paling curam (gradien m = 5)', hints: ['Gradien diatur oleh slider m.', 'Geser m sampai nilainya 5, yaitu ujung kanan slider.'], check: (s) => near(s.m, 5, 0.06) },
+    { id: 'l2', level: '🟢', title: 'Buat garis yang memotong sumbu Y di (0, −3)', hints: ['Titik potong sumbu Y diatur oleh slider c.', 'Atur c = −3. Titik kuning di sumbu Y harus ada di −3.'], check: (s) => near(s.c, -3, 0.06) },
+    { id: 'l3', level: '🟡', title: 'Buat garis yang datar di ketinggian y = 4', hints: ['Garis datar tidak naik dan tidak turun.', 'Gradien harus 0, lalu atur c = 4.'], check: (s) => near(s.m, 0, 0.06) && near(s.c, 4, 0.06) },
+    { id: 'l4', level: '🟡', title: 'Buat garis yang memotong Y di 1 dan melewati titik (2, 5)', hints: ['Titik potong Y = 1 berarti c = 1.', 'Dari (0, 1) ke (2, 5): naik 4 saat geser 2 ke kanan. Gradien = naik ÷ geser.', 'Jawaban: m = 2, c = 1.'], check: (s) => near(s.c, 1, 0.06) && near(s.m * 2 + s.c, 5, 0.1) },
+    { id: 'l5', level: '🔴', title: 'Buat dua garis yang berpotongan di (2, 3)', hints: ['Buka tab "Dua garis (SPLDV)".', 'Cari dua garis yang sama-sama melewati (2, 3), tetapi gradiennya beda.', 'Jawaban contoh: y = x + 1 dan y = −x + 5.'], check: (s) => { if (s.mode !== 'dua' || Math.abs(s.m - s.m2) < 0.05) return false; const x = (s.c2 - s.c) / (s.m - s.m2); return near(x, 2, 0.1) && near(s.m * x + s.c, 3, 0.1); } },
+  ],
   matriks: [
     { id: 'm1', app: '2x2', level: '🟢', title: 'Buat matriks 2×2 yang memutar bidang 90°', hints: ['Kolom pertama = ke mana i (1,0) pergi. Kolom kedua = ke mana j (0,1) pergi.', 'i harus pergi ke (0, 1) dan j ke (−1, 0).', 'Jawaban: baris 1 = 0, −1 dan baris 2 = 1, 0.'], check: (s) => s.m2.every((v, i) => near(v, [0, -1, 1, 0][i], 0.05)) },
     { id: 'm2', app: '2x2', level: '🟢', title: 'Buat matriks dengan determinan = 6 (nyalakan Mode Luas)', hints: ['Tekan tombol Mode Luas, lalu lihat angka luasnya.', 'Matriks diagonal mudah: determinan = a × d.', 'Jawaban contoh: 2, 0, 0, 3.'], check: (s) => s.area && near(det2(s.m2), 6, 0.05) },
