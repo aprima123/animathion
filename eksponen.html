@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Animathion - Eksponen & Logaritma</title>
+<link rel="stylesheet" href="shared/animathion.css">
+<style>
+  .eq{height:2em;margin-bottom:6px;text-align:center;white-space:nowrap;overflow:hidden;font:700 clamp(.9rem,4.4vw,1.35rem)/2em monospace}
+  .eq sup,.eq sub{font-size:.65em;line-height:0}
+  .btn-row{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+</style>
+</head>
+<body>
+  <a href="index.html" class="back-btn">← MENU</a>
+  <div class="app-container">
+    <div class="panel" style="flex:1;min-width:300px">
+      <h2>Eksponen & Logaritma</h2>
+      <div class="eq" style="color:#ff2a55">y = <span id="lbl-b" style="color:#111">2.0</span><sup>x</sup> <span style="color:#555;font-size:.7em">(eksponen)</span></div>
+      <div class="eq" style="color:#0098c4;margin-bottom:14px">y = log<sub id="lbl-b2" style="color:#111">2.0</sub> x <span style="color:#555;font-size:.7em">(logaritma)</span></div>
+      <div class="control-group"><div class="control-label"><span><b>b</b> (Basis)</span> <span id="val-b">2.0</span></div><input type="range" id="sl-b" min="0.2" max="10" step="0.1" value="2"></div>
+      <div class="control-group"><div class="control-label"><span><b>p</b> (Titik contoh: pangkat)</span> <span id="val-p">3.0</span></div><input type="range" id="sl-p" min="-3" max="3" step="0.1" value="3"></div>
+      <div class="control-group"><div class="control-label"><span><b>Cermin</b> eksponen → logaritma</span> <span id="val-u">0%</span></div><input type="range" id="sl-u" min="0" max="100" step="1" value="0">
+        <div class="btn-row"><button class="preset-btn" id="u0">Eksponen</button><button class="preset-btn" id="u1">Logaritma</button></div></div>
+      <div class="info-box" id="info-panel"></div>
+    </div>
+    <div class="panel canvas-wrap">
+      <h2>Grafik</h2>
+      <canvas id="cv" aria-label="Grafik eksponen dan logaritma yang saling mencerminkan terhadap garis y = x"></canvas>
+      <div class="zoom-controls"><button id="z_in" title="Zoom in">+</button><button id="z_out" title="Zoom out">−</button><button id="z_reset" title="Reset">⟲</button></div>
+    </div>
+  </div>
+<script type="module">
+import { setupCanvas, Smoother, Viewport, drawGrid, fmt, addBanner, addPresets, readState, writeState, stableBox, onFrame } from './shared/core.js';
+const $ = (id) => document.getElementById(id);
+const { ctx, W, H } = setupCanvas($('cv'), 600);
+const vp = new Viewport(W, H, { scale: 40, min: 4, max: 150 });
+const K = ['b', 'p', 'u'], sl = Object.fromEntries(K.map((k) => [k, $('sl-' + k)]));
+let hl = null;
+
+function draw(s) {
+  drawGrid(ctx, vp);
+  const B = s.b, e = s.u * s.u * (3 - 2 * s.u), f = (x) => Math.pow(B, x);
+  const exp = (t) => [t, f(t)], log = (t) => [f(t), t], mix = (t) => [(1 - e) * t + e * f(t), (1 - e) * f(t) + e * t];
+  const text = (t, x, y, col = '#111') => { ctx.fillStyle = col; ctx.font = 'bold 12px monospace'; ctx.textAlign = 'left'; ctx.fillText(t, x, y); };
+  const trace = (fn, color, w, dash) => {
+    ctx.strokeStyle = color; ctx.lineWidth = w; ctx.setLineDash(dash || []); ctx.beginPath(); let pen = false;
+    for (let t = -8; t <= 8; t += 0.03) {
+      const [px, py] = vp.w2p(...fn(t));
+      if (Math.abs(px) < 3000 && Math.abs(py) < 3000) { pen ? ctx.lineTo(px, py) : ctx.moveTo(px, py); pen = true; } else pen = false;
+    }
+    ctx.stroke(); ctx.setLineDash([]);
+  };
+  const dot = (x, y, fill, label, r = 6) => {
+    const [px, py] = vp.w2p(x, y);
+    ctx.fillStyle = fill; ctx.beginPath(); ctx.arc(px, py, r, 0, Math.PI * 2); ctx.fill(); ctx.strokeStyle = '#111'; ctx.lineWidth = 2; ctx.stroke();
+    if (label) text(label, px + 9, py - 9);
+  };
+  // garis cermin y = x
+  const [xl] = vp.p2w(0, 0), [xr] = vp.p2w(W, 0), [ax, ay] = vp.w2p(xl, xl), [bx, by] = vp.w2p(xr, xr);
+  ctx.strokeStyle = hl === 'u' ? '#b500ff' : 'rgba(0,0,0,.35)'; ctx.lineWidth = hl === 'u' ? 4 : 2; ctx.setLineDash([8, 6]); ctx.beginPath(); ctx.moveTo(ax, ay); ctx.lineTo(bx, by); ctx.stroke(); ctx.setLineDash([]);
+  trace(exp, 'rgba(255,42,85,.25)', 2, [4, 4]); trace(log, 'rgba(0,152,196,.25)', 2, [4, 4]);
+  const c = (a, z) => Math.round(a + (z - a) * e);
+  trace(mix, `rgb(${c(255, 0)},${c(42, 152)},${c(85, 196)})`, 4);
+  // pasangan titik cermin: P di eksponen, Q di logaritma
+  const p = s.p, v = f(p), [P1, P2] = vp.w2p(p, v), [Q1, Q2] = vp.w2p(v, p);
+  ctx.strokeStyle = '#333'; ctx.lineWidth = hl === 'p' ? 3.5 : 1.5; ctx.setLineDash([5, 4]); ctx.beginPath(); ctx.moveTo(P1, P2); ctx.lineTo(Q1, Q2); ctx.stroke(); ctx.setLineDash([]);
+  dot(p, v, '#ff6b81', `(${fmt(p)}, ${fmt(v, v < 1 ? 3 : 2)})`); dot(v, p, '#60c3ff', `(${fmt(v, v < 1 ? 3 : 2)}, ${fmt(p)})`);
+  const [mx, my] = mix(p); dot(mx, my, '#ffe566', '', 7);
+  dot(0, 1, '#fff', hl === 'b' || hl === null ? '(0, 1)' : '', 5); dot(1, 0, '#fff', hl === 'b' || hl === null ? '(1, 0)' : '', 5);
+  if (hl === 'b') { dot(1, B, '#ffe566', `(1, ${fmt(B)})`, 7); dot(B, 1, '#ffe566', `(${fmt(B)}, 1)`, 7); }
+  const t = sm.tgt, bt = t.b, vt = Math.pow(bt, t.p), vs = fmt(vt, vt < 1 ? 3 : 2);
+  $('info-panel').innerHTML = Math.abs(bt - 1) < 0.05
+    ? '<b>Basis 1 tidak dipakai.</b> 1 pangkat berapa pun selalu 1, jadi grafik eksponennya datar dan logaritmanya tidak terdefinisi.'
+    : `<b>${fmt(bt)}<sup>${fmt(t.p)}</sup> = ${vs}</b>, artinya <b>log<sub>${fmt(bt)}</sub>(${vs}) = ${fmt(t.p)}</b>.<br>Logaritma menjawab: "${fmt(bt)} dipangkatkan berapa supaya jadi ${vs}?" Jawabannya <b>${fmt(t.p)}</b>.<br>Grafik ${bt > 1 ? '<b>naik</b>' : '<b>turun</b>'} karena basis ${bt > 1 ? 'lebih dari 1' : 'antara 0 dan 1'}. Keduanya saling bercermin pada garis y = x.`;
+}
+
+const sm = new Smoother({ b: 2, p: 3, u: 0 }, draw, { rate: 10, eps: 0.003 });
+function onSlide() {
+  const v = { b: +sl.b.value, p: +sl.p.value, u: +sl.u.value / 100 };
+  $('val-b').textContent = $('lbl-b').textContent = $('lbl-b2').textContent = fmt(v.b); $('val-p').textContent = fmt(v.p); $('val-u').textContent = Math.round(v.u * 100) + '%';
+  sm.set(v); writeState({ b: sl.b.value, p: sl.p.value, u: sl.u.value });
+}
+const setU = (u) => { sl.u.value = u; onSlide(); };
+function apply(q) {
+  K.forEach((k) => { if (q[k] !== undefined && isFinite(+q[k])) sl[k].value = Math.max(+sl[k].min, Math.min(+sl[k].max, +q[k])); });
+  onSlide();
+}
+Object.values(sl).forEach((el) => el.addEventListener('input', onFrame(onSlide)));
+$('u0').onclick = () => setU(0); $('u1').onclick = () => setU(100);
+for (const k of K) for (const el of [k === 'b' ? $('lbl-b') : null, $('val-' + k).parentElement].filter(Boolean)) {
+  el.classList.add('hov'); el.addEventListener('pointerenter', () => { hl = k; sm.redraw(); }); el.addEventListener('pointerleave', () => { hl = null; sm.redraw(); });
+}
+vp.attach($('cv'), () => sm.redraw(), { zin: $('z_in'), zout: $('z_out'), reset: $('z_reset') });
+addBanner('<b>Logaritma adalah kebalikan eksponen</b>: ia menjawab "dipangkatkan berapa?". Karena itu grafik y = bˣ dan y = log<sub>b</sub> x <b>saling bercermin</b> pada garis y = x. Geser slider Cermin untuk melihat satu grafik berubah menjadi yang lain.');
+addPresets($('info-panel').parentElement, [{ label: '2³ = 8', b: 2, p: 3 }, { label: '10⁻¹ = 0,1', b: 10, p: -1 }, { label: 'Basis ½ (turun)', b: 0.5, p: 2 }, { label: '3² = 9', b: 3, p: 2 }, { label: 'Cermin penuh', b: 2, p: 2, u: 100 }], apply, $('info-panel'));
+const st = readState();
+if (K.some((k) => k in st)) apply(st); else sm.redraw();
+stableBox($('info-panel'));
+</script>
+</body>
+</html>
