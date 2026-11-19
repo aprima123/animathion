@@ -49,7 +49,7 @@
     </div>
   </div>
 <script type="module">
-import { setupCanvas, Smoother, Viewport, drawGrid, fmt, addBanner, addPresets, readState, writeState, stableBox, throttleHTML } from './shared/core.js';
+import { setupCanvas, Smoother, Viewport, drawGrid, fmt, addBanner, addPresets, readState, writeState, stableBox, throttleHTML, onFrame } from './shared/core.js';
 import { initMissions } from './shared/missions.js';
 const $ = (id) => document.getElementById(id);
 const { ctx, W, H } = setupCanvas($('cv'), 600);
@@ -112,7 +112,7 @@ function draw(s) {
 
 const sm = new Smoother(DEF, draw, { rate: 10, eps: 0.003 });
 const sliders = { tx: [$('slider-tx'), $('val-tx'), ''], ty: [$('slider-ty'), $('val-ty'), ''], rot: [$('slider-rot'), $('val-rot'), '°'], dil: [$('slider-dil'), $('val-dil'), 'x'] };
-for (const k in sliders) { const [inp, lbl, unit] = sliders[k]; inp.addEventListener('input', () => { lbl.textContent = fmt(+inp.value) + unit; sm.set({ [k]: +inp.value }); save(); }); }
+for (const k in sliders) { const [inp, lbl, unit] = sliders[k]; inp.addEventListener('input', onFrame(() => { lbl.textContent = fmt(+inp.value) + unit; sm.set({ [k]: +inp.value }); save(); })); }
 function setMode(m) {
   mode = m;
   document.querySelectorAll('.tab-btn').forEach((b) => b.classList.toggle('active', b.dataset.mode === m));
