@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Animathion - Turunan</title>
+<link rel="stylesheet" href="shared/animathion.css">
+<style>
+  .tab-menu{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+  .tab-btn{padding:8px 12px;font:700 .85rem inherit;font-family:inherit;background:#fff;color:var(--ink);border:3px solid var(--ink);border-radius:8px;cursor:pointer;transition:.1s}
+  .tab-btn:hover:not(.active){background:#eee}
+  .tab-btn.active{background:var(--hl-green);box-shadow:2px 2px 0 var(--ink);transform:translate(-1px,-1px)}
+  .eq{height:2em;text-align:center;white-space:nowrap;overflow:hidden;font:700 clamp(.85rem,4vw,1.2rem)/2em monospace}
+  .eq sub{font-size:.65em;line-height:0}
+  .lim{margin:2px 0 14px;padding:6px 8px;text-align:center;white-space:nowrap;overflow:hidden;font:600 clamp(.7rem,3.2vw,.85rem)/1.6 monospace;background:var(--bg-page);border:2px dashed var(--ink);border-radius:6px}
+  .btn-row{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+  #cv2{aspect-ratio:600/220;margin-top:12px;cursor:default}
+  .cap{margin:12px 0 0;font:700 .8rem inherit;font-family:inherit;text-transform:uppercase}
+</style>
+</head>
+<body>
+  <a href="index.html" class="back-btn">← MENU</a>
+  <div class="app-container">
+    <div class="panel" style="flex:1;min-width:300px">
+      <h2>Turunan = Kemiringan</h2>
+      <div class="tab-menu" id="fn-tabs">
+        <button class="tab-btn active" data-f="x2">x²</button><button class="tab-btn" data-f="x3">x³ − 3x</button>
+        <button class="tab-btn" data-f="sin">sin x</button><button class="tab-btn" data-f="abs">|x|</button>
+      </div>
+      <div class="eq" style="color:#2d9f5d">f(x) = <span id="eq-f">x²</span></div>
+      <div class="eq" style="color:#ff2a55">f′(x) = <span id="eq-d">2x</span></div>
+      <div class="lim">f′(x) = lim<sub>h→0</sub> [ f(x+h) − f(x) ] / h</div>
+      <div class="control-group"><div class="control-label"><span><b>x</b> (Posisi titik)</span> <span id="val-x">1.00</span></div><input type="range" id="sl-x" min="-3" max="3" step="0.05" value="1"></div>
+      <div class="control-group"><div class="control-label"><span><b>h</b> (Jarak titik kedua)</span> <span id="val-h">1.00</span></div><input type="range" id="sl-h" min="-2" max="2" step="0.01" value="1">
+        <div class="btn-row"><button class="preset-btn" id="h0">h → 0 (singgung)</button><button class="preset-btn" id="h1">h = 1</button></div></div>
+      <div class="info-box" id="info-panel"></div>
+    </div>
+    <div class="panel canvas-wrap">
+      <h2>Kurva dan Garis</h2>
+      <canvas id="cv" aria-label="Kurva dengan garis potong dan garis singgung"></canvas>
+      <div class="zoom-controls"><button id="z_in" title="Zoom in">+</button><button id="z_out" title="Zoom out">−</button><button id="z_reset" title="Reset">⟲</button></div>
+      <p class="cap">Grafik turunan f′(x): kemiringan di setiap x</p>
+      <canvas id="cv2" aria-label="Grafik turunan"></canvas>
+    </div>
+  </div>
+<script type="module">
+import { setupCanvas, Smoother, Viewport, drawGrid, fmt, addBanner, addPresets, readState, writeState, stableBox, onFrame } from './shared/core.js';
+const $ = (id) => document.getElementById(id);
+const { ctx, W, H } = setupCanvas($('cv'), 600), cm = setupCanvas($('cv2'), 600, 220).ctx;
+const vp = new Viewport(W, H, { scale: 50, min: 10, max: 150 });
+const FN = {
+  x2: { f: (x) => x * x, d: (x) => 2 * x, tf: 'x²', td: '2x' },
+  x3: { f: (x) => x ** 3 - 3 * x, d: (x) => 3 * x * x - 3, tf: 'x³ − 3x', td: '3x² − 3' },
+  sin: { f: Math.sin, d: Math.cos, tf: 'sin x', td: 'cos x' },
+  abs: { f: Math.abs, d: (x) => (Math.abs(x) < 1e-9 ? NaN : Math.sign(x)), tf: '|x|', td: '1 (x>0) atau −1 (x<0)' },
+};
+let fn = 'x2', hl = null;
+const sl = { x: $('sl-x'), h: $('sl-h') };
+
+function draw(s) {
+  const { f, d } = FN[fn], x0 = s.x, h = s.h, y0 = f(x0), tiny = Math.abs(h) < 0.012, dv = d(x0);
+  const sec = tiny ? dv : (f(x0 + h) - y0) / h;
+  drawGrid(ctx, vp);
+  const [xl] = vp.p2w(0, 0), [xr] = vp.p2w(W, 0);
+  const text = (t, x, y, col = '#111') => { ctx.fillStyle = col; ctx.font = 'bold 12px monospace'; ctx.textAlign = 'left'; ctx.fillText(t, x, y); };
+  const dot = (x, y, fill, r = 6) => { const [px, py] = vp.w2p(x, y); ctx.fillStyle = fill; ctx.beginPath(); ctx.arc(px, py, r, 0, Math.PI * 2); ctx.fill(); ctx.strokeStyle = '#111'; ctx.lineWidth = 2; ctx.stroke(); };
+  const slopeLine = (m, color, w, dash) => {
+    if (!isFinite(m)) return; const [ax, ay] = vp.w2p(xl, y0 + m * (xl - x0)), [bx, by] = vp.w2p(xr, y0 + m * (xr - x0));
+    ctx.strokeStyle = color; ctx.lineWidth = w; ctx.setLineDash(dash || []); ctx.beginPath(); ctx.moveTo(ax, ay); ctx.lineTo(bx, by); ctx.stroke(); ctx.setLineDash([]);
+  };
+  // kurva
+  ctx.strokeStyle = '#2d9f5d'; ctx.lineWidth = 4; ctx.beginPath(); let pen = false;
+  for (let px = 0; px <= W; px += 2) { const [wx] = vp.p2w(px, 0), [, py] = vp.w2p(wx, f(wx)); if (py > -1500 && py < H + 1500) { pen ? ctx.lineTo(px, py) : ctx.moveTo(px, py); pen = true; } else pen = false; }
+  ctx.stroke();
+  slopeLine(dv, 'rgba(45,159,93,.75)', 2, [7, 5]);                         // garis singgung
+  slopeLine(sec, '#ff2a55', hl === 'h' ? 5 : 3.5);                          // garis potong
+  const [Px, Py] = vp.w2p(x0, y0);
+  if (!tiny) { // segitiga: geser h, naik/turun Δy
+    const x1 = x0 + h, y1 = f(x1), [Rx, Ry] = vp.w2p(x1, y0), [Qx, Qy] = vp.w2p(x1, y1);
+    ctx.fillStyle = `rgba(255,42,85,${hl === 'h' ? 0.2 : 0.08})`; ctx.beginPath(); ctx.moveTo(Px, Py); ctx.lineTo(Rx, Ry); ctx.lineTo(Qx, Qy); ctx.closePath(); ctx.fill();
+    ctx.strokeStyle = '#ff2a55'; ctx.lineWidth = 2; ctx.setLineDash([5, 4]); ctx.beginPath(); ctx.moveTo(Px, Py); ctx.lineTo(Rx, Ry); ctx.lineTo(Qx, Qy); ctx.stroke(); ctx.setLineDash([]);
+    if (Math.abs(Rx - Px) > 36) text(`h = ${fmt(h, 2)}`, (Px + Rx) / 2 - 22, Ry + (y1 >= y0 ? 15 : -8), '#ff2a55');
+    if (Math.abs(Qy - Ry) > 22) text(`Δy = ${fmt(y1 - y0, 2)}`, Rx + (h >= 0 ? 8 : -74), (Ry + Qy) / 2 + 4, '#ff2a55');
+    dot(x1, y1, '#ff99aa', hl === 'h' ? 8 : 6);
+  }
+  if (hl === 'x') { ctx.strokeStyle = '#b500ff'; ctx.lineWidth = 2; ctx.setLineDash([4, 4]); const [, ay] = vp.w2p(0, 0); ctx.beginPath(); ctx.moveTo(Px, Py); ctx.lineTo(Px, ay); ctx.stroke(); ctx.setLineDash([]); text(`x = ${fmt(x0, 2)}`, Px + 8, ay - 8, '#b500ff'); }
+  dot(x0, y0, '#ffe566', hl === 'x' ? 9 : 7);
+  text(`(${fmt(x0, 2)}, ${fmt(y0, 2)})`, Px + 10, Py - 12);
+  // ---- grafik turunan ----
+  const oy = 110, ys = 18;
+  cm.clearRect(0, 0, 600, 220); cm.fillStyle = '#fff'; cm.fillRect(0, 0, 600, 220);
+  cm.strokeStyle = '#e0e0e0'; cm.lineWidth = 1; cm.beginPath();
+  for (let i = Math.ceil(xl); i <= xr; i++) { const [gx] = vp.w2p(i, 0); cm.moveTo(gx, 0); cm.lineTo(gx, 220); }
+  for (let k = -6; k <= 6; k += 2) { cm.moveTo(0, oy - k * ys); cm.lineTo(600, oy - k * ys); }
+  cm.stroke(); cm.strokeStyle = '#111'; cm.lineWidth = 2; cm.beginPath(); cm.moveTo(0, oy); cm.lineTo(600, oy); cm.moveTo(vp.cx, 0); cm.lineTo(vp.cx, 220); cm.stroke();
+  cm.fillStyle = '#555'; cm.font = '11px monospace'; cm.textAlign = 'left'; for (let k = -4; k <= 4; k += 2) if (k) cm.fillText(String(k), 4, oy - k * ys - 3);
+  cm.strokeStyle = '#ff2a55'; cm.lineWidth = 3; cm.beginPath(); pen = false; let prev = 0;
+  for (let px = 0; px <= W; px += 2) {
+    const v = d(vp.p2w(px, 0)[0]);
+    if (!isFinite(v) || Math.abs(v) > 6.3 || (pen && Math.abs(v - prev) > 2)) { pen = false; prev = v; continue; }
+    pen ? cm.lineTo(px, oy - v * ys) : cm.moveTo(px, oy - v * ys); pen = true; prev = v;
+  }
+  cm.stroke();
+  const [mx] = vp.w2p(x0, 0);
+  cm.strokeStyle = 'rgba(0,0,0,.35)'; cm.lineWidth = 1.5; cm.setLineDash([4, 4]); cm.beginPath(); cm.moveTo(mx, 0); cm.lineTo(mx, 220); cm.stroke(); cm.setLineDash([]);
+  const mdot = (v, fill, hollow) => { if (!isFinite(v) || Math.abs(v) > 6.3) return; cm.beginPath(); cm.arc(mx, oy - v * ys, hollow ? 6 : 7, 0, Math.PI * 2); cm.fillStyle = hollow ? '#fff' : fill; cm.fill(); cm.strokeStyle = hollow ? '#ff2a55' : '#111'; cm.lineWidth = 2.5; cm.stroke(); };
+  if (!tiny) mdot(sec, '#fff', true); mdot(dv, '#ffe566', false);
+  cm.fillStyle = '#111'; cm.font = 'bold 12px monospace'; cm.fillText('f′(x)', 8, 16);
+  if (!tiny) { cm.fillStyle = '#ff2a55'; cm.fillText('○ kemiringan garis potong', 8, 32); } cm.fillStyle = '#111'; cm.fillText('● kemiringan singgung = f′(x)', 8, tiny ? 32 : 48);
+  // ---- info (dari nilai target, bukan yang sedang beranimasi) ----
+  const t = sm.tgt, xt = t.x, ht = t.h, dt = d(xt), tinyT = Math.abs(ht) < 0.012, st = tinyT ? dt : (f(xt + ht) - f(xt)) / ht;
+  let info = `<b>f′(${fmt(xt, 2)}) = ${isFinite(dt) ? fmt(dt, 2) : 'tidak ada'}</b>: kemiringan garis singgung di titik itu.`;
+  if (!tinyT) info += `<br>Garis potong (titik kedua ${ht > 0 ? 'di kanan' : 'di kiri'}): Δy ÷ h = <b>${fmt(st, 2)}</b>`;
+  if (fn === 'abs' && Math.abs(xt) < 0.05) info = '<b>f′(0) tidak ada.</b> Di ujung runcing ini, kemiringan dari kiri (−1) berbeda dengan dari kanan (+1), jadi garis singgungnya tidak tunggal.' + (tinyT ? '' : `<br>Garis potong sekarang: <b>${fmt(st, 2)}</b> (${ht > 0 ? 'dari kanan' : 'dari kiri'}).`);
+  else if (isFinite(dt) && Math.abs(dt) < 0.03) info += '<br>Kemiringan 0: garis singgung <b>datar</b>, di puncak atau lembah kurva.';
+  else if (!tinyT && isFinite(dt)) info += Math.abs(st - dt) < 0.08 ? '<br>Garis potong hampir sama dengan garis singgung.' : '<br>Kecilkan |h| dan garis potong akan mendekati garis singgung.';
+  else if (tinyT) info += '<br>h hampir 0: garis potong menjadi garis singgung.';
+  $('info-panel').innerHTML = info;
+}
+
+const sm = new Smoother({ x: 1, h: 1 }, draw, { rate: 10, eps: 0.002 });
+function save() { writeState({ f: fn, x: sl.x.value, h: sl.h.value }); }
+function onSlide() { const v = { x: +sl.x.value, h: +sl.h.value }; $('val-x').textContent = fmt(v.x, 2); $('val-h').textContent = fmt(v.h, 2); sm.set(v); save(); }
+function setFn(k) {
+  fn = k; document.querySelectorAll('#fn-tabs .tab-btn').forEach((b) => b.classList.toggle('active', b.dataset.f === k));
+  $('eq-f').textContent = FN[k].tf; $('eq-d').textContent = FN[k].td; sm.redraw(); save();
+}
+function apply(q) {
+  if (q.fn && FN[q.fn]) setFn(q.fn);
+  for (const k of ['x', 'h']) if (q[k] !== undefined && isFinite(+q[k])) sl[k].value = Math.max(+sl[k].min, Math.min(+sl[k].max, +q[k]));
+  onSlide();
+}
+Object.values(sl).forEach((el) => el.addEventListener('input', onFrame(onSlide)));
+$('fn-tabs').addEventListener('click', (e) => { if (e.target.dataset.f) setFn(e.target.dataset.f); });
+$('h0').onclick = () => { sl.h.value = 0; onSlide(); }; $('h1').onclick = () => { sl.h.value = 1; onSlide(); };
+for (const k of ['x', 'h']) { const el = $('val-' + k).parentElement; el.classList.add('hov'); el.addEventListener('pointerenter', () => { hl = k; sm.redraw(); }); el.addEventListener('pointerleave', () => { hl = null; sm.redraw(); }); }
+vp.attach($('cv'), () => sm.redraw(), { zin: $('z_in'), zout: $('z_out'), reset: $('z_reset') });
+addBanner('<b>Turunan adalah kemiringan kurva di satu titik.</b> Ambil dua titik pada kurva, tarik garis potong, lalu dekatkan titik kedua (kecilkan <b>h</b>). Garis potong berubah menjadi <b>garis singgung</b>, dan kemiringannya itulah turunan.');
+addPresets($('info-panel').parentElement, [{ label: 'x² di x = 1', fn: 'x2', x: 1, h: 1 }, { label: 'Puncak x³ − 3x', fn: 'x3', x: -1, h: 0.8 }, { label: 'sin x di puncak', fn: 'sin', x: 1.57, h: 0.8 }, { label: '|x| di 0: sudut runcing', fn: 'abs', x: 0, h: 1 }], apply, $('info-panel'));
+const st = readState();
+if (st.f || st.x || st.h) apply({ ...st, fn: st.f }); else onSlide();
+stableBox($('info-panel'));
+</script>
+</body>
+</html>
