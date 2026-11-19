@@ -42,6 +42,13 @@ export const MISSIONS = {
     { id: 'g4', level: '🟡', title: 'Temukan sudut dengan sin θ = cos θ', hints: ['Tinggi dan lebar titik harus sama.', 'Titik ada di diagonal lingkaran: 45° atau 225°.'], check: (s) => Math.abs(s.sin - s.cos) < 0.02 },
     { id: 'g5', level: '🔴', title: 'Di mode unwrap, bentangkan lingkaran sampai θ = π (180°)', hints: ['Buka tab "Unwrap".', 'Atur θ = 180° dan geser slider bentang sampai gelombang (kanan).', 'Panjang busur yang diluruskan sama dengan π ≈ 3,14.'], check: (s) => s.mode === 'unwrap' && s.u > 0.95 && near(s.deg, 180, 3) },
   ],
+  eksponen: [
+    { id: 'e1', level: '🟢', title: 'Buat grafik eksponen yang turun', hints: ['Grafik turun saat basisnya antara 0 dan 1.', 'Geser slider b ke bawah 1, misalnya 0,5.'], check: (s) => s.b < 0.95 },
+    { id: 'e2', level: '🟢', title: 'Dengan basis 2, geser p ke 3 dan baca hasilnya (8)', hints: ['Atur b = 2 dengan slider basis.', 'Atur p = 3. Lihat info: 2³ = 8, artinya log₂(8) = 3.'], check: (s) => near(s.b, 2, 0.06) && near(s.p, 3, 0.06) },
+    { id: 'e3', level: '🟡', title: 'Buat grafik y = bˣ yang melewati titik (1, 4)', hints: ['Titik (1, 4) berarti saat x = 1, hasilnya 4.', 'Karena b¹ = b, basisnya harus 4. Titik (1, b) menyala kalau kamu hover b.'], check: (s) => near(s.b, 4, 0.06) },
+    { id: 'e4', level: '🟡', title: 'Jawab: 10 dipangkatkan berapa supaya jadi 0,1?', hints: ['Atur basis b = 10.', 'Geser p sampai hasilnya 0,1. Jawabannya negatif: p = −1.'], check: (s) => near(s.b, 10, 0.06) && near(s.p, -1, 0.06) },
+    { id: 'e5', level: '🔴', title: 'Buat cermin penuh dan temukan titik biru di (9, 2)', hints: ['Titik biru ada di grafik logaritma, dengan koordinat (hasil, p).', 'Hasil 9 dan p = 2 berarti basisnya 3, sebab 3² = 9.', 'Atur b = 3, p = 2, lalu geser Cermin sampai 100%.'], check: (s) => near(s.b, 3, 0.06) && near(s.p, 2, 0.06) && s.u > 0.95 },
+  ],
   linear: [
     { id: 'l1', level: '🟢', title: 'Buat garis yang naik paling curam (gradien m = 5)', hints: ['Gradien diatur oleh slider m.', 'Geser m sampai nilainya 5, yaitu ujung kanan slider.'], check: (s) => near(s.m, 5, 0.06) },
     { id: 'l2', level: '🟢', title: 'Buat garis yang memotong sumbu Y di (0, −3)', hints: ['Titik potong sumbu Y diatur oleh slider c.', 'Atur c = −3. Titik kuning di sumbu Y harus ada di −3.'], check: (s) => near(s.c, -3, 0.06) },
