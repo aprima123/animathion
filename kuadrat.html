@@ -5,17 +5,14 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Animathion - Fungsi Kuadrat</title>
 <link rel="stylesheet" href="shared/animathion.css">
+<style>.eq{display:block;height:2em;line-height:2em;margin-bottom:20px;text-align:center;white-space:nowrap;overflow:hidden;font:700 clamp(.9rem,4.4vw,1.5rem)/2em monospace}</style>
 </head>
 <body>
   <a href="index.html" class="back-btn">← MENU</a>
   <div class="app-container">
     <div class="panel" style="flex:1;min-width:300px">
       <h2>Persamaan Kuadrat</h2>
-      <div style="text-align:center;font-size:1.5rem;font-weight:700;font-family:monospace;margin-bottom:20px">
-        y = <span id="lbl-a" style="color:#ff2a55">1</span>x² +
-        <span id="lbl-b" style="color:#00a8d6">0</span>x +
-        <span id="lbl-c" style="color:#b500ff">0</span>
-      </div>
+      <div class="eq" aria-label="Persamaan kuadrat">y = <span id="lbl-a" style="color:#ff2a55">1.0</span>x² <span id="sg-b">+</span> <span id="lbl-b" style="color:#00a8d6">0.0</span>x <span id="sg-c">+</span> <span id="lbl-c" style="color:#b500ff">0.0</span></div>
       <div class="control-group"><div class="control-label">Nilai <b>a</b> (Kelengkungan) <span id="val-a">1</span></div>
         <input type="range" id="slider-a" min="-10" max="10" step="0.1" value="1"></div>
       <div class="control-group"><div class="control-label">Nilai <b>b</b> (Geser) <span id="val-b">0</span></div>
@@ -97,7 +94,8 @@ function draw({ a, b, c }) {
 const sm = new Smoother({ a: 1, b: 0, c: 0 }, draw, { rate: 10, eps: 0.005 });
 function onSlide() {
   const t = { a: +sl.a.value, b: +sl.b.value, c: +sl.c.value };
-  for (const k of ['a', 'b', 'c']) { $('val-' + k).textContent = $('lbl-' + k).textContent = fmt(t[k]); }
+  for (const k of ['a', 'b', 'c']) { $('val-' + k).textContent = fmt(t[k]); $('lbl-' + k).textContent = fmt(k === 'a' ? t[k] : Math.abs(t[k])); }
+  $('sg-b').textContent = t.b < 0 ? '−' : '+'; $('sg-c').textContent = t.c < 0 ? '−' : '+';
   sm.set(t); writeState(t);
 }
 Object.values(sl).forEach((el) => el.addEventListener('input', onSlide));
