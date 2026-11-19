@@ -17,7 +17,7 @@
   .btn-reset{width:100%;padding:10px;margin:5px 0 15px;font:700 1rem inherit;font-family:inherit;background:var(--hl-pink);border:3px solid var(--ink);border-radius:8px;cursor:pointer;box-shadow:3px 3px 0 var(--ink);transition:.1s}
   .btn-reset:hover{transform:translate(-2px,-2px);box-shadow:4px 4px 0 var(--ink)}
   .btn-reset:active{transform:translate(2px,2px);box-shadow:none}
-  .equation-box{background:var(--bg-page);border:3px solid var(--ink);border-radius:8px;padding:12px;font:700 1.05rem monospace;line-height:1.7}
+  .equation-box{min-height:6.5em;background:var(--bg-page);border:3px solid var(--ink);border-radius:8px;padding:12px;font:700 1.05rem monospace;line-height:1.7}
   .eq-red{color:#ff2a55}.eq-blue{color:#0098c4}.eq-green{color:#4a9a10}.eq-sub{font-size:.85rem;color:#555;font-weight:500}
   .ok{color:#2d8a0f}.bad{color:#d4183d}
   .tab-menu{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
@@ -54,7 +54,7 @@
     </div>
   </div>
 <script type="module">
-import { setupCanvas, Smoother, Viewport, drawGrid, fmt, addBanner, addPresets, readState, writeState } from './shared/core.js';
+import { setupCanvas, Smoother, Viewport, drawGrid, fmt, addBanner, addPresets, readState, writeState, stableBox } from './shared/core.js';
 import { initMissions } from './shared/missions.js';
 const $ = (id) => document.getElementById(id);
 const { ctx, W, H } = setupCanvas($('cv'), 600);
@@ -188,6 +188,7 @@ $('pr-1').onclick = () => { stopAuto(); pt.value = 100; sm.set({ t: 1 }); };
 $('pr-play').onclick = () => { if (auto) return stopAuto(); auto = true; tp = +pt.value / 100; lastT = performance.now(); $('pr-play').textContent = '⏸ Hentikan'; requestAnimationFrame(autoLoop); };
 if (st.v === 'bukti') setView('bukti');
 solve();
+stableBox($('info-panel')); stableBox($('equation-panel'));
 initMissions('pythagoras', () => {
   const v = (k) => parseFloat(el[k].value), own = (k) => el[k].dataset.auto !== '1' && el[k].value !== '';
   return { a: v('a'), b: v('b'), c: v('c'), own: { a: own('a'), b: own('b'), c: own('c') }, view, t: sm.tgt.t };
