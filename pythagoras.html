@@ -20,6 +20,12 @@
   .equation-box{background:var(--bg-page);border:3px solid var(--ink);border-radius:8px;padding:12px;font:700 1.05rem monospace;line-height:1.7}
   .eq-red{color:#ff2a55}.eq-blue{color:#0098c4}.eq-green{color:#4a9a10}.eq-sub{font-size:.85rem;color:#555;font-weight:500}
   .ok{color:#2d8a0f}.bad{color:#d4183d}
+  .tab-menu{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+  .tab-btn{padding:8px 12px;font:700 .85rem inherit;font-family:inherit;background:#fff;color:var(--ink);border:3px solid var(--ink);border-radius:8px;cursor:pointer;transition:.1s}
+  .tab-btn:hover:not(.active){background:#eee}
+  .tab-btn.active{background:var(--hl-blue);box-shadow:2px 2px 0 var(--ink);transform:translate(-1px,-1px)}
+  .preset-row{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+  .zoom-controls{top:130px}
 </style>
 </head>
 <body>
@@ -37,7 +43,13 @@
     </div>
     <div class="panel canvas-wrap">
       <h2>Visualisasi 2D</h2>
-      <canvas id="cv" aria-label="Segitiga siku-siku dengan persegi di tiap sisinya"></canvas>
+      <div class="tab-menu" id="view-tabs"><button class="tab-btn active" data-v="segitiga">Segitiga</button><button class="tab-btn" data-v="bukti">Bukti potong-pindah</button></div>
+      <canvas id="cv" aria-label="Segitiga siku-siku dan buktinya"></canvas>
+      <div id="proof-ctrl" style="display:none;margin-top:12px">
+        <div class="control-label">Susun c² <span>↔ Bongkar jadi a² + b²</span></div>
+        <input type="range" id="proof-t" min="0" max="100" step="1" value="0" aria-label="Geser untuk menyusun dan membongkar">
+        <div class="preset-row"><button class="preset-btn" id="pr-0">c²</button><button class="preset-btn" id="pr-1">a² + b²</button><button class="preset-btn" id="pr-play">▶ Mainkan</button></div>
+      </div>
       <div class="zoom-controls"><button id="z_in" title="Zoom in">+</button><button id="z_out" title="Zoom out">−</button><button id="z_reset" title="Reset">⟲</button></div>
     </div>
   </div>
@@ -72,10 +84,11 @@ function solve() {
   }
   $('equation-panel').innerHTML = msg;
   sm.set({ a, b });
-  writeState(Object.fromEntries(['a', 'b', 'c'].filter((k) => el[k].dataset.auto !== '1' && el[k].value !== '').map((k) => [k, el[k].value])));
+  writeState({ v: view === 'bukti' ? 'bukti' : undefined, ...Object.fromEntries(['a', 'b', 'c'].filter((k) => el[k].dataset.auto !== '1' && el[k].value !== '').map((k) => [k, el[k].value])) });
 }
 
-function draw({ a, b }) {
+function draw({ a, b, t }) {
+  if (view === 'bukti') return drawProof(a, b, t);
   drawGrid(ctx, vp);
   if (a < 0.01 || b < 0.01) { $('info-panel').textContent = 'Belum ada segitiga untuk digambar.'; return; }
   const c = Math.hypot(a, b), P0 = { x: 0, y: 0 }, P1 = { x: a, y: 0 }, P2 = { x: 0, y: b };
@@ -109,7 +122,38 @@ function draw({ a, b }) {
   $('info-panel').innerHTML = `<b>Sudut:</b> ${fmt(dA)}° + ${fmt(dB)}° + 90° = 180°<br><span style="font-size:.8rem;color:#555">Jumlah sudut dalam segitiga selalu 180°</span>`;
 }
 
-const sm = new Smoother({ a: 0, b: 0 }, draw, { rate: 10, eps: 0.005 });
+let view = 'segitiga';
+
+// Bukti potong-pindah: persegi besar (a+b) berisi 4 segitiga identik.
+// Susunan 1: segitiga mengelilingi persegi miring c². Susunan 2: 3 segitiga digeser (tanpa diputar),
+// sisa ruangnya menjadi persegi a² dan b². Luas segitiga tetap sama, jadi c² = a² + b².
+function drawProof(a, b, t) {
+  ctx.clearRect(0, 0, W, H); ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, W, H);
+  ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  if (a < 0.01 || b < 0.01) { ctx.fillStyle = '#111'; ctx.font = 'bold 16px "Space Grotesk"'; ctx.fillText('Isi dua sisi dulu untuk melihat buktinya', W / 2, H / 2); $('info-panel').textContent = ''; return; }
+  const s = a + b, k = 440 / s, ox = (W - s * k) / 2, oy = (H + s * k) / 2, c2 = a * a + b * b, e = t * t * (3 - 2 * t);
+  const P = (x, y) => [ox + x * k, oy - y * k];
+  const poly = (pts, fill, stroke, lw) => {
+    ctx.beginPath(); pts.forEach(([x, y], i) => { const [px, py] = P(x, y); i ? ctx.lineTo(px, py) : ctx.moveTo(px, py); }); ctx.closePath();
+    if (fill) { ctx.fillStyle = fill; ctx.fill(); } if (stroke) { ctx.strokeStyle = stroke; ctx.lineWidth = lw; ctx.lineJoin = 'round'; ctx.stroke(); }
+  };
+  poly([[a, 0], [s, a], [b, s], [0, b]], `rgba(115,200,43,${0.6 * (1 - e)})`);
+  poly([[0, 0], [a, 0], [a, a], [0, a]], `rgba(255,42,85,${0.5 * e})`);
+  poly([[a, a], [s, a], [s, s], [a, s]], `rgba(0,168,214,${0.5 * e})`);
+  const rot = [(x, y) => [x, y], (x, y) => [-y, x], (x, y) => [-x, -y], (x, y) => [y, -x]];
+  [[0, a * e], [s, 0], [s - b * e, s], [a * e, s - b * e]].forEach(([tx, ty], i) =>
+    poly([[0, 0], [a, 0], [0, b]].map(([x, y]) => { const [rx, ry] = rot[i](x, y); return [rx + tx, ry + ty]; }), '#ffe566', '#111', 3));
+  poly([[0, 0], [s, 0], [s, s], [0, s]], null, '#111', 4);
+  ctx.fillStyle = '#111'; ctx.font = 'bold 16px "Space Grotesk"';
+  ctx.globalAlpha = 1 - e; ctx.fillText(`c² = ${fmt(c2)}`, ...P(s / 2, s / 2));
+  ctx.globalAlpha = e; ctx.fillText(`a² = ${fmt(a * a)}`, ...P(a / 2, a / 2)); ctx.fillText(`b² = ${fmt(b * b)}`, ...P(a + b / 2, a + b / 2));
+  ctx.globalAlpha = 1;
+  $('info-panel').innerHTML = e < 0.5
+    ? `Empat segitiga identik mengelilingi satu persegi miring. Luas sisanya: <b>c² = ${fmt(c2)}</b>.`
+    : `Segitiga yang sama dipindah. Ruang sisanya kini dua persegi: <b>a² + b² = ${fmt(a * a)} + ${fmt(b * b)} = ${fmt(c2)}</b>.`;
+}
+
+const sm = new Smoother({ a: 0, b: 0, t: 0 }, draw, { rate: 10, eps: 0.005 });
 for (const k in el) el[k].addEventListener('input', () => { el[k].dataset.auto = '0'; solve(); });
 $('btn-reset').onclick = () => { el.a.value = 3; el.b.value = 4; el.c.value = ''; el.a.dataset.auto = el.b.dataset.auto = '0'; el.c.dataset.auto = '1'; solve(); };
 vp.attach($('cv'), () => sm.redraw(), { zin: $('z_in'), zout: $('z_out'), reset: $('z_reset') });
@@ -118,6 +162,30 @@ addBanner('Pada segitiga siku-siku, luas persegi di sisi miring sama dengan juml
 addPresets($('btn-reset').parentElement, [{ label: '3-4-5', v: [3, 4] }, { label: '5-12-13', v: [5, 12] }, { label: '8-15-17', v: [8, 15] }, { label: '1-1-√2', v: [1, 1] }], (p) => pick(...p.v), $('btn-reset'));
 const st = readState(), has = ['a', 'b', 'c'].filter((k) => st[k] !== undefined && +st[k] > 0);
 if (has.length) for (const k of ['a', 'b', 'c']) { if (has.includes(k)) { el[k].value = st[k]; el[k].dataset.auto = '0'; } else { el[k].value = ''; el[k].dataset.auto = '1'; } }
+// ---- tab Segitiga / Bukti + kontrol animasi ----
+const pt = $('proof-t');
+let auto = false, dir = 1, tp = 0, lastT = 0;
+function stopAuto() { auto = false; $('pr-play').textContent = '▶ Mainkan'; }
+function autoLoop(now) {
+  if (!auto) return;
+  const dt = Math.min((now - lastT) / 1000, 0.05); lastT = now;
+  tp += dir * dt / 2.2; if (tp > 1.25) { dir = -1; tp = 1.25; } if (tp < -0.25) { dir = 1; tp = -0.25; } // jeda singkat di ujung
+  const t = Math.max(0, Math.min(1, tp)); sm.cur.t = sm.tgt.t = t; pt.value = Math.round(t * 100); sm.redraw();
+  requestAnimationFrame(autoLoop);
+}
+function setView(v) {
+  view = v; stopAuto();
+  document.querySelectorAll('#view-tabs .tab-btn').forEach((b) => b.classList.toggle('active', b.dataset.v === v));
+  $('proof-ctrl').style.display = v === 'bukti' ? 'block' : 'none';
+  document.querySelector('.zoom-controls').style.display = v === 'bukti' ? 'none' : '';
+  solve(); sm.redraw();
+}
+$('view-tabs').addEventListener('click', (e) => { if (e.target.dataset.v) setView(e.target.dataset.v); });
+pt.addEventListener('input', () => { stopAuto(); sm.set({ t: +pt.value / 100 }); });
+$('pr-0').onclick = () => { stopAuto(); pt.value = 0; sm.set({ t: 0 }); };
+$('pr-1').onclick = () => { stopAuto(); pt.value = 100; sm.set({ t: 1 }); };
+$('pr-play').onclick = () => { if (auto) return stopAuto(); auto = true; tp = +pt.value / 100; lastT = performance.now(); $('pr-play').textContent = '⏸ Hentikan'; requestAnimationFrame(autoLoop); };
+if (st.v === 'bukti') setView('bukti');
 solve();
 </script>
 </body>
