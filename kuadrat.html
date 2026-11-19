@@ -34,6 +34,7 @@
   </div>
 <script type="module">
 import { setupCanvas, Smoother, Viewport, drawGrid, fmt, addBanner, addPresets, readState, writeState } from './shared/core.js';
+import { initMissions } from './shared/missions.js';
 const $ = (id) => document.getElementById(id);
 const { ctx, W, H } = setupCanvas($('cv'), 600);
 const vp = new Viewport(W, H, { scale: 40, min: 2, max: 200 });
@@ -114,6 +115,7 @@ if (['a', 'b', 'c'].some((k) => k in st)) {
   ['a', 'b', 'c'].forEach((k) => { if (st[k] !== undefined && isFinite(+st[k])) sl[k].value = Math.max(+sl[k].min, Math.min(+sl[k].max, +st[k])); });
   onSlide();
 } else sm.redraw();
+initMissions('kuadrat', () => ({ ...sm.tgt }), document.querySelector('.app-container'));
 </script>
 </body>
 </html>
