@@ -82,3 +82,27 @@ export function drawGrid(ctx, vp, { grid = '#e0e0e0', axis = '#111' } = {}) {
 }
 
 export const fmt = (n, d = 1) => (Math.abs(n) < 0.5 * 10 ** -d ? 0 : n).toFixed(d);
+
+// ---------- Fase 2: URL state, banner "intinya", preset ----------
+/** Baca state dari URL (?a=1&b=2) sebagai objek string. */
+export const readState = () => Object.fromEntries(new URLSearchParams(location.search));
+/** Tulis state ke URL tanpa reload, supaya kondisi apa pun bisa dibagikan lewat tautan. */
+export function writeState(obj) {
+  const q = new URLSearchParams();
+  for (const k in obj) if (obj[k] !== undefined && obj[k] !== '') q.set(k, obj[k]);
+  const s = q.toString();
+  history.replaceState(null, '', location.pathname + (s ? '?' + s : '') + location.hash);
+}
+/** Banner "Intinya" di atas semua panel. `html` boleh memuat <b>. */
+export function addBanner(html, container = document.querySelector('.app-container')) {
+  const d = document.createElement('div'); d.className = 'banner';
+  d.innerHTML = `<span class="banner-tag">💡 INTINYA</span><span>${html}</span>`;
+  container.prepend(d); return d;
+}
+/** Deretan tombol preset. onPick(item) dipanggil saat tombol ditekan. */
+export function addPresets(host, list, onPick, before = null) {
+  const d = document.createElement('div'); d.className = 'presets';
+  d.innerHTML = '<div class="presets-title">Coba ini:</div>';
+  list.forEach((p) => { const b = document.createElement('button'); b.type = 'button'; b.className = 'preset-btn'; b.textContent = p.label; b.onclick = () => onPick(p); d.appendChild(b); });
+  host.insertBefore(d, before); return d;
+}
