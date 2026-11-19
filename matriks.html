@@ -139,7 +139,7 @@
   </div>
 
 <script type="module">
-import { setupCanvas, Smoother, Viewport, addBanner, addPresets, readState, writeState } from './shared/core.js';
+import { setupCanvas, Smoother, Viewport, addBanner, addPresets, readState, writeState, stableBox } from './shared/core.js';
 import { initMissions } from './shared/missions.js';
 let urlReady = false, showArea = false;
 // ==========================================
@@ -406,6 +406,7 @@ if (st.m === '2x2' || st.m === '3x3') {
   bukaApp(st.m);
 }
 urlReady = true;
+stableBox(els2.info); stableBox(els3.info);
 const stM = () => ({ m2: getMatrix2(), m3: getMatrix3().flat(), area: showArea });
 initMissions('matriks', stM, document.getElementById('app-2x2'), (m) => m.app === '2x2');
 initMissions('matriks', stM, document.getElementById('app-3x3'), (m) => m.app === '3x3');
