@@ -33,11 +33,12 @@
     </div>
   </div>
 <script type="module">
-import { setupCanvas, Smoother, Viewport, drawGrid, fmt } from './shared/core.js';
+import { setupCanvas, Smoother, Viewport, drawGrid, fmt, addBanner, addPresets, readState, writeState } from './shared/core.js';
 const $ = (id) => document.getElementById(id);
 const { ctx, W, H } = setupCanvas($('cv'), 600);
 const vp = new Viewport(W, H, { scale: 40, min: 2, max: 200 });
 const sl = { a: $('slider-a'), b: $('slider-b'), c: $('slider-c') };
+let hl = null; // bagian rumus yang sedang di-hover
 
 function draw({ a, b, c }) {
   drawGrid(ctx, vp);
@@ -67,6 +68,14 @@ function draw({ a, b, c }) {
     ctx.fillStyle = '#111'; ctx.font = 'bold 12px monospace'; ctx.fillText(label, px + 10, py - 10);
   };
 
+  if (hl === 'c') dot(0, c, '#ffe566', `c = ${fmt(c)}: memotong sumbu Y di sini`);
+  if (hl === 'b' && !isLine) { const [sx] = vp.w2p(-b / (2 * a), 0); ctx.strokeStyle = '#b500ff'; ctx.lineWidth = 5; ctx.beginPath(); ctx.moveTo(sx, 0); ctx.lineTo(sx, H); ctx.stroke(); }
+  if (hl === 'a') {
+    ctx.strokeStyle = 'rgba(255,42,85,.4)'; ctx.lineWidth = 2; ctx.setLineDash([6, 4]); ctx.beginPath(); let g = false;
+    for (let px = 0; px <= W; px += 2) { const [wx] = vp.p2w(px, 0), [, py] = vp.w2p(wx, a * wx * wx); if (py > -2000 && py < H + 2000) { g ? ctx.lineTo(px, py) : ctx.moveTo(px, py); g = true; } else g = false; }
+    ctx.stroke(); ctx.setLineDash([]); ctx.fillStyle = '#111'; ctx.font = 'bold 13px monospace';
+    ctx.fillText(`a = ${fmt(a)}: bentuk dasar (puncak di 0,0), ${Math.abs(a) > 1 ? 'sempit' : 'lebar'}`, 12, 22);
+  }
   if (isLine) {
     info = 'Karena a ≈ 0, ini <b>garis lurus</b>, bukan parabola. Geser a menjauhi 0 untuk melihat kurvanya muncul.';
   } else {
@@ -88,11 +97,23 @@ const sm = new Smoother({ a: 1, b: 0, c: 0 }, draw, { rate: 10, eps: 0.005 });
 function onSlide() {
   const t = { a: +sl.a.value, b: +sl.b.value, c: +sl.c.value };
   for (const k of ['a', 'b', 'c']) { $('val-' + k).textContent = $('lbl-' + k).textContent = fmt(t[k]); }
-  sm.set(t);
+  sm.set(t); writeState(t);
 }
 Object.values(sl).forEach((el) => el.addEventListener('input', onSlide));
 vp.attach($('cv'), () => sm.redraw(), { zin: $('z_in'), zout: $('z_out'), reset: $('z_reset') });
-sm.redraw();
+const setVals = (v) => { ['a', 'b', 'c'].forEach((k, i) => (sl[k].value = v[i])); onSlide(); };
+addBanner('Nilai <b>a</b> mengatur arah dan lebar parabola, <b>b</b> menggeser puncaknya ke kiri atau kanan, dan <b>c</b> adalah titik potong dengan sumbu Y. Arahkan kursor ke a, b, atau c di rumus untuk melihat peran masing-masing.');
+addPresets($('info-panel').parentElement, [
+  { label: 'Dua akar', v: [1, -4, 3] }, { label: 'Menyinggung sumbu X', v: [1, -4, 4] }, { label: 'Tanpa akar', v: [1, 0, 2] },
+  { label: 'Membuka ke bawah', v: [-1, 2, 3] }, { label: 'Sempit & curam', v: [4, 0, -2] }], (p) => setVals(p.v), $('info-panel'));
+for (const k of ['a', 'b', 'c']) for (const e of [$('lbl-' + k), $('val-' + k).parentElement]) {
+  e.classList.add('hov'); e.addEventListener('pointerenter', () => { hl = k; sm.redraw(); }); e.addEventListener('pointerleave', () => { hl = null; sm.redraw(); });
+}
+const st = readState();
+if (['a', 'b', 'c'].some((k) => k in st)) {
+  ['a', 'b', 'c'].forEach((k) => { if (st[k] !== undefined && isFinite(+st[k])) sl[k].value = Math.max(+sl[k].min, Math.min(+sl[k].max, +st[k])); });
+  onSlide();
+} else sm.redraw();
 </script>
 </body>
 </html>
