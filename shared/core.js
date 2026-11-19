@@ -106,3 +106,13 @@ export function addPresets(host, list, onPick, before = null) {
   list.forEach((p) => { const b = document.createElement('button'); b.type = 'button'; b.className = 'preset-btn'; b.textContent = p.label; b.onclick = () => onPick(p); d.appendChild(b); });
   host.insertBefore(d, before); return d;
 }
+
+/** Cegah kotak teks "bergetar": tinggi kotak hanya boleh naik (tidak pernah turun) saat isinya berubah. */
+export function stableBox(el) {
+  let queued = false;
+  const grow = () => { queued = false; const h = el.offsetHeight; if (h > (parseFloat(el.style.minHeight) || 0)) el.style.minHeight = h + 'px'; };
+  const q = () => { if (!queued) { queued = true; requestAnimationFrame(grow); } };
+  new MutationObserver(q).observe(el, { childList: true, characterData: true, subtree: true });
+  addEventListener('resize', () => { el.style.minHeight = ''; q(); });
+  q();
+}
