@@ -38,6 +38,7 @@
   .hint{font-size:.8rem;margin-top:15px;font-weight:500;background:var(--hl-yellow);padding:8px 12px;border:2px solid var(--ink);border-radius:6px}
   .hint-mobile{display:none}
   canvas{background:#1a1a1e}
+  .preset-btn.on{background:var(--hl-yellow)}
   .zoom-badge{position:absolute;bottom:12px;left:12px;font-size:.75rem;font-weight:700;background:#fff;padding:4px 10px;border-radius:4px;border:2px solid var(--ink)}
   @media(max-width:800px){
     body{overflow-y:auto;touch-action:pan-y}
@@ -139,7 +140,7 @@
 
 <script type="module">
 import { setupCanvas, Smoother, Viewport, addBanner, addPresets, readState, writeState } from './shared/core.js';
-let urlReady = false;
+let urlReady = false, showArea = false;
 // ==========================================
 // GLOBAL & NAVIGASI
 // ==========================================
@@ -196,7 +197,7 @@ const sm2 = new Smoother({ m0: 1, m1: 0.5, m2: 0, m3: 1.5 }, (c) => {
 }, { rate: 10, eps: 0.001 });
 function updateMatrix2Smoothly() {
   const m = getMatrix2(); targetMatrix2 = m; sm2.set({ m0: m[0], m1: m[1], m2: m[2], m3: m[3] });
-  if (urlReady) writeState({ m: '2x2', v: m.join(',') });
+  if (urlReady) writeState({ m: '2x2', v: m.join(','), l: showArea ? 1 : undefined });
 }
 
 function w2p2(x,y) { return [ view2.cx + x*view2.scale, view2.cy - y*view2.scale ]; }
@@ -230,17 +231,46 @@ function arrow2(x0,y0,x1,y1,color,{dashed=false, width=3, label=null}={}) {
   ctx2.restore();
 }
 
+// Mode Luas: determinan = faktor perubahan luas. Kisi satuan ikut berubah bentuk,
+// kotak 1x1 (luas 1) jadi jajar genjang dengan luas |ad - bc|. det < 0 berarti bidang "terbalik" (seperti dicermin).
+function drawAreaExtras(a, b, c, d, det) {
+  const ctx = ctx2, N = 8, flat = Math.abs(det) < 0.005;
+  ctx.save(); ctx.strokeStyle = 'rgba(196,138,255,0.35)'; ctx.lineWidth = 1; ctx.beginPath();
+  for (let n = -N; n <= N; n++) {
+    ctx.moveTo(...w2p2(n * a - N * b, n * c - N * d)); ctx.lineTo(...w2p2(n * a + N * b, n * c + N * d));
+    ctx.moveTo(...w2p2(-N * a + n * b, -N * c + n * d)); ctx.lineTo(...w2p2(N * a + n * b, N * c + n * d));
+  }
+  ctx.stroke();
+  ctx.setLineDash([5, 4]); ctx.strokeStyle = 'rgba(255,255,255,0.75)'; ctx.lineWidth = 2; ctx.beginPath();
+  [[0, 0], [1, 0], [1, 1], [0, 1]].forEach(([x, y], i) => { const [px, py] = w2p2(x, y); i ? ctx.lineTo(px, py) : ctx.moveTo(px, py); });
+  ctx.closePath(); ctx.stroke(); ctx.setLineDash([]);
+  if (!flat) { // busur arah putar dari i' ke j'
+    const [ox, oy] = w2p2(0, 0); ctx.strokeStyle = det > 0 ? '#c48aff' : '#ffa028'; ctx.lineWidth = 3; ctx.beginPath();
+    ctx.arc(ox, oy, 24, Math.atan2(-c, a), Math.atan2(-d, b), det > 0); ctx.stroke();
+  }
+  ctx.font = 'bold 12px "Space Grotesk", monospace'; ctx.textAlign = 'center'; ctx.fillStyle = '#fff';
+  const [ux, uy] = w2p2(0.5, -0.3); ctx.fillText('luas awal = 1', ux, uy);
+  const [cx, cy] = w2p2((a + b) / 2, (c + d) / 2);
+  ctx.font = 'bold 15px "Space Grotesk", monospace'; ctx.lineWidth = 4; ctx.strokeStyle = '#1a1a1e'; ctx.fillStyle = flat ? '#ff6b6b' : '#fff';
+  const t1 = flat ? 'luas = 0 (gepeng)' : `luas = |${fmt(det)}| = ${fmt(Math.abs(det))}`;
+  ctx.strokeText(t1, cx, cy); ctx.fillText(t1, cx, cy);
+  if (det < -0.005) { ctx.font = 'bold 12px "Space Grotesk", monospace'; ctx.fillStyle = '#ffa028'; ctx.strokeText('terbalik (seperti cermin)', cx, cy + 18); ctx.fillText('terbalik (seperti cermin)', cx, cy + 18); }
+  ctx.restore();
+}
+
 function draw2D(matrix = currentMatrix2) {
   drawGrid2(); const [a,b,c,d] = matrix; const iPrime = [a, c]; const jPrime = [b, d];
   const pts = [ [0,0], iPrime, [iPrime[0]+jPrime[0], iPrime[1]+jPrime[1]], jPrime ].map(([x,y])=>w2p2(x,y));
   ctx2.save(); ctx2.beginPath(); ctx2.moveTo(...pts[0]); for(let k=1;k<pts.length;k++) ctx2.lineTo(...pts[k]); ctx2.closePath();
-  ctx2.fillStyle = 'rgba(181, 0, 255, 0.15)'; ctx2.strokeStyle = 'rgba(181, 0, 255, 0.8)'; ctx2.lineWidth = 2; ctx2.fill(); ctx2.stroke(); ctx2.restore();
+  const detv = a*d - b*c, neg = detv < -0.005; ctx2.fillStyle = neg ? 'rgba(255,160,40,0.22)' : 'rgba(181, 0, 255, 0.15)'; ctx2.strokeStyle = neg ? 'rgba(255,160,40,0.9)' : 'rgba(181, 0, 255, 0.8)'; ctx2.lineWidth = 2; ctx2.fill(); ctx2.stroke(); ctx2.restore();
+  if (showArea) drawAreaExtras(a, b, c, d, detv);
   arrow2(0,0, 1,0, 'rgba(255, 42, 85, 0.5)', {dashed:true, width:2}); arrow2(0,0, 0,1, 'rgba(0, 255, 136, 0.5)', {dashed:true, width:2});
   arrow2(0,0, iPrime[0], iPrime[1], '#ff2a55', { width:3.5, label:`i' (${fmt(iPrime[0])}, ${fmt(iPrime[1])})` }); arrow2(0,0, jPrime[0], jPrime[1], '#00ff88', { width:3.5, label:`j' (${fmt(jPrime[0])}, ${fmt(jPrime[1])})` });
   const dot2 = (x,y,color) => { const [px,py] = w2p2(x,y); ctx2.fillStyle = color; ctx2.beginPath(); ctx2.arc(px,py,5,0,Math.PI*2); ctx2.fill(); };
   dot2(iPrime[0],iPrime[1],'#ffe566'); dot2(jPrime[0],jPrime[1],'#c48aff');
   const tr = a+d, det = a*d-b*c; const angleI = Math.atan2(iPrime[1], iPrime[0]) * 180/Math.PI; const angleJ = Math.atan2(jPrime[1], jPrime[0]) * 180/Math.PI;
   els2.info.innerHTML = `Determinan: <b>${fmt(det)}</b> | Trace: <b>${fmt(tr)}</b><br><span style="color:#ff2a55; font-weight:bold;">i'</span> = (${fmt(iPrime[0])}, ${fmt(iPrime[1])}) → sudut <b>${fmt(angleI)}°</b><br><span style="color:#00ff88; font-weight:bold;">j'</span> = (${fmt(jPrime[0])}, ${fmt(jPrime[1])}) → sudut <b>${fmt(angleJ)}°</b><br>Luas = |det| = <b>${fmt(Math.abs(det))}</b>`;
+  if (showArea) els2.info.innerHTML += `<br><b>det = ad − bc</b> = ${fmt(a)}×${fmt(d)} − ${fmt(b)}×${fmt(c)} = <b>${fmt(det)}</b><br>Luas bangun menjadi <b>${fmt(Math.abs(det))}×</b> luas awal` + (det < -0.005 ? ' dan bidangnya <b>terbalik</b>.' : Math.abs(det) < 0.005 ? ' : bidang <b>gepeng</b> jadi garis atau titik.' : '.');
   els2.badge.textContent = Math.round(view2.scale / 80 * 100) + '%';
 }
 
@@ -355,7 +385,7 @@ for (let i = 0; i < 3; i++) for (let j = 0; j < 3; j++) ids3.push(`m3_${i}${j}`)
 const fill = (ids, v) => ids.forEach((id, i) => (document.getElementById(id).value = v[i]));
 const put2 = (v) => { fill(ids2, v); updateMatrix2Smoothly(); };
 const put3 = (v) => { fill(ids3, v); updateMatrix3Smoothly(); };
-addBanner('Setiap matriks 2×2 adalah "resep" untuk mengubah seluruh bidang. <b>Kolom pertama</b> menunjukkan ke mana vektor <b>i</b> (1,0) pergi, dan <b>kolom kedua</b> ke mana vektor <b>j</b> (0,1) pergi.', document.getElementById('app-2x2'));
+addBanner('Setiap matriks 2×2 adalah "resep" untuk mengubah seluruh bidang. <b>Kolom pertama</b> menunjukkan ke mana vektor <b>i</b> (1,0) pergi, dan <b>kolom kedua</b> ke mana vektor <b>j</b> (0,1) pergi. Nyalakan <b>Mode Luas</b> untuk melihat bahwa luas jajar genjang = determinan.', document.getElementById('app-2x2'));
 addBanner('Matriks 3×3 melakukan hal yang sama di ruang 3D: tiap <b>kolom</b> menentukan ke mana sumbu x, y, dan z berpindah. Putar kamera dengan drag untuk melihatnya dari sudut lain.', document.getElementById('app-3x3'));
 addPresets(document.getElementById('info-2x2').parentElement, [
   { label: 'Identitas', v: [1, 0, 0, 1] }, { label: 'Putar 90°', v: [0, -1, 1, 0] }, { label: 'Cermin sumbu X', v: [1, 0, 0, -1] },
@@ -363,7 +393,12 @@ addPresets(document.getElementById('info-2x2').parentElement, [
 addPresets(document.getElementById('info-3x3').parentElement, [
   { label: 'Identitas', v: [1, 0, 0, 0, 1, 0, 0, 0, 1] }, { label: 'Skala 2x', v: [2, 0, 0, 0, 2, 0, 0, 0, 2] }, { label: 'Putar sumbu Z 90°', v: [0, -1, 0, 1, 0, 0, 0, 0, 1] },
   { label: 'Cermin bidang XY', v: [1, 0, 0, 0, 1, 0, 0, 0, -1] }, { label: 'Geser (shear)', v: [1, 0, 1, 0, 1, 0, 0, 0, 1] }], (p) => put3(p.v), document.getElementById('info-3x3'));
+const bArea = document.createElement('button'); bArea.type = 'button'; bArea.className = 'preset-btn';
+const syncArea = () => { bArea.classList.toggle('on', showArea); bArea.textContent = '📐 Mode Luas (determinan): ' + (showArea ? 'NYALA' : 'MATI'); };
+bArea.onclick = () => { showArea = !showArea; syncArea(); updateMatrix2Smoothly(); sm2.redraw(); };
+const infoBox2 = document.getElementById('info-2x2'); infoBox2.parentElement.insertBefore(bArea, infoBox2); syncArea();
 const st = readState();
+if (st.l === '1') { showArea = true; syncArea(); }
 if (st.m === '2x2' || st.m === '3x3') {
   const v = (st.v || '').split(',').map(Number), n = st.m === '2x2' ? 4 : 9;
   if (v.length === n && v.every(isFinite)) (st.m === '2x2' ? put2 : put3)(v);
