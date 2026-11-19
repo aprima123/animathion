@@ -6,5 +6,6 @@ export const lessons = [
   { href: 'transformasi.html', icon: '🪞', title: 'Geometri Transformasi', color: 'var(--hl-pink)',   desc: 'Lihat bagaimana bangun datar bergeser, berputar, membesar, dan memantul di cermin secara interaktif.' },
   { href: 'linear.html',       icon: '↗️', title: 'Persamaan Linear & Gradien', color: 'var(--hl-blue)', desc: 'Pahami gradien dan titik potong sumbu Y. Lalu pertemukan dua garis dan lihat titik potongnya menjadi solusi sistem persamaan (SPLDV).' },
   { href: 'eksponen.html',     icon: '🔁', title: 'Eksponen & Logaritma', color: '#ffb86b', desc: 'Logaritma adalah kebalikan eksponen. Lihat dua grafik ini saling bercermin pada garis y = x, dan saksikan satu grafik berubah menjadi yang lain.' },
+  { href: 'turunan.html',      icon: '🎢', title: 'Turunan (Kemiringan Kurva)', color: '#9be7c4', desc: 'Dekatkan dua titik pada kurva sampai garis potong menjadi garis singgung. Lihat kemiringan itu menggambar grafik turunannya sendiri.' },
   { href: 'pythagoras.html',   icon: '📐', title: 'Teorema Pythagoras',    color: 'var(--hl-yellow)', desc: 'Buktikan secara visual mengapa a² + b² = c². Lihat bagaimana luas persegi dari sisi alas dan tinggi mengisi luas persegi sisi miring.' },
 ];
