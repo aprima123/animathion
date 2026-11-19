@@ -2,7 +2,7 @@
 
 /** Canvas tajam di layar retina. Koordinat logis tetap W x H. */
 export function setupCanvas(cv, W = 600, H = W) {
-  const dpr = Math.min(window.devicePixelRatio || 1, 3);
+  const dpr = Math.min(window.devicePixelRatio || 1, 2);
   cv.width = W * dpr; cv.height = H * dpr;
   const ctx = cv.getContext('2d');
   ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
@@ -107,8 +107,26 @@ export function addPresets(host, list, onPick, before = null) {
   host.insertBefore(d, before); return d;
 }
 
+/** Batasi penulisan innerHTML ke ~11x/detik (nilai terakhir selalu tertulis) dan lewati tulisan yang isinya sama.
+ *  Animasi memanggil draw tiap frame; menulis DOM tiap frame membuat layout + repaint berat di layar besar/retina. */
+export function throttleHTML(el, ms = 90) {
+  const d = Object.getOwnPropertyDescriptor(Element.prototype, 'innerHTML');
+  let last = null, pending = null, timer = 0, lastTime = 0;
+  const flush = () => { timer = 0; lastTime = performance.now(); d.set.call(el, pending); };
+  Object.defineProperty(el, 'innerHTML', {
+    configurable: true,
+    get() { return pending !== null ? pending : d.get.call(el); },
+    set(v) {
+      if (v === last) return; last = pending = v;
+      const wait = ms - (performance.now() - lastTime);
+      if (wait <= 0) { if (timer) { clearTimeout(timer); } flush(); } else if (!timer) timer = setTimeout(flush, wait);
+    },
+  });
+}
+
 /** Cegah kotak teks "bergetar": tinggi kotak hanya boleh naik (tidak pernah turun) saat isinya berubah. */
 export function stableBox(el) {
+  throttleHTML(el);
   let queued = false;
   const grow = () => { queued = false; const h = el.offsetHeight; if (h > (parseFloat(el.style.minHeight) || 0)) el.style.minHeight = h + 'px'; };
   const q = () => { if (!queued) { queued = true; requestAnimationFrame(grow); } };
