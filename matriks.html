@@ -141,6 +141,7 @@
 <script type="module">
 import { setupCanvas, Smoother, Viewport, addBanner, addPresets, readState, writeState, stableBox } from './shared/core.js';
 import { initMissions } from './shared/missions.js';
+import { attachNumpad } from './shared/numpad.js';
 let urlReady = false, showArea = false;
 // ==========================================
 // GLOBAL & NAVIGASI
@@ -406,6 +407,8 @@ if (st.m === '2x2' || st.m === '3x3') {
   bukaApp(st.m);
 }
 urlReady = true;
+attachNumpad(['m2_00', 'm2_01', 'm2_10', 'm2_11'].map((id) => document.getElementById(id)), { allowNegative: true, labelFn: (i) => `Matriks 2×2: baris ${(i >> 1) + 1}, kolom ${(i % 2) + 1}` });
+attachNumpad(els3.inputs, { allowNegative: true, labelFn: (i) => `Matriks 3×3: baris ${Math.floor(i / 3) + 1}, kolom ${(i % 3) + 1}` });
 stableBox(els2.info); stableBox(els3.info);
 const stM = () => ({ m2: getMatrix2(), m3: getMatrix3().flat(), area: showArea });
 initMissions('matriks', stM, document.getElementById('app-2x2'), (m) => m.app === '2x2');
