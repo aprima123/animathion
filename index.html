@@ -18,6 +18,7 @@
   .card-icon{font-size:3rem;margin-bottom:15px}
   .card-title{font-size:1.5rem;font-weight:700;margin-bottom:10px;text-transform:uppercase}
   .card-desc{font-size:.95rem;color:#333;line-height:1.5}
+  .card-stars{align-self:flex-start;margin-top:14px;font:700 .85rem inherit;font-family:inherit;background:#fff;border:3px solid var(--ink);border-radius:8px;padding:4px 10px}
   .footer{margin-top:60px;display:flex;flex-direction:column;align-items:center;gap:15px}
   .about-btn{background:#fff;border:3px solid var(--ink);padding:10px 20px;border-radius:8px;font-weight:700;color:var(--ink);text-decoration:none;box-shadow:3px 3px 0 var(--ink);transition:.1s}
   .about-btn:hover{transform:translate(-2px,-2px);box-shadow:5px 5px 0 var(--ink)}
@@ -37,11 +38,13 @@
   </div>
 <script type="module">
 import { lessons } from './lessons.js';
+import { getProgress } from './shared/missions.js';
 const box = document.getElementById('catalog');
 lessons.forEach((l, i) => {
   const a = document.createElement('a');
+  const p = getProgress(l.href.replace('.html', ''));
   a.className = 'card'; a.href = l.href; a.style.background = l.color; a.style.animationDelay = (0.1 * (i + 1)) + 's';
-  a.innerHTML = `<div class="card-icon">${l.icon}</div><div class="card-title">${l.title}</div><div class="card-desc">${l.desc}</div>`;
+  a.innerHTML = `<div class="card-icon">${l.icon}</div><div class="card-title">${l.title}</div><div class="card-desc">${l.desc}</div><div class="card-stars">⭐ ${p.done}/${p.total} misi</div>`;
   box.appendChild(a);
 });
 </script>
