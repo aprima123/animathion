@@ -32,6 +32,7 @@
   </div>
 <script type="module">
 import { setupCanvas, Smoother, Viewport, drawGrid, fmt, addBanner, addPresets, readState, writeState, stableBox, onFrame } from './shared/core.js';
+import { initMissions } from './shared/missions.js';
 const $ = (id) => document.getElementById(id);
 const { ctx, W, H } = setupCanvas($('cv'), 600);
 const vp = new Viewport(W, H, { scale: 40, min: 4, max: 150 });
@@ -97,6 +98,7 @@ addPresets($('info-panel').parentElement, [{ label: '2³ = 8', b: 2, p: 3 }, { l
 const st = readState();
 if (K.some((k) => k in st)) apply(st); else sm.redraw();
 stableBox($('info-panel'));
+initMissions('eksponen', () => ({ ...sm.tgt }), document.querySelector('.app-container'));
 </script>
 </body>
 </html>
