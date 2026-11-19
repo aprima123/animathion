@@ -61,6 +61,7 @@
   </div>
 <script type="module">
 import { setupCanvas, addBanner, addPresets, readState, writeState } from './shared/core.js';
+import { initMissions } from './shared/missions.js';
 const $ = (id) => document.getElementById(id);
 const C = setupCanvas($('cv_circle'), 320, 320), Wv = setupCanvas($('cv_wave'), 600, 320), cu = setupCanvas($('cv_unwrap'), 600, 320).ctx;
 const cc = C.ctx, cw = Wv.ctx, R = 100, cx = 160, cy = 160;
@@ -176,6 +177,7 @@ $('uw-0').onclick = () => { tgtU = 0; $('unwrap-u').value = 0; };
 $('uw-1').onclick = () => { tgtU = 1; $('unwrap-u').value = 100; };
 if (st.v === 'unwrap') { tgtU = curU = 1; $('unwrap-u').value = 100; setMode('unwrap'); }
 requestAnimationFrame(frame);
+initMissions('trigonometri', () => { const r = tgt * Math.PI / 180; return { deg: tgt, sin: Math.sin(r), cos: Math.cos(r), mode, u: tgtU }; }, document.querySelector('.app-container'));
 </script>
 </body>
 </html>
