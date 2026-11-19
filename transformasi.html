@@ -50,6 +50,7 @@
   </div>
 <script type="module">
 import { setupCanvas, Smoother, Viewport, drawGrid, fmt, addBanner, addPresets, readState, writeState } from './shared/core.js';
+import { initMissions } from './shared/missions.js';
 const $ = (id) => document.getElementById(id);
 const { ctx, W, H } = setupCanvas($('cv'), 600);
 const vp = new Viewport(W, H, { scale: 40 });
@@ -142,6 +143,7 @@ addPresets($('info-panel').parentElement, [
 const st = readState();
 if (st.m || st.s) apply(st); else setMode('translasi');
 ready = true;
+initMissions('transformasi', () => ({ mode, ...sm.tgt, ref: $('select-ref').value, shape: shapeKey, Ap: tf(shapes.segitiga[0], sm.tgt) }), document.querySelector('.app-container'));
 </script>
 </body>
 </html>
