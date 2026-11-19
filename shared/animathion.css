@@ -49,3 +49,15 @@ canvas:active{cursor:grabbing}
   .panel{width:100%;max-width:500px;padding:15px}
 }
 @media(prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;animation-delay:0s!important;transition-duration:.01ms!important}}
+
+/* ===== Fase 2: banner, preset, hover rumus ===== */
+.banner{flex:1 0 100%;display:flex;gap:12px;align-items:center;background:var(--hl-yellow);border:3px solid var(--ink);border-radius:12px;
+  padding:12px 16px;box-shadow:var(--shadow);font-weight:500;line-height:1.5;opacity:0;animation:slideUp .5s var(--snap) forwards}
+.banner-tag{flex:none;background:var(--ink);color:#fff;font-weight:700;font-size:.75rem;padding:4px 8px;border-radius:6px;transform:rotate(-2deg)}
+.presets{margin:15px 0}
+.presets-title{font-weight:700;font-size:.8rem;text-transform:uppercase;margin-bottom:8px}
+.preset-btn{margin:0 6px 8px 0;padding:6px 10px;font:700 .8rem inherit;font-family:inherit;background:#fff;color:var(--ink);border:3px solid var(--ink);border-radius:8px;cursor:pointer;box-shadow:2px 2px 0 var(--ink);transition:.1s}
+.preset-btn:hover{background:var(--hl-green)}
+.preset-btn:active{transform:translate(2px,2px);box-shadow:none}
+.hov{cursor:help;border-bottom:3px dotted currentColor}
+@media(max-width:800px){.banner{flex-direction:column;align-items:flex-start;gap:6px;font-size:.9rem;max-width:500px}}
