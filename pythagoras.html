@@ -42,7 +42,7 @@
     </div>
   </div>
 <script type="module">
-import { setupCanvas, Smoother, Viewport, drawGrid, fmt } from './shared/core.js';
+import { setupCanvas, Smoother, Viewport, drawGrid, fmt, addBanner, addPresets, readState, writeState } from './shared/core.js';
 const $ = (id) => document.getElementById(id);
 const { ctx, W, H } = setupCanvas($('cv'), 600);
 const vp = new Viewport(W, H, { scale: 50, min: 10, max: 200 });
@@ -72,6 +72,7 @@ function solve() {
   }
   $('equation-panel').innerHTML = msg;
   sm.set({ a, b });
+  writeState(Object.fromEntries(['a', 'b', 'c'].filter((k) => el[k].dataset.auto !== '1' && el[k].value !== '').map((k) => [k, el[k].value])));
 }
 
 function draw({ a, b }) {
@@ -112,6 +113,11 @@ const sm = new Smoother({ a: 0, b: 0 }, draw, { rate: 10, eps: 0.005 });
 for (const k in el) el[k].addEventListener('input', () => { el[k].dataset.auto = '0'; solve(); });
 $('btn-reset').onclick = () => { el.a.value = 3; el.b.value = 4; el.c.value = ''; el.a.dataset.auto = el.b.dataset.auto = '0'; el.c.dataset.auto = '1'; solve(); };
 vp.attach($('cv'), () => sm.redraw(), { zin: $('z_in'), zout: $('z_out'), reset: $('z_reset') });
+const pick = (a, b) => { el.a.value = a; el.b.value = b; el.c.value = ''; el.a.dataset.auto = el.b.dataset.auto = '0'; el.c.dataset.auto = '1'; solve(); };
+addBanner('Pada segitiga siku-siku, luas persegi di sisi miring sama dengan jumlah luas persegi di dua sisi lainnya: <b>a² + b² = c²</b>.');
+addPresets($('btn-reset').parentElement, [{ label: '3-4-5', v: [3, 4] }, { label: '5-12-13', v: [5, 12] }, { label: '8-15-17', v: [8, 15] }, { label: '1-1-√2', v: [1, 1] }], (p) => pick(...p.v), $('btn-reset'));
+const st = readState(), has = ['a', 'b', 'c'].filter((k) => st[k] !== undefined && +st[k] > 0);
+if (has.length) for (const k of ['a', 'b', 'c']) { if (has.includes(k)) { el[k].value = st[k]; el[k].dataset.auto = '0'; } else { el[k].value = ''; el[k].dataset.auto = '1'; } }
 solve();
 </script>
 </body>
