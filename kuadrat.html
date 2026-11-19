@@ -30,7 +30,7 @@
     </div>
   </div>
 <script type="module">
-import { setupCanvas, Smoother, Viewport, drawGrid, fmt, addBanner, addPresets, readState, writeState, stableBox } from './shared/core.js';
+import { setupCanvas, Smoother, Viewport, drawGrid, fmt, addBanner, addPresets, readState, writeState, stableBox, onFrame } from './shared/core.js';
 import { initMissions } from './shared/missions.js';
 const $ = (id) => document.getElementById(id);
 const { ctx, W, H } = setupCanvas($('cv'), 600);
@@ -98,7 +98,7 @@ function onSlide() {
   $('sg-b').textContent = t.b < 0 ? '−' : '+'; $('sg-c').textContent = t.c < 0 ? '−' : '+';
   sm.set(t); writeState(t);
 }
-Object.values(sl).forEach((el) => el.addEventListener('input', onSlide));
+Object.values(sl).forEach((el) => el.addEventListener('input', onFrame(onSlide)));
 vp.attach($('cv'), () => sm.redraw(), { zin: $('z_in'), zout: $('z_out'), reset: $('z_reset') });
 const setVals = (v) => { ['a', 'b', 'c'].forEach((k, i) => (sl[k].value = v[i])); onSlide(); };
 addBanner('Nilai <b>a</b> mengatur arah dan lebar parabola, <b>b</b> menggeser puncaknya ke kiri atau kanan, dan <b>c</b> adalah titik potong dengan sumbu Y. Arahkan kursor ke a, b, atau c di rumus untuk melihat peran masing-masing.');
