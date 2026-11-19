@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Animathion - Persamaan Linear & Gradien</title>
+<link rel="stylesheet" href="shared/animathion.css">
+<style>
+  .tab-menu{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:15px}
+  .tab-btn{padding:8px 12px;font:700 .85rem inherit;font-family:inherit;background:#fff;color:var(--ink);border:3px solid var(--ink);border-radius:8px;cursor:pointer;transition:.1s}
+  .tab-btn:hover:not(.active){background:#eee}
+  .tab-btn.active{background:var(--hl-blue);box-shadow:2px 2px 0 var(--ink);transform:translate(-1px,-1px)}
+  .eq{text-align:center;font:700 1.4rem monospace;margin-bottom:12px}
+  .grp{display:none}.grp.on{display:block}
+  .control-label b.k1{color:#ff2a55}.control-label b.k2{color:#0098c4}
+</style>
+</head>
+<body>
+  <a href="index.html" class="back-btn">← MENU</a>
+  <div class="app-container">
+    <div class="panel" style="flex:1;min-width:300px">
+      <h2>Persamaan Garis Lurus</h2>
+      <div class="tab-menu" id="tabs"><button class="tab-btn active" data-v="satu">Satu garis</button><button class="tab-btn" data-v="dua">Dua garis (SPLDV)</button></div>
+      <div class="eq">y = <span id="lbl-m" style="color:#ff2a55">1</span>x + <span id="lbl-c" style="color:#b500ff">0</span></div>
+      <div class="eq" id="eq2" style="display:none">y = <span id="lbl-m2" style="color:#0098c4">−1</span>x + <span id="lbl-c2" style="color:#2d9f5d">4</span></div>
+      <div class="control-group"><div class="control-label"><span><b class="k1">m</b> (Gradien)</span> <span id="val-m">1</span></div><input type="range" id="sl-m" min="-5" max="5" step="0.1" value="1"></div>
+      <div class="control-group"><div class="control-label"><span><b>c</b> (Titik potong Y)</span> <span id="val-c">0</span></div><input type="range" id="sl-c" min="-10" max="10" step="0.1" value="0"></div>
+      <div class="grp" id="g-2">
+        <div class="control-group"><div class="control-label"><span><b class="k2">m₂</b> (Gradien garis 2)</span> <span id="val-m2">−1</span></div><input type="range" id="sl-m2" min="-5" max="5" step="0.1" value="-1"></div>
+        <div class="control-group"><div class="control-label"><span><b>c₂</b> (Potong Y garis 2)</span> <span id="val-c2">4</span></div><input type="range" id="sl-c2" min="-10" max="10" step="0.1" value="4"></div>
+      </div>
+      <div class="info-box" id="info-panel"></div>
+    </div>
+    <div class="panel canvas-wrap">
+      <h2>Grafik Garis</h2>
+      <canvas id="cv" aria-label="Grafik garis lurus"></canvas>
+      <div class="zoom-controls"><button id="z_in" title="Zoom in">+</button><button id="z_out" title="Zoom out">−</button><button id="z_reset" title="Reset">⟲</button></div>
+    </div>
+  </div>
+<script type="module">
+import { setupCanvas, Smoother, Viewport, drawGrid, fmt, addBanner, addPresets, readState, writeState } from './shared/core.js';
+const $ = (id) => document.getElementById(id);
+const { ctx, W, H } = setupCanvas($('cv'), 600);
+const vp = new Viewport(W, H, { scale: 40, min: 4, max: 200 });
+const K = ['m', 'c', 'm2', 'c2'], sl = Object.fromEntries(K.map((k) => [k, $('sl-' + k)]));
+let hl = null, mode = 'satu';
+
+function draw(s) {
+  drawGrid(ctx, vp);
+  const two = mode === 'dua';
+  const lines = [{ m: s.m, c: s.c, rgb: '255,42,85', km: 'm', kc: 'c' }];
+  if (two) lines.push({ m: s.m2, c: s.c2, rgb: '0,152,196', km: 'm2', kc: 'c2' });
+  const text = (t, x, y, col = '#111') => { ctx.fillStyle = col; ctx.font = 'bold 12px monospace'; ctx.textAlign = 'left'; ctx.fillText(t, x, y); };
+  const dot = (x, y, fill, label, r = 6) => {
+    const [px, py] = vp.w2p(x, y);
+    ctx.fillStyle = fill; ctx.beginPath(); ctx.arc(px, py, r, 0, Math.PI * 2); ctx.fill(); ctx.strokeStyle = '#111'; ctx.lineWidth = 2; ctx.stroke();
+    if (label) text(label, px + 10, py - 10);
+  };
+  const [xl] = vp.p2w(0, 0), [xr] = vp.p2w(W, 0);
+  for (const L of lines) { // garis
+    const [ax, ay] = vp.w2p(xl, L.m * xl + L.c), [bx, by] = vp.w2p(xr, L.m * xr + L.c);
+    ctx.strokeStyle = `rgb(${L.rgb})`; ctx.lineWidth = 3.5; ctx.beginPath(); ctx.moveTo(ax, ay); ctx.lineTo(bx, by); ctx.stroke();
+  }
+  for (const L of lines) { // segitiga gradien: geser 1 ke kanan, naik/turun m
+    const emph = hl === L.km, [ax, ay] = vp.w2p(0, L.c), [bx, by] = vp.w2p(1, L.c), [cx, cy] = vp.w2p(1, L.c + L.m);
+    ctx.fillStyle = `rgba(${L.rgb},${emph ? 0.3 : 0.1})`; ctx.beginPath(); ctx.moveTo(ax, ay); ctx.lineTo(bx, by); ctx.lineTo(cx, cy); ctx.closePath(); ctx.fill();
+    ctx.strokeStyle = `rgb(${L.rgb})`; ctx.lineWidth = emph ? 4 : 2; ctx.setLineDash([5, 4]); ctx.beginPath(); ctx.moveTo(ax, ay); ctx.lineTo(bx, by); ctx.stroke(); ctx.setLineDash([]);
+    ctx.beginPath(); ctx.moveTo(bx, by); ctx.lineTo(cx, cy); ctx.stroke();
+    text('1', (ax + bx) / 2 - 3, ay + (L.m >= 0 ? 15 : -7));
+    if (Math.abs(L.m) > 0.05) text(`m = ${fmt(L.m)}`, bx + 7, (by + cy) / 2 + 4, `rgb(${L.rgb})`);
+    dot(0, L.c, '#ffe566', emph || hl === L.kc || !two ? `(0, ${fmt(L.c)})` : '', hl === L.kc ? 9 : 6);
+  }
+  if (!two && Math.abs(s.m) > 0.05) dot(-s.c / s.m, 0, '#fff', `(${fmt(-s.c / s.m)}, 0)`);
+  const t = sm.tgt; let info;
+  if (!two) {
+    const m = t.m, dir = m > 0.05 ? 'naik' : m < -0.05 ? 'turun' : 'datar';
+    info = `Gradien <b>m = ${fmt(m)}</b>: garis <b>${dir}</b>` + (Math.abs(m) > 0.05 ? `, ${fmt(Math.abs(m))} satuan tiap geser 1 ke kanan.` : ' (sejajar sumbu X).') +
+      `<br>Memotong sumbu Y di <b>(0, ${fmt(t.c)})</b>` + (Math.abs(m) > 0.05 ? `<br>Memotong sumbu X di <b>(${fmt(-t.c / m)}, 0)</b>` : '');
+  } else if (Math.abs(t.m - t.m2) < 0.05) {
+    info = Math.abs(t.c - t.c2) < 0.05 ? 'Kedua garis <b>berimpit</b>: solusi sistem ada <b>tak hingga banyak</b>.' : 'Gradien sama, jadi kedua garis <b>sejajar</b>: sistem <b>tidak punya solusi</b>.';
+  } else {
+    const x = (t.c2 - t.c) / (t.m - t.m2), y = t.m * x + t.c;
+    info = `Kedua garis <b>berpotongan</b> di <b>(${fmt(x, 2)}, ${fmt(y, 2)})</b>.<br>Itulah solusi sistem: <b>x = ${fmt(x, 2)}</b> dan <b>y = ${fmt(y, 2)}</b>.` + (Math.abs(t.m * t.m2 + 1) < 0.05 ? '<br>Kedua garis <b>tegak lurus</b> (m₁ × m₂ = −1).' : '');
+  }
+  $('info-panel').innerHTML = info;
+  if (two && Math.abs(s.m - s.m2) > 0.05) { const x = (s.c2 - s.c) / (s.m - s.m2); dot(x, s.m * x + s.c, '#c48aff', `titik potong (${fmt(x)}, ${fmt(s.m * x + s.c)})`, 8); }
+}
+
+const sm = new Smoother({ m: 1, c: 0, m2: -1, c2: 4 }, draw, { rate: 10, eps: 0.005 });
+function onSlide() {
+  const t = Object.fromEntries(K.map((k) => [k, +sl[k].value]));
+  K.forEach((k) => { $('val-' + k).textContent = $('lbl-' + k).textContent = fmt(t[k]); });
+  sm.set(t); save();
+}
+function save() { const o = { m: sl.m.value, c: sl.c.value, v: mode === 'dua' ? 'dua' : undefined }; if (mode === 'dua') { o.m2 = sl.m2.value; o.c2 = sl.c2.value; } writeState(o); }
+function setMode(v) {
+  mode = v;
+  document.querySelectorAll('#tabs .tab-btn').forEach((b) => b.classList.toggle('active', b.dataset.v === v));
+  $('g-2').classList.toggle('on', v === 'dua'); $('eq2').style.display = v === 'dua' ? '' : 'none';
+  hl = null; sm.redraw(); save();
+}
+function apply(p) {
+  if (p.mode) setMode(p.mode);
+  K.forEach((k) => { if (p[k] !== undefined && isFinite(+p[k])) sl[k].value = Math.max(+sl[k].min, Math.min(+sl[k].max, +p[k])); });
+  onSlide();
+}
+Object.values(sl).forEach((el) => el.addEventListener('input', onSlide));
+$('tabs').addEventListener('click', (e) => { if (e.target.dataset.v) setMode(e.target.dataset.v); });
+for (const k of K) for (const e of [$('lbl-' + k), $('val-' + k).parentElement]) {
+  e.classList.add('hov'); e.addEventListener('pointerenter', () => { hl = k; sm.redraw(); }); e.addEventListener('pointerleave', () => { hl = null; sm.redraw(); });
+}
+vp.attach($('cv'), () => sm.redraw(), { zin: $('z_in'), zout: $('z_out'), reset: $('z_reset') });
+addBanner('<b>Gradien m</b> adalah seberapa curam garis naik tiap geser 1 ke kanan, dan <b>c</b> adalah tinggi titik potong sumbu Y. Dua garis yang berpotongan memberi <b>solusi sistem persamaan</b>: titik potongnya.');
+addPresets($('info-panel').parentElement, [
+  { label: 'Naik curam', m: 3, c: 0 }, { label: 'Turun', m: -1, c: 2 }, { label: 'Datar', m: 0, c: 3 }, { label: 'Lewat titik asal', m: 2, c: 0 },
+  { label: 'SPLDV: berpotongan', mode: 'dua', m: 1, c: 0, m2: -1, c2: 4 }, { label: 'SPLDV: sejajar', mode: 'dua', m: 2, c: 1, m2: 2, c2: -3 },
+  { label: 'SPLDV: berimpit', mode: 'dua', m: 1, c: 2, m2: 1, c2: 2 }, { label: 'SPLDV: tegak lurus', mode: 'dua', m: 2, c: 0, m2: -0.5, c2: 5 }], apply, $('info-panel'));
+const st = readState();
+if (['m', 'c', 'm2', 'c2', 'v'].some((k) => k in st)) apply({ ...st, mode: st.v === 'dua' ? 'dua' : undefined }); else sm.redraw();
+</script>
+</body>
+</html>
