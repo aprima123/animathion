@@ -20,6 +20,12 @@
   .canvas-box{width:100%;display:flex;justify-content:center}
   #cv_circle{max-width:320px;aspect-ratio:1/1;cursor:default}
   #cv_wave{max-width:600px;aspect-ratio:600/320;cursor:default}
+  #cv_unwrap{max-width:600px;aspect-ratio:600/320;cursor:default}
+  .tab-menu{display:flex;gap:8px;flex-wrap:wrap;width:100%}
+  .tab-btn{padding:8px 12px;font:700 .85rem inherit;font-family:inherit;background:#fff;color:var(--ink);border:3px solid var(--ink);border-radius:8px;cursor:pointer;transition:.1s}
+  .tab-btn:hover:not(.active){background:#eee}
+  .tab-btn.active{background:var(--hl-purple);box-shadow:2px 2px 0 var(--ink);transform:translate(-1px,-1px)}
+  .preset-row{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
 </style>
 </head>
 <body>
@@ -41,15 +47,22 @@
     </div>
     <div class="panel" style="flex:2;min-width:300px;display:flex;justify-content:center">
       <div class="canvas-container">
+        <div class="tab-menu" id="mode-tabs"><button class="tab-btn active" data-m="klasik">Lingkaran & gelombang</button><button class="tab-btn" data-m="unwrap">Unwrap: lingkaran → gelombang</button></div>
         <div class="canvas-box"><canvas id="cv_circle" aria-label="Lingkaran satuan"></canvas></div>
         <div class="canvas-box"><canvas id="cv_wave" aria-label="Gelombang sinus dan cosinus"></canvas></div>
+        <div class="canvas-box" id="box-unwrap" style="display:none"><canvas id="cv_unwrap" aria-label="Busur lingkaran diluruskan menjadi gelombang sinus"></canvas></div>
+        <div id="unwrap-ctrl" style="display:none;width:100%">
+          <div class="control-label">Lingkaran <span>↔ Gelombang</span></div>
+          <input type="range" id="unwrap-u" min="0" max="100" step="1" value="0" aria-label="Geser untuk meluruskan busur lingkaran">
+          <div class="preset-row"><button class="preset-btn" id="uw-0">Lingkaran</button><button class="preset-btn" id="uw-1">Gelombang</button></div>
+        </div>
       </div>
     </div>
   </div>
 <script type="module">
 import { setupCanvas, addBanner, addPresets, readState, writeState } from './shared/core.js';
 const $ = (id) => document.getElementById(id);
-const C = setupCanvas($('cv_circle'), 320, 320), Wv = setupCanvas($('cv_wave'), 600, 320);
+const C = setupCanvas($('cv_circle'), 320, 320), Wv = setupCanvas($('cv_wave'), 600, 320), cu = setupCanvas($('cv_unwrap'), 600, 320).ctx;
 const cc = C.ctx, cw = Wv.ctx, R = 100, cx = 160, cy = 160;
 const slider = $('slider-sudut'), btn = $('btn-play');
 
@@ -100,23 +113,68 @@ function draw(deg) {
   values(deg);
 }
 
+// Unwrap: tiap titik busur s (0..θ) bergerak dari (cos s, sin s) di lingkaran ke (s, sin s) di sumbu mendatar.
+// Tinggi (sin s) tidak berubah; hanya posisi mendatar yang "diluruskan". Panjang busur = θ (radian).
+function drawUnwrap(deg, u) {
+  const rad = deg * Math.PI / 180, e = u * u * (3 - 2 * u), cx0 = 110, cy0 = 160, R = 90, x0 = cx0 + R + 30, k = (580 - x0) / (2 * Math.PI);
+  const pos = (s) => [(1 - e) * (cx0 + R * Math.cos(s)) + e * (x0 + s * k), cy0 - R * Math.sin(s)];
+  cu.clearRect(0, 0, 600, 320); grid(cu, 600, 320, cx0, cy0);
+  line(cu, 0, cy0, 600, cy0, '#111');
+  cu.globalAlpha = 1 - e; line(cu, cx0, 0, cx0, 320, '#111'); cu.globalAlpha = e; line(cu, x0, 0, x0, 320, '#111'); cu.globalAlpha = 1;
+  const trace = (to, color, w, dash) => {
+    cu.strokeStyle = color; cu.lineWidth = w; cu.setLineDash(dash || []); cu.beginPath();
+    for (let s = 0; s <= to + 1e-9; s += 0.04) { const [x, y] = pos(s); s ? cu.lineTo(x, y) : cu.moveTo(x, y); }
+    const [ex, ey] = pos(to); cu.lineTo(ex, ey); cu.stroke(); cu.setLineDash([]);
+  };
+  trace(2 * Math.PI, 'rgba(0,0,0,.25)', 2, [5, 5]);
+  if (rad > 0.01) trace(rad, '#00a8d6', 4);
+  const [px, py] = pos(rad);
+  cu.globalAlpha = 1 - e; line(cu, cx0, cy0, px, py, '#111', 2); cu.globalAlpha = 1;
+  cu.globalAlpha = e;
+  line(cu, x0, cy0, x0 + rad * k, cy0, '#ff6fb5', 5); line(cu, px, py, px, cy0, '#333', 1.5, [4, 4]);
+  cu.fillStyle = '#111'; cu.font = 'bold 12px monospace'; cu.textAlign = 'center';
+  [[Math.PI / 2, 'π/2'], [Math.PI, 'π'], [1.5 * Math.PI, '3π/2'], [2 * Math.PI, '2π']].forEach(([s, t]) => cu.fillText(t, x0 + s * k, cy0 + 18));
+  if (rad > 0.3) cu.fillText(`θ = ${rad.toFixed(2)} rad`, x0 + rad * k / 2, cy0 + 36);
+  cu.globalAlpha = 1;
+  dot(cu, px, py, '#ffe566');
+  cu.fillStyle = '#111'; cu.font = 'bold 13px "Space Grotesk"'; cu.textAlign = 'left';
+  cu.fillText(e < 0.5 ? 'Titik bergerak di lingkaran satuan' : 'Busur diluruskan: tinggi titik = sin θ', 12, 22);
+  values(deg);
+}
+function save() { writeState({ t: Math.round(tgt), v: mode === 'unwrap' ? 'unwrap' : undefined }); }
+function setMode(m, user) {
+  mode = m; shown = -1; shownU = -1;
+  document.querySelectorAll('#mode-tabs .tab-btn').forEach((b) => b.classList.toggle('active', b.dataset.m === m));
+  const un = m === 'unwrap';
+  $('cv_circle').parentElement.style.display = $('cv_wave').parentElement.style.display = un ? 'none' : 'flex';
+  $('box-unwrap').style.display = un ? 'flex' : 'none'; $('unwrap-ctrl').style.display = un ? 'block' : 'none';
+  if (un && user) { curU = 0; tgtU = 1; $('unwrap-u').value = 100; if (tgt < 60) go(300); } // otomatis terbentang saat dibuka
+  save();
+}
+
 // Animasi berbasis waktu: 90°/detik saat play, peredaman halus saat slider digeser.
-let cur = 0, tgt = 0, playing = false, last = performance.now(), shown = -1;
+let cur = 0, tgt = 0, playing = false, last = performance.now(), shown = -1, curU = 0, tgtU = 0, shownU = -1, mode = 'klasik';
 function frame(now) {
   const dt = Math.min((now - last) / 1000, 0.05); last = now;
   if (playing) { tgt = (tgt + 90 * dt) % 360; cur = tgt; slider.value = Math.round(tgt); }
   else { const d = tgt - cur; cur = Math.abs(d) > 0.01 ? cur + d * (1 - Math.exp(-12 * dt)) : tgt; }
-  if (cur !== shown) { draw(cur); shown = cur; }
+  const du = tgtU - curU; curU = Math.abs(du) > 0.001 ? curU + du * (1 - Math.exp(-6 * dt)) : tgtU;
+  if (cur !== shown || curU !== shownU) { mode === 'unwrap' ? drawUnwrap(cur, curU) : draw(cur); shown = cur; shownU = curU; }
   requestAnimationFrame(frame);
 }
 function setPlaying(p) { playing = p; btn.textContent = p ? '⏸ Hentikan' : '▶ Putar Otomatis'; btn.classList.toggle('playing', p); }
-const go = (a) => { setPlaying(false); tgt = a; slider.value = a; if (Math.abs(cur - tgt) > 180) cur = tgt; writeState({ t: a }); };
+const go = (a) => { setPlaying(false); tgt = a; slider.value = a; if (Math.abs(cur - tgt) > 180) cur = tgt; save(); };
 slider.addEventListener('input', () => go(+slider.value));
 btn.addEventListener('click', () => setPlaying(!playing));
 addBanner('Titik di lingkaran satuan berkoordinat <b>(cos θ, sin θ)</b>. Saat θ berputar, <b>tinggi</b> titik menggambar gelombang sinus dan <b>lebarnya</b> menggambar gelombang cosinus.');
 addPresets($('btn-play').parentElement, [0, 30, 45, 60, 90, 180, 270].map((a) => ({ label: a + '°', a })), (p) => go(p.a), $('btn-play'));
 const st = readState();
 if (st.t !== undefined && isFinite(+st.t)) { tgt = cur = Math.max(0, Math.min(360, +st.t)); slider.value = tgt; }
+$('mode-tabs').addEventListener('click', (e) => { if (e.target.dataset.m) setMode(e.target.dataset.m, true); });
+$('unwrap-u').addEventListener('input', () => { tgtU = +$('unwrap-u').value / 100; });
+$('uw-0').onclick = () => { tgtU = 0; $('unwrap-u').value = 0; };
+$('uw-1').onclick = () => { tgtU = 1; $('unwrap-u').value = 100; };
+if (st.v === 'unwrap') { tgtU = curU = 1; $('unwrap-u').value = 100; setMode('unwrap'); }
 requestAnimationFrame(frame);
 </script>
 </body>
