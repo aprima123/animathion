@@ -1,7 +1,7 @@
 <div align="center">
-  
+
 # 📐 ANIMATHION
-  
+
 **Visualisasikan Matematika. Pahami Konsepnya. Jangan Cuma Hafal Rumus.**
 
 [![Website](https://img.shields.io/badge/🌐_Buka_Animathion-di_Sini-blue?style=for-the-badge&logo=github)](https://aprima123.github.io/animathion/)
@@ -13,45 +13,52 @@
 ---
 
 ## 🚀 Tentang Proyek Ini
-**Animathion** (Animation + Math) adalah sebuah platform edukasi interaktif yang dirancang untuk membantu siswa memahami konsep matematika abstrak melalui **visualisasi animasi secara real-time**. 
+**Animathion** (*Animation + Math*) adalah platform visualisasi matematika interaktif berbasis web untuk membantu siswa dan mahasiswa memahami konsep abstrak secara visual dan *real-time*.
 
-Banyak siswa kesulitan dalam matematika karena mereka hanya menghafal rumus tanpa tahu *apa yang sebenarnya terjadi* di baliknya. Melalui web ini, siswa dapat mengubah nilai, menggeser slider, dan melihat langsung bagaimana bentuk, posisi, dan grafik berubah secara langsung.
-
----
-
-## 📚 Katalog Pelajaran
-
-Saat ini, Animathion memiliki modul pelajaran berikut:
-
-| Ikon | Pelajaran | Deskripsi | Status |
-| :---: | :--- | :--- | :---: |
-| ⊞ | **Matriks 2x2 & 3x3** | Eksplorasi transformasi ruang 2D dan 3D. Lihat bagaimana matriks memutar, meregangkan, dan mencerminkan bidang. | ✅ Live |
-| 📈 | **Fungsi Kuadrat** | Pahami rahasia parabola. Ubah nilai `a`, `b`, dan `c` dan lihat bagaimana bentuk kurva serta titik puncaknya bergerak. | ✅ Live |
-| 🎡 | **Trigonometri** | Misteri Sinus dan Cosinus di lingkaran satuan. Putar sudutnya dan lihat bagaimana gelombang sinus serta cosinus terbentuk. | ✅ Live |
-| 🪞 | **Geometri Transformasi** | Lihat bagaimana bangun datar bergeser, berputar, membesar, dan memantul di cermin secara interaktif. | ✅ Live |
-| 📐 | **Teorema Pythagoras** | Buktikan secara visual mengapa `a² + b² = c²`. Lihat bagaimana luas persegi dari sisi alas dan tinggi mengisi luas persegi sisi miring. | ✅ Live |
+Alih-alih sekadar menghafal rumus mati, pengguna bisa menggeser slider variabel, menyorot komponen persamaan, dan melihat langsung bagaimana kurva, vektor, maupun bangun datar ber-**morphing** di atas kanvas.
 
 ---
 
-## ✨ Fitur Interaktif
-- **Live Animasi**: Grafik bergerak mulus mengikuti perubahan angka.
-- **Touch & Mouse Support**: Bisa dimainkan di laptop (scroll & drag) maupun di HP (pinch-to-zoom & swipe).
-- **Desain Neo-Brutalism**: Tampilan unik bergaya buku catatan dengan warna stabilo yang tidak membosankan.
-- **Kalkulasi Instan**: Menampilkan Determinan, Trace, Titik Puncak, Akar Persamaan, Tabel Koordinat, hingga rasio Trigonometri secara langsung.
+## 📚 Katalog Modul (8 Materi)
+
+| Ikon | Modul | File | Fitur Visualisasi Utama |
+| :---: | :--- | :--- | :--- |
+| ⊞ | **Matriks 2×2 & 3×3** | `matriks.html` | Transformasi ruang 2D & proyeksi 3D, pergeseran vektor basis `i′`, `j′`, `k′`, determinan, trace, serta **Mode Luas** (`\|ad − bc\|`). |
+| 📈 | **Fungsi Kuadrat** | `kuadrat.html` | Eksplorasi parabola `y = ax² + bx + c`, titik puncak, sumbu simetri, akar persamaan, diskriminan, serta *highlight* komponen rumus saat di-*hover*. |
+| 🎡 | **Trigonometri** | `trigonometri.html` | Lingkaran satuan `(cos θ, sin θ)`, 6 rasio trigonometri, gelombang sinus-cosinus, serta mode **Unwrap** yang meluruskan busur lingkaran menjadi gelombang. |
+| 🪞 | **Geometri Transformasi** | `transformasi.html` | Simulasi translasi, rotasi, dilatasi, dan refleksi pada 4 bangun datar lengkap dengan tabel koordinat `(x, y) → (x′, y′)` otomatis. |
+| ↗️ | **Persamaan Linear & Gradien** | `linear.html` | Visualisasi segitiga gradien `m`, titik potong sumbu Y, serta mode dua garis untuk melihat perpotongan sebagai solusi **SPLDV**. |
+| 🔁 | **Eksponen & Logaritma** | `eksponen.html` | Membuktikan hubungan invers eksponen dan logaritma lewat slider **Cermin** simetris terhadap garis `y = x`. |
+| 🎢 | **Turunan (Kemiringan Kurva)** | `turunan.html` | Pendekatan limit `h → 0` dari garis potong menjadi garis singgung, sekaligus menggambar grafik turunannya `f′(x)` di panel bawah. |
+| 📐 | **Teorema Pythagoras** | `pythagoras.html` | Kalkulator 3 sisi otomatis untuk mengecek segitiga siku-siku dan animasi **bukti potong-pindah** `a² + b² = c²`. |
 
 ---
 
-## 🛠️ Teknologi yang Digunakan
-Proyek ini dibangun murni menggunakan teknologi *web frontend* tanpa *framework* berat agar ringan dan cepat:
-- **HTML5 Canvas**: Untuk *rendering* grafik 2D, animasi kurva, dan proyeksi 3D.
-- **CSS3 Custom Properties**: Untuk manajemen warna dan tema Neo-Brutalism.
-- **Vanilla JavaScript**: Untuk semua logika matematika dan animasi *requestAnimationFrame*.
-- **Google Fonts**: Menggunakan font *Space Grotesk*.
+## ✨ Fitur Utama
+- **🎯 Mode Misi Otomatis (35 Misi):** Tersedia 5 tantangan bertingkat (🟢 Mudah, 🟡 Sedang, 🔴 Sulit) di 7 modul dengan evaluasi otomatis, *hint* bertahap, dan penyimpanan progres di `localStorage` tanpa perlu akun.
+- **🎞️ Animasi Morphing & Viewport Interaktif:** Transisi grafik berbasis waktu yang mulus di layar 60Hz maupun 120Hz, mendukung *scroll zoom* dan *drag* di laptop serta *pinch-to-zoom* di layar sentuh.
+- **⌨️ Custom Touch Numpad:** Papan angka bawaan khusus perangkat layar sentuh yang dilengkapi tombol tanda negatif (`±`) untuk memudahkan input angka minus di ponsel.
+- **🔗 Shareable URL State & Preset:** Perubahan parameter otomatis tersimpan ke *query* URL agar konfigurasi grafik bisa langsung dibagikan lewat tautan, dilengkapi preset *"Coba ini"* dan ringkasan *"Intinya"*.
+- **🎨 Desain Neo-Brutalism:** Antarmuka bergaya buku catatan kotak-kotak dengan kontras tinggi dan warna stabilo yang nyaman dibaca.
 
 ---
 
-## 💻 Cara Menjalankan Secara Lokal
-Karena ini adalah proyek web statis, kamu tidak perlu menginstal *server* apa pun.
-1. *Clone* repositori ini:
-   ```bash
-   git clone [https://github.com/aprima123/animathion.git](https://github.com/aprima123/animathion.git)
+## 🗂️ Struktur Proyek
+```text
+animathion/
+├── index.html          # Halaman utama & katalog modul dengan indikator progres misi
+├── about.html          # Halaman profil pembuat
+├── lessons.js          # Daftar konfigurasi seluruh modul pelajaran
+├── matriks.html        # Modul Matriks 2x2 & 3x3
+├── kuadrat.html        # Modul Fungsi Kuadrat
+├── trigonometri.html   # Modul Trigonometri & Unwrap
+├── transformasi.html   # Modul Geometri Transformasi
+├── linear.html         # Modul Persamaan Linear & SPLDV
+├── eksponen.html       # Modul Eksponen & Logaritma
+├── turunan.html        # Modul Turunan & Garis Singgung
+├── pythagoras.html     # Modul Teorema Pythagoras & Bukti Visual
+└── shared/
+    ├── animathion.css  # Design tokens & komponen UI Neo-Brutalism
+    ├── core.js         # Setup Hi-DPI canvas, Smoother, Viewport, & URL state
+    ├── missions.js     # Engine evaluasi 35 misi interaktif
+    └── numpad.js       # Custom touch number pad dengan tombol ±
